@@ -19,7 +19,7 @@ public class Payment {
     @ManyToOne
     @JoinColumn(name = "id_user", referencedColumnName = "id")
     private User idUser;
-    @ManyToOne
+    @OneToMany
     @JoinColumn(name = "course_code", referencedColumnName = "code")
     private Course courseCode;
     private Long amount;
