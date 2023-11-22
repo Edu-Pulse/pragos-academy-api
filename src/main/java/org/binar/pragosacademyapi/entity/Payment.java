@@ -17,17 +17,17 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "id_user", referencedColumnName = "id")
-    private User idUser;
-    @OneToMany
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
+    @ManyToOne
     @JoinColumn(name = "course_code", referencedColumnName = "code")
-    private Course courseCode;
+    private Course course;
     private Long amount;
     @Column(name = "payment_method")
     private String paymentMethod;
     private Boolean status;
     @Column(name = "payment_date")
     private LocalDateTime paymentDate;
-    private int rating;
+    private Integer rating;
 
 }
