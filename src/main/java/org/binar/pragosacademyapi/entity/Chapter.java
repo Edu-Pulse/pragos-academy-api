@@ -16,8 +16,8 @@ public class Chapter {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "cours_code", referencedColumnName = "code")
-    private String courseCode;
+    @JoinColumn(name = "course_code", referencedColumnName = "code")
+    private Course course;
     private String name;
     private String video;
     @Column(name = "material")

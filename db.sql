@@ -33,6 +33,8 @@ CREATE TABLE chapters(
     constraint fk_chapters_courses foreign key (course_code) references courses(code)
 );
 
+SELECT * FROM chapters;
+
 CREATE TABLE payments(
     id BIGSERIAL PRIMARY KEY ,
     user_id BIGINT NOT NULL ,
@@ -45,6 +47,10 @@ CREATE TABLE payments(
     constraint fk_payments_courses foreign key (course_code) references courses(code)
 );
 
+ALTER TABLE payments ADD COLUMN rating INT;
+
+SELECT * FROM payments;
+
 CREATE TABLE user_chapters(
     id BIGSERIAL PRIMARY KEY ,
     user_id BIGINT NOT NULL ,
@@ -53,3 +59,5 @@ CREATE TABLE user_chapters(
     constraint fk_user_chapters_users foreign key (user_id) references users(id),
     constraint fk_user_chapters_chapters foreign key (chapter_id) references chapters(id)
 );
+
+SELECT * FROM user_chapters;

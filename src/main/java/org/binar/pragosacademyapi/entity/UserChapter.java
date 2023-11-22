@@ -5,14 +5,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "payments")
-public class Payment {
+@Table(name = "user_chapters")
+public class UserChapter {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,14 +20,7 @@ public class Payment {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
     @ManyToOne
-    @JoinColumn(name = "course_code", referencedColumnName = "code")
-    private Course course;
-    private Long amount;
-    @Column(name = "payment_method")
-    private String paymentMethod;
-    private Boolean status;
-    @Column(name = "payment_date")
-    private LocalDateTime paymentDate;
-    private Integer rating;
-
+    @JoinColumn(name = "chapter_id", referencedColumnName = "id")
+    private Chapter chapter;
+    private Boolean isDone;
 }
