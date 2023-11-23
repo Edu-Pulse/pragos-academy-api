@@ -24,6 +24,7 @@ CREATE TABLE courses(
     constraint fk_courses_category foreign key (category_id) references categories(id)
 );
 ALTER TABLE courses ADD COLUMN lecturer VARCHAR(100) NOT NULL default 'Admin';
+ALTER TABLE courses ADD COLUMN intended_for TEXT NOT NULL default '';
 SELECT * FROM courses;
 
 CREATE TABLE categories(
