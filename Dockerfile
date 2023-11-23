@@ -1,10 +1,13 @@
+FROM maven:3.6.3-openjdk-8-slim AS builder
+WORKDIR /opt/app
+COPY . .
+RUN mvn -e clean verify
+
 FROM eclipse-temurin:20-jre
-RUN apk add --no-cache maven
-WORKDIR /java
-COPY . /java
-RUN mvn package -Dmaven.test.skip=true
+WORKDIR /opt/app
+COPY --from=builder /opt/app/target/*.jar ./
 ARG PORT
 ENV PORT=${PORT}
 RUN useradd runtime
 USER runtime
-ENTRYPOINT [ "java", "-Dserver.port=${PORT}", "-jar", "/java/target/pragos-academy-api-0.0.1-SNAPSHOT.jar" ]
+ENTRYPOINT [ "java", "-Dserver.port=${PORT}", "-jar", "/opt/app/*.jar" ]
