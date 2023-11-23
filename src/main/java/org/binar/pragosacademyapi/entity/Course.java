@@ -20,9 +20,12 @@ public class Course {
     private String description;
     @Enumerated(EnumType.STRING)
     private Level level;
-    private String category;
+    @ManyToOne
+    @JoinColumn(name = "category_id", referencedColumnName = "id")
+    private Category category;
     @Enumerated(EnumType.STRING)
     private Type type;
     private Integer price;
     private Integer discount;
+    private Integer rating;
 }
