@@ -23,7 +23,7 @@ CREATE TABLE courses(
     rating FLOAT NOT NULL ,
     constraint fk_courses_category foreign key (category_id) references categories(id)
 );
-
+ALTER TABLE courses ADD COLUMN lecturer VARCHAR(100) NOT NULL default 'Admin';
 SELECT * FROM courses;
 
 CREATE TABLE categories(
