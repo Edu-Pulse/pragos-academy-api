@@ -4,24 +4,35 @@ Create table users(
     email VARCHAR(200) UNIQUE NOT NULL ,
     phone VARCHAR(200) UNIQUE NOT NULL ,
     password VARCHAR NOT NULL ,
+    city VARCHAR NOT NULL ,
+    country VARCHAR NOT NULL ,
     image_profile VARCHAR ,
     role VARCHAR NOT NULL
 );
-
 SELECT * FROM users;
 
 CREATE TABLE courses(
     code VARCHAR(20) PRIMARY KEY ,
+    category_id INT NOT NULL ,
     name VARCHAR(100) NOT NULL ,
     description TEXT NOT NULL ,
     level VARCHAR NOT NULL ,
-    category VARCHAR NOT NULL ,
     type VARCHAR NOT NULL ,
     price INT NOT NULL ,
-    discount INT
+    discount INT,
+    rating FLOAT NOT NULL ,
+    constraint fk_courses_category foreign key (category_id) references categories(id)
 );
 
 SELECT * FROM courses;
+
+CREATE TABLE categories(
+    id INT PRIMARY KEY ,
+    name VARCHAR(50) NOT NULL ,
+    image VARCHAR(100) NOT NULL
+);
+
+SELECT * from categories;
 
 CREATE TABLE chapters(
     id BIGSERIAL PRIMARY KEY ,
@@ -43,11 +54,11 @@ CREATE TABLE payments(
     payment_method VARCHAR NOT NULL ,
     status boolean NOT NULL ,
     payment_date DATE ,
+    rating INT,
     constraint fk_payments_users foreign key (user_id) references users(id),
     constraint fk_payments_courses foreign key (course_code) references courses(code)
 );
 
-ALTER TABLE payments ADD COLUMN rating INT;
 
 SELECT * FROM payments;
 
