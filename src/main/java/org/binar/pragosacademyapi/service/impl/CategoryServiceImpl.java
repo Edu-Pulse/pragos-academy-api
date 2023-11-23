@@ -1,6 +1,5 @@
 package org.binar.pragosacademyapi.service.impl;
 
-import org.binar.pragosacademyapi.entity.Category;
 import org.binar.pragosacademyapi.entity.dto.CategoryDto;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.repository.CategoryRepository;
