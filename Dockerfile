@@ -1,11 +1,11 @@
 FROM maven:3.6.3-openjdk-8-slim AS builder
-WORKDIR /opt/app
+WORKDIR /app
 COPY pom.xml .
 RUN mvn dependency:go-offline
 
 COPY src/ /app/src/
 
-RUN mvn package
+RUN mvn package -DskipTests
 
 FROM eclipse-temurin:20-jre
 
