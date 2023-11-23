@@ -9,6 +9,7 @@ public class CourseDto {
     private String category;
     private String name;
     private String description;
+    private String lecturer;
     private String level;
     private String type;
     private Integer price;

@@ -7,6 +7,7 @@ import org.binar.pragosacademyapi.enumeration.Level;
 import org.binar.pragosacademyapi.enumeration.Type;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -18,6 +19,7 @@ public class Course {
     private String code;
     private String name;
     private String description;
+    private String lecturer;
     @Enumerated(EnumType.STRING)
     private Level level;
     @ManyToOne
@@ -28,4 +30,6 @@ public class Course {
     private Integer price;
     private Integer discount;
     private Integer rating;
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    List<Course> courses;
 }

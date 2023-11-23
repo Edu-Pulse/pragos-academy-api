@@ -2,6 +2,7 @@ package org.binar.pragosacademyapi.controller;
 
 import org.binar.pragosacademyapi.config.TokenProvider;
 import org.binar.pragosacademyapi.entity.request.LoginRequest;
+import org.binar.pragosacademyapi.entity.request.RegisterRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,8 +33,9 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping(
+    @PostMapping(
             value = "/login",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<Map<String, String>>> login(@RequestBody LoginRequest request){
@@ -52,5 +55,15 @@ public class UserController {
         response.setData(dataToken);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping(
+            value = "/register",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Response<String>> register(@RequestBody RegisterRequest request){
+        return ResponseEntity.ok(userService.register(request));
+    }
+
 
 }

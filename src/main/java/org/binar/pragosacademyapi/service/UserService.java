@@ -6,9 +6,9 @@ import org.binar.pragosacademyapi.entity.response.Response;
 
 public interface UserService {
 
-    Response<UserDto> getProfile(Long userId);
-    Response<UserDto> register(RegisterRequest user);
-    Response<String> update(Long userId, RegisterRequest updateUser);
-    Response<String> update(Long userId, String password);
+    Response<UserDto> getProfile();
+    Response<String> register(RegisterRequest user);
+    Response<String> update(RegisterRequest updateUser);
+    Response<String> update(String password);
 
 }
