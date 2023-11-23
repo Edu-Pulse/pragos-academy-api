@@ -34,6 +34,13 @@ CREATE TABLE categories(
 
 SELECT * from categories;
 
+INSERT INTO categories(id, name, image) VALUES (1, 'UI/UX Design', 'images/uiux.jpg');
+INSERT INTO categories(id, name, image) VALUES (2, 'Product Management', 'images/productmanagement.jpeg');
+INSERT INTO categories(id, name, image) VALUES (3, 'Web Development', 'images/webdevelopment.jpg');
+INSERT INTO categories(id, name, image) VALUES (4, 'Android Development', 'images/androiddevelopment.png');
+INSERT INTO categories(id, name, image) VALUES (5, 'IOS Development', 'images/iosdevelopment.jpg');
+INSERT INTO categories(id, name, image) VALUES (6, 'Data Science', 'images/datascience.png');
+
 CREATE TABLE chapters(
     id BIGSERIAL PRIMARY KEY ,
     course_code VARCHAR NOT NULL,
