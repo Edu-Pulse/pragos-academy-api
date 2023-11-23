@@ -1,13 +1,18 @@
 FROM maven:3.6.3-openjdk-8-slim AS builder
 WORKDIR /opt/app
-COPY . .
-RUN mvn -e clean verify
+COPY pom.xml .
+RUN mvn dependency:go-offline
+
+COPY src/ /app/src/
+
+RUN mvn package
 
 FROM eclipse-temurin:20-jre
-WORKDIR /opt/app
-COPY --from=builder /opt/app/target/*.jar ./
+
+WORKDIR /app
+COPY --from=builder /app/target/*.jar /app/app.jar
 ARG PORT
 ENV PORT=${PORT}
 RUN useradd runtime
 USER runtime
-ENTRYPOINT [ "java", "-Dserver.port=${PORT}", "-jar", "/opt/app/*.jar" ]
+ENTRYPOINT [ "java", "-Dserver.port=${PORT}", "-jar", "/app/app.jar" ]
