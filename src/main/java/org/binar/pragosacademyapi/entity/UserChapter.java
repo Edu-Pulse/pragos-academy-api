@@ -22,5 +22,6 @@ public class UserChapter {
     @ManyToOne
     @JoinColumn(name = "chapter_id", referencedColumnName = "id")
     private Chapter chapter;
+    @Column(name = "is_done")
     private Boolean isDone;
 }
