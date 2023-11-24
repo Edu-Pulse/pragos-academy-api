@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class CourseDto {
     private String code;
-    private byte[] image;
+    private String image;
     private String category;
     private String name;
     private String description;
