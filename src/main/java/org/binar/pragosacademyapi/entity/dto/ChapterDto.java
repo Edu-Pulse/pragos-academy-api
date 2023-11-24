@@ -7,8 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CategoryDto {
-    private Integer id;
+public class ChapterDto {
     private String name;
-    private String image;
+    private String video;
+    private String materi;
+    private String chapter;
 }

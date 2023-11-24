@@ -12,9 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,19 +37,25 @@ public class UserController {
     )
     public ResponseEntity<Response<Map<String, String>>> login(@RequestBody LoginRequest request){
         Response<Map<String, String>> response = new Response<>();
-        final Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        final String token = tokenProvider.generateToken(authentication);
-        response.setError(false);
-        response.setMessage("Login Berhasil");
-        Map<String, String> dataToken = new HashMap<>();
-        dataToken.put("token", token);
-        response.setData(dataToken);
+        if (userService.checkIsEnable(request.getEmail())){
+            final Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            final String token = tokenProvider.generateToken(authentication);
+            response.setError(false);
+            response.setMessage("Login Berhasil");
+            Map<String, String> dataToken = new HashMap<>();
+            dataToken.put("token", token);
+            response.setData(dataToken);
+        }else {
+            response.setError(true);
+            response.setMessage("Anda belum melakukan registrasi atau verifikasi email");
+            response.setData(null);
+        }
         return ResponseEntity.ok(response);
     }
 
@@ -64,5 +68,19 @@ public class UserController {
         return ResponseEntity.ok(userService.register(request));
     }
 
+    @GetMapping(
+            value = "/generate-code-verification",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Response<String>> generateCode(@RequestParam String email){
+        return ResponseEntity.ok(userService.generateCodeVerification(email));
+    }
+
+    @PutMapping(
+            value = "/verification"
+    )
+    public ResponseEntity<Response<String>> verification(@RequestParam String email, @RequestParam Integer code){
+        return ResponseEntity.ok(userService.verification(email, code));
+    }
 
 }

@@ -7,10 +7,6 @@ import org.binar.pragosacademyapi.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,17 +20,7 @@ public class CategoryServiceImpl implements CategoryService {
     public Response<List<CategoryDto>> listCategory() {
         Response<List<CategoryDto>> response = new Response<>();
         try {
-            List<CategoryDto> categories = categoryRepository.selectAll().stream().map(category -> {
-                CategoryDto categoryDto = new CategoryDto();
-                categoryDto.setId(category.getId());
-                categoryDto.setName(category.getName());
-                try {
-                    categoryDto.setImage(Files.readAllBytes(Paths.get(category.getImage())));
-                } catch (IOException e) {
-                    categoryDto.setImage(null);
-                }
-                return categoryDto;
-            }).collect(Collectors.toList());
+            List<CategoryDto> categories = categoryRepository.selectAll().stream().map(category -> new CategoryDto(category.getId(), category.getName(), category.getImage())).collect(Collectors.toList());
             response.setError(false);
             response.setMessage("success");
             response.setData(categories);
