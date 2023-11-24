@@ -20,8 +20,12 @@ public class User {
     private String email;
     private String phone;
     private String password;
+    private String city;
+    private String country;
     @Column(name = "image_profile")
     private String imageProfile;
     @Enumerated(EnumType.STRING)
     private Role role;
+    @Column(name = "is_enable")
+    private Boolean isEnable;
 }
