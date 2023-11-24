@@ -28,7 +28,7 @@ CREATE TABLE courses(
     constraint fk_courses_category foreign key (category_id) references categories(id)
 );
 
-
+SELECT * FROM courses;
 CREATE TABLE categories(
        id INT PRIMARY KEY ,
        name VARCHAR(50) NOT NULL ,
