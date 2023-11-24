@@ -9,7 +9,18 @@ Create table users(
     image_profile VARCHAR ,
     role VARCHAR NOT NULL
 );
+ALTER TABLE users ADD COLUMN is_enable BOOLEAN NOT NULL DEFAULT false;
 SELECT * FROM users;
+
+CREATE TABLE user_verifications(
+    id BIGSERIAL PRIMARY KEY ,
+    user_id BIGINT UNIQUE NOT NULL ,
+    verification_code INT NOT NULL ,
+    expired_at timestamp NOT NULL ,
+    CONSTRAINT fk_user_verifications_users FOREIGN KEY (user_id) references users(id)
+);
+
+SELECT * FROM user_verifications;
 
 CREATE TABLE courses(
     code VARCHAR(20) PRIMARY KEY ,
