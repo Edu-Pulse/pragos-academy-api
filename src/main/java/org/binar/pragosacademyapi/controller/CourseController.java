@@ -27,6 +27,7 @@ public class CourseController {
     }
 
     @GetMapping(
+            value = "/courses",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<List<CourseDto>>> listAllCourses() {
