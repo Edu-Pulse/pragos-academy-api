@@ -9,7 +9,18 @@ Create table users(
     image_profile VARCHAR ,
     role VARCHAR NOT NULL
 );
+ALTER TABLE users ADD COLUMN is_enable BOOLEAN NOT NULL DEFAULT false;
 SELECT * FROM users;
+
+CREATE TABLE user_verifications(
+    id BIGSERIAL PRIMARY KEY ,
+    user_id BIGINT UNIQUE NOT NULL ,
+    verification_code INT NOT NULL ,
+    expired_at timestamp NOT NULL ,
+    CONSTRAINT fk_user_verifications_users FOREIGN KEY (user_id) references users(id)
+);
+
+SELECT * FROM user_verifications;
 
 CREATE TABLE courses(
     code VARCHAR(20) PRIMARY KEY ,
@@ -35,12 +46,6 @@ CREATE TABLE categories(
 
 SELECT * from categories;
 
-INSERT INTO categories(id, name, image) VALUES (1, 'UI/UX Design', 'images/uiux.jpg');
-INSERT INTO categories(id, name, image) VALUES (2, 'Product Management', 'images/productmanagement.jpeg');
-INSERT INTO categories(id, name, image) VALUES (3, 'Web Development', 'images/webdevelopment.jpg');
-INSERT INTO categories(id, name, image) VALUES (4, 'Android Development', 'images/androiddevelopment.png');
-INSERT INTO categories(id, name, image) VALUES (5, 'IOS Development', 'images/iosdevelopment.jpg');
-INSERT INTO categories(id, name, image) VALUES (6, 'Data Science', 'images/datascience.png');
 
 CREATE TABLE chapters(
     id BIGSERIAL PRIMARY KEY ,

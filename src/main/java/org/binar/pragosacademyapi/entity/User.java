@@ -26,4 +26,6 @@ public class User {
     private String imageProfile;
     @Enumerated(EnumType.STRING)
     private Role role;
+    @Column(name = "is_enable")
+    private Boolean isEnable;
 }

@@ -10,5 +10,8 @@ public interface UserService {
     Response<String> register(RegisterRequest user);
     Response<String> update(RegisterRequest updateUser);
     Response<String> update(String password);
+    Response<String> generateCodeVerification(String email);
+    Response<String> verification(String email, Integer code);
+    boolean checkIsEnable(String email);
 
 }
