@@ -93,7 +93,39 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Response<String> update(RegisterRequest updateUser) {
-        return null;
+        Response<String> response = new Response<>();
+        try {
+            // Get the authenticated user's email from the context
+            String authenticatedUserEmail = getEmailUserContext();
+
+            // Check if the authenticated user is the same as the user being updated
+
+                User existingUser = userRepository.findByEmail(getEmailUserContext());
+
+                if (existingUser != null) {
+                    // Update user details
+                    existingUser.setName(updateUser.getName());
+                    existingUser.setPhone(updateUser.getPhone());
+                    existingUser.setCity(updateUser.getCity());
+                    existingUser.setCountry(updateUser.getCountry());
+
+                    userRepository.save(existingUser);
+
+                    response.setError(false);
+                    response.setMessage("Success");
+                    response.setData("Berhasil update data user dengan id " + existingUser.getId());
+                } else {
+                    response.setError(true);
+                    response.setMessage("Failed");
+                    response.setData("Gagal update data user dengan id " + existingUser.getId());
+                }
+
+        } catch (Exception e) {
+            response.setError(true);
+            response.setMessage("Terjadi kesalahan");
+            response.setData(null);
+        }
+        return response;
     }
 
     @Override

@@ -83,4 +83,12 @@ public class UserController {
         return ResponseEntity.ok(userService.verification(email, code));
     }
 
+    @PutMapping(
+            value = "/user/update",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Response<String>> updateuser(@RequestBody RegisterRequest request){
+        return ResponseEntity.ok(userService.update(request));
+    }
+
 }
