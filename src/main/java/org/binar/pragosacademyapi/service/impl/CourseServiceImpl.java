@@ -9,7 +9,6 @@ import org.binar.pragosacademyapi.repository.CourseRepository;
 import org.binar.pragosacademyapi.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
