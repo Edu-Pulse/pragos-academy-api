@@ -9,7 +9,7 @@ import org.binar.pragosacademyapi.repository.CourseRepository;
 import org.binar.pragosacademyapi.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.beans.BeanUtils;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,8 +19,23 @@ public class CourseServiceImpl implements CourseService {
     private CourseRepository courseRepository;
     @Override
     public Response<List<CourseDto>> listAllCourse() {
-        return null;
+        Response<List<CourseDto>> response = new Response<>();
+        try {
+            List<CourseDto> courseDtos = courseRepository.findAll().stream()
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
+
+            response.setError(false);
+            response.setMessage("Success to get all courses");
+            response.setData(courseDtos);
+        } catch (Exception e) {
+            response.setError(true);
+            response.setMessage("Failed to get all courses");
+            response.setData(null);
+        }
+        return response;
     }
+
 
     @Override
     public Response<CourseDetailDto> courseDetail(String courseCode) {
@@ -45,5 +60,15 @@ public class CourseServiceImpl implements CourseService {
             response.setData(null);
         }
         return response;
+    }
+
+    private CourseDto convertToDto(Course course) {
+        CourseDto dto = new CourseDto();
+        BeanUtils.copyProperties(course, dto);
+        dto.setCategory(course.getCategory().getName());
+        dto.setLevel(course.getLevel().toString());
+        dto.setType(course.getType().toString());
+        dto.setImage(course.getCategory().getImage()); // asumsikan category memiliki properti image
+        return dto;
     }
 }
