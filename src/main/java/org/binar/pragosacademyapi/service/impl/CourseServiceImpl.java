@@ -65,6 +65,9 @@ public class CourseServiceImpl implements CourseService {
     private CourseDto convertToDto(Course course) {
         CourseDto dto = new CourseDto();
         BeanUtils.copyProperties(course, dto);
+        dto.setCategory(course.getCategory().getName());
+        dto.setLevel(course.getLevel().toString());
+        dto.setType(course.getType().toString());
         dto.setImage(course.getCategory().getImage()); // asumsikan category memiliki properti image
         return dto;
     }
