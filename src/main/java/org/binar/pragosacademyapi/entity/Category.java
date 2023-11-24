@@ -17,5 +17,5 @@ public class Category {
     @Id
     private Integer id;
     private String name;
-    private String image;
+    private byte[] image;
 }

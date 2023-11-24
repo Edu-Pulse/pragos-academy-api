@@ -34,4 +34,5 @@ public class Course {
     private Integer rating;
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     List<Chapter> chapters;
+
 }
