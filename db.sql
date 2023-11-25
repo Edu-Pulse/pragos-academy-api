@@ -13,6 +13,16 @@ CREATE TABLE users(
 
 SELECT * FROM users;
 
+CREATE TABLE user_verifications(
+    id BIGSERIAL PRIMARY KEY ,
+    user_id BIGINT UNIQUE NOT NULL ,
+    verification_code INT NOT NULL ,
+    expired_at timestamp NOT NULL ,
+    constraint fk_user_verifications_users foreign key (user_id) references users(id)
+);
+
+SELECT * FROM user_verifications;
+
 CREATE TABLE courses(
     code VARCHAR(20) PRIMARY KEY ,
     category_id INT NOT NULL ,
