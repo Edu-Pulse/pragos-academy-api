@@ -28,4 +28,6 @@ public class User {
     private Role role;
     @Column(name = "is_enable")
     private Boolean isEnable;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private UserVerification userVerification;
 }
