@@ -84,6 +84,7 @@ public class UserController {
     public ResponseEntity<Response<String>> verification(@RequestParam String email, @RequestParam Integer code){
         return ResponseEntity.ok(userService.verification(email, code));
     }
+    @PreAuthorize("hasRole('USER')")
    @GetMapping(
            value = "/user",
            produces = MediaType.APPLICATION_JSON_VALUE
