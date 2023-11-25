@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     @Autowired
     private JavaMailSender mailSender;
-    private Random random = new Random();
+    private final Random random = new Random();
     @Autowired
     private UserVerificationRepository userVerificationRepository;
 
