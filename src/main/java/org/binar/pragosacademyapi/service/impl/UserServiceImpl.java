@@ -39,7 +39,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Response<UserDto> getProfile() {
-        return null;
+        User user = userRepository.findByEmail(getEmailUserContext());
+        Response<UserDto> response = new Response<>();
+        UserDto userDto = new UserDto();
+        userDto.setName(user.getName());
+        userDto.setCity(user.getCity());
+        userDto.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        userDto.setEmail(user.getEmail());
+        userDto.setCountry(user.getCountry());
+        userDto.setPhone(user.getPhone());
+        userDto.setImageProfile(null);
+        response.setError(false);
+        response.setMessage("Berhasil");
+        response.setData(userDto);
+        return response;
     }
 
     @Override
