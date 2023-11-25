@@ -19,7 +19,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Random;
@@ -33,7 +35,7 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     @Autowired
     private JavaMailSender mailSender;
-    private Random random = new Random();
+    private final Random random = new Random();
     @Autowired
     private UserVerificationRepository userVerificationRepository;
 
@@ -68,32 +70,18 @@ public class UserServiceImpl implements UserService {
             newuser.setCountry(user.getCountry());
             newuser.setRole(Role.USER);
             newuser.setIsEnable(false);
+            Integer code = random.nextInt(9999 - 1000) + 1000;
+            UserVerification userVerification = new UserVerification();
+            userVerification.setUser(newuser);
+            userVerification.setVerificationCode(code);
+            userVerification.setExpiredAt(LocalDateTime.now().plusMinutes(5));
+            newuser.setUserVerification(userVerification);
 
             userRepository.save(newuser);
             response.setError(true);
             response.setMessage("Success");
-            Integer code = random.nextInt(9999 - 1000) + 1000;
 
-            UserVerification userVerification = new UserVerification();
-            userVerification.setUser(newuser);
-            userVerification.setVerificationCode(code);
-            userVerification.setExpiredAt(LocalDateTime.now().plusHours(1));
-            userVerificationRepository.save(userVerification);
-
-            String toAddress = user.getEmail();
-            String fromAddress = "gunawann.dev@gmail.com";
-            String senderName = "Pragos Academy";
-            String subject = "Code verifikasi Pragos Academy";
-            String content = "Kode verifikasi anda: "+ code + " kode verifikasi akan expired dalam 1 jam. <b>Jangan kirimkan kode ini kesiapapun jika tidak mendaftar di pragos academy</b>";
-
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message);
-
-            helper.setFrom(fromAddress, senderName);
-            helper.setTo(toAddress);
-            helper.setSubject(subject);
-            helper.setText(content);
-            mailSender.send(message);
+            sendEmail(user.getEmail(), code);
             response.setData("Berhasil register. Silahkan cek email untuk kode verifikasi");
 
         }catch (Exception e){
@@ -121,24 +109,13 @@ public class UserServiceImpl implements UserService {
         try {
             User user = userRepository.findByEmail(email);
             if (user != null){
-                UserVerification userVerification = userVerificationRepository.findByUser_Id(user.getId());
-                userVerification.setUser(user);
+                UserVerification userVerification = user.getUserVerification();
                 userVerification.setVerificationCode(code);
-                userVerification.setExpiredAt(LocalDateTime.now().plusHours(1));
-                userVerificationRepository.save(userVerification);
-                String fromAddress = "gunawann.dev@gmail.com";
-                String senderName = "Pragos Academy";
-                String subject = "Code verifikasi Pragos Academy";
-                String content = "Kode verifikasi anda: "+ code + " kode verifikasi akan expired dalam 1 jam. Jangan kirimkan kode ini kesiapapun jika tidak mendaftar di pragos academy.";
+                userVerification.setExpiredAt(LocalDateTime.now().plusMinutes(5));
+                user.setUserVerification(userVerification);
+                userRepository.save(user);
 
-                MimeMessage message = mailSender.createMimeMessage();
-                MimeMessageHelper helper = new MimeMessageHelper(message);
-
-                helper.setFrom(fromAddress, senderName);
-                helper.setTo(email);
-                helper.setSubject(subject);
-                helper.setText(content);
-                mailSender.send(message);
+                sendEmail(email, code);
                 response.setError(false);
                 response.setMessage("Success");
                 response.setData("Kode verifikasi berhasil dikirim");
@@ -201,6 +178,20 @@ public class UserServiceImpl implements UserService {
         }catch (Exception e){
             return false;
         }
+    }
+
+    private void sendEmail(String email, Integer code) throws MessagingException, UnsupportedEncodingException {
+        String subject = "Code verifikasi Pragos Academy";
+        String content = "Kode verifikasi anda: "+ code + " kode verifikasi akan expired dalam 5 menit. Jangan kirimkan kode ini kesiapapun jika tidak mendaftar di pragos academy.";
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+
+        helper.setFrom("gunawann.dev@gmail.com", "Pragos Academy");
+        helper.setTo(email);
+        helper.setSubject(subject);
+        helper.setText(content);
+        mailSender.send(message);
     }
 
     private String getEmailUserContext(){
