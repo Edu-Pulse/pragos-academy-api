@@ -85,10 +85,10 @@ public class UserController {
         return ResponseEntity.ok(userService.verification(email, code));
     }
     @PreAuthorize("hasRole('USER')")
-   @GetMapping(
+    @GetMapping(
            value = "/user",
            produces = MediaType.APPLICATION_JSON_VALUE
-   )
+    )
     public ResponseEntity<Response<UserDto>>getDataUSer(){
         return ResponseEntity.ok(userService.getProfile());
    }
