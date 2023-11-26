@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
     private final Random random = new Random();
     @Autowired
     private UserVerificationRepository userVerificationRepository;
-    private final Path root = Paths.get("./app/uploads");
+    private final Path root = Paths.get("./uploads");
 
     @Override
     public Response<UserDto> getProfile() {
@@ -161,7 +161,7 @@ public class UserServiceImpl implements UserService {
             }
         }catch (Exception e){
             response.setError(true);
-            response.setMessage("Failed to update data "+e.getMessage());
+            response.setMessage("Failed to update data ");
             response.setData("Terjadi kesalahan");
         }
         return response;
