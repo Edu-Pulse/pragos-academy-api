@@ -4,12 +4,15 @@ import org.binar.pragosacademyapi.entity.User;
 import org.binar.pragosacademyapi.entity.UserVerification;
 import org.binar.pragosacademyapi.entity.dto.UserDto;
 import org.binar.pragosacademyapi.entity.request.RegisterRequest;
+import org.binar.pragosacademyapi.entity.request.UpdateUserRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.enumeration.Role;
 import org.binar.pragosacademyapi.repository.UserRepository;
 import org.binar.pragosacademyapi.repository.UserVerificationRepository;
 import org.binar.pragosacademyapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -18,10 +21,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
 import javax.mail.internet.MimeMessage;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Random;
@@ -38,22 +48,31 @@ public class UserServiceImpl implements UserService {
     private final Random random = new Random();
     @Autowired
     private UserVerificationRepository userVerificationRepository;
+    private final Path root = Paths.get("./uploads");
 
     @Override
     public Response<UserDto> getProfile() {
-        User user = userRepository.findByEmail(getEmailUserContext());
         Response<UserDto> response = new Response<>();
-        UserDto userDto = new UserDto();
-        userDto.setName(user.getName());
-        userDto.setCity(user.getCity());
-        userDto.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        userDto.setEmail(user.getEmail());
-        userDto.setCountry(user.getCountry());
-        userDto.setPhone(user.getPhone());
-        userDto.setImageProfile(null);
-        response.setError(false);
-        response.setMessage("Berhasil");
-        response.setData(userDto);
+        try {
+            User user = userRepository.findByEmail(getEmailUserContext());
+            UserDto userDto = new UserDto();
+            if (user.getImageProfile() != null){
+                Path file = root.resolve(user.getImageProfile());
+                userDto.setImageProfile(Files.readAllBytes(file));
+            }
+            userDto.setName(user.getName());
+            userDto.setCity(user.getCity());
+            userDto.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+            userDto.setEmail(user.getEmail());
+            userDto.setCountry(user.getCountry());
+            userDto.setPhone(user.getPhone());
+            response.setError(false);
+            response.setMessage("Berhasil");
+            response.setData(userDto);
+        }catch (Exception e){
+            response.setError(true);
+            response.setMessage("Terjadi kesalahan");
+        }
         return response;
     }
 
@@ -92,9 +111,60 @@ public class UserServiceImpl implements UserService {
         return response;
     }
 
+    @Transactional
     @Override
-    public Response<String> update(RegisterRequest updateUser) {
-        return null;
+    public Response<String> update(UpdateUserRequest updateUser) {
+        Response<String> response = new Response<>();
+        try {
+            User user = userRepository.findByEmail(getEmailUserContext());
+            MultipartFile file = updateUser.getFile();
+            try(InputStream inputStream = file.getInputStream()) {
+                Files.copy(inputStream, this.root.resolve(user.getId() + file.getOriginalFilename()), StandardCopyOption.REPLACE_EXISTING);
+            }
+            user.setName(updateUser.getName());
+            user.setCity(updateUser.getCity());
+            user.setCountry(updateUser.getCountry());
+            user.setImageProfile(user.getId()+file.getOriginalFilename());
+            if (Objects.equals(updateUser.getEmail(), user.getEmail())){
+                user.setEmail(updateUser.getEmail());
+                if (Objects.equals(updateUser.getPhone(), user.getPhone())){
+                    user.setPhone(updateUser.getPhone());
+                    userRepository.save(user);
+                    response.setError(false);
+                    response.setMessage("Success");
+                    response.setData("Success update data");
+                }else {
+                    try {
+                        user.setPhone(updateUser.getPhone());
+                        userRepository.save(user);
+                        response.setError(false);
+                        response.setMessage("Success");
+                        response.setData("Success update data");
+                    }catch (Exception e){
+                        response.setError(true);
+                        response.setMessage("Failed to update data");
+                        response.setData("No Telepon sudah didaftarkan. Silahkan gunakan no telepon yang lain");
+                    }
+                }
+            }else {
+                try {
+                    user.setEmail(updateUser.getEmail());
+                    userRepository.save(user);
+                    response.setError(false);
+                    response.setMessage("Success");
+                    response.setData("Success update data");
+                }catch (Exception e){
+                    response.setError(true);
+                    response.setMessage("Failed to update data");
+                    response.setData("Email sudah didaftarkan. Silahkan gunakan email yang lain");
+                }
+            }
+        }catch (Exception e){
+            response.setError(true);
+            response.setMessage("Failed to update data");
+            response.setData("Terjadi kesalahan");
+        }
+        return response;
     }
 
     @Override

@@ -4,6 +4,7 @@ import org.binar.pragosacademyapi.config.TokenProvider;
 import org.binar.pragosacademyapi.entity.dto.UserDto;
 import org.binar.pragosacademyapi.entity.request.LoginRequest;
 import org.binar.pragosacademyapi.entity.request.RegisterRequest;
+import org.binar.pragosacademyapi.entity.request.UpdateUserRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.web.multipart.MultipartFile;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -91,5 +92,13 @@ public class UserController {
     )
     public ResponseEntity<Response<UserDto>>getDataUSer(){
         return ResponseEntity.ok(userService.getProfile());
+   }
+
+   @PreAuthorize("hasRole('USER')")
+    @PutMapping(
+            value = "/user/update"
+    )
+    public ResponseEntity<Response<String>> updateUser(@ModelAttribute UpdateUserRequest request){
+        return ResponseEntity.ok(userService.update(request));
    }
 }
