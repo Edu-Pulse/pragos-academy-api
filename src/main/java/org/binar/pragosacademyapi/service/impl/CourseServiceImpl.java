@@ -4,6 +4,7 @@ import org.binar.pragosacademyapi.entity.Course;
 import org.binar.pragosacademyapi.entity.dto.ChapterDto;
 import org.binar.pragosacademyapi.entity.dto.CourseDetailDto;
 import org.binar.pragosacademyapi.entity.dto.CourseDto;
+import org.binar.pragosacademyapi.entity.dto.DetailChapterDto;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.repository.CourseRepository;
 import org.binar.pragosacademyapi.service.CourseService;
@@ -43,7 +44,7 @@ public class CourseServiceImpl implements CourseService {
         try {
             Course course = courseRepository.findByCode(courseCode);
             if (course != null){
-                List<ChapterDto> chapters = course.getChapters().stream().map(chapter -> new ChapterDto(chapter.getName(), chapter.getVideo(), chapter.getMateri(), chapter.getCapther())).collect(Collectors.toList());
+                List<ChapterDto> chapters = course.getChapters().stream().map(chapter -> new ChapterDto(chapter.getCapther(), chapter.getDetailChapters().stream().map(detailChapter -> new DetailChapterDto(detailChapter.getId(), detailChapter.getName(), detailChapter.getVideo(), detailChapter.getMaterial())).collect(Collectors.toList()))).collect(Collectors.toList());
                 response.setError(false);
                 response.setMessage("Success to get data "+ courseCode);
                 response.setData(

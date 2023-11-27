@@ -50,12 +50,33 @@ SELECT * from categories;
 CREATE TABLE chapters(
      id BIGSERIAL PRIMARY KEY ,
      course_code VARCHAR NOT NULL,
-     name VARCHAR(100) NOT NULL ,
-     video VARCHAR NOT NULL ,
-     material TEXT NOT NULL ,
-     chapter VARCHAR NOT NULL ,
+     chapter VARCHAR NOT NULL UNIQUE ,
      constraint fk_chapters_courses foreign key (course_code) references courses(code)
 );
+
+SELECT * FROM chapters;
+
+CREATE TABLE detail_chapters(
+    id BIGSERIAL PRIMARY KEY ,
+    chapter_id BIGINT NOT NULL ,
+    name VARCHAR(100) NOT NULL ,
+    video VARCHAR NOT NULL ,
+    material TEXT NOT NULL ,
+    constraint fk_detail_chapters_chapters foreign key (chapter_id) references chapters(id)
+);
+
+SELECT * FROM detail_chapters;
+
+CREATE TABLE user_detail_chapters(
+  id BIGSERIAL PRIMARY KEY ,
+  user_id BIGINT NOT NULL ,
+  detail_chapter_id BIGINT NOT NULL ,
+  is_done BOOLEAN NOT NULL ,
+  constraint user_detail_chapters_users foreign key (user_id) references users(id),
+  constraint user_detail_chapters_detail_chapters foreign key (detail_chapter_id) references detail_chapters(id)
+);
+
+select * from user_detail_chapters;
 
 CREATE TABLE payments(
      id BIGSERIAL PRIMARY KEY ,
@@ -71,12 +92,3 @@ CREATE TABLE payments(
 );
 
 SELECT * FROM chapters;
-
-CREATE TABLE user_chapters(
-  id BIGSERIAL PRIMARY KEY ,
-  user_id BIGINT NOT NULL ,
-  chapter_id BIGINT NOT NULL ,
-  is_done BOOLEAN NOT NULL ,
-  constraint fk_user_chapters_users foreign key (user_id) references users(id),
-  constraint fk_user_chapters_chapters foreign key (chapter_id) references chapters(id)
-);

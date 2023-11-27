@@ -11,8 +11,6 @@ import org.binar.pragosacademyapi.repository.UserRepository;
 import org.binar.pragosacademyapi.repository.UserVerificationRepository;
 import org.binar.pragosacademyapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -24,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
-import javax.mail.Multipart;
 import javax.mail.internet.MimeMessage;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -62,7 +59,7 @@ public class UserServiceImpl implements UserService {
             }
             userDto.setName(user.getName());
             userDto.setCity(user.getCity());
-            userDto.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+            userDto.setPassword(user.getPassword());
             userDto.setEmail(user.getEmail());
             userDto.setCountry(user.getCountry());
             userDto.setPhone(user.getPhone());
@@ -71,7 +68,7 @@ public class UserServiceImpl implements UserService {
             response.setData(userDto);
         }catch (Exception e){
             response.setError(true);
-            response.setMessage("Terjadi kesalahan");
+            response.setMessage("Terjadi kesalahan"+ e.getMessage());
         }
         return response;
     }
