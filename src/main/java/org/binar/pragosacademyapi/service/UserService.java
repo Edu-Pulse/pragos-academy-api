@@ -4,9 +4,6 @@ import org.binar.pragosacademyapi.entity.dto.UserDto;
 import org.binar.pragosacademyapi.entity.request.RegisterRequest;
 import org.binar.pragosacademyapi.entity.request.UpdateUserRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
-import org.springframework.web.multipart.MultipartFile;
-
-import javax.mail.Multipart;
 
 public interface UserService {
 
@@ -17,5 +14,6 @@ public interface UserService {
     Response<String> generateCodeVerification(String email);
     Response<String> verification(String email, Integer code);
     boolean checkIsEnable(String email);
+    String setDoneChapter(Long detailChapterId);
 
 }

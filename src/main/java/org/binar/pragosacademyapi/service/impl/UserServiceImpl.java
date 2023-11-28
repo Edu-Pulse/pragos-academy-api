@@ -1,12 +1,14 @@
 package org.binar.pragosacademyapi.service.impl;
 
-import org.binar.pragosacademyapi.entity.User;
-import org.binar.pragosacademyapi.entity.UserVerification;
+import lombok.extern.slf4j.Slf4j;
+import org.binar.pragosacademyapi.entity.*;
 import org.binar.pragosacademyapi.entity.dto.UserDto;
 import org.binar.pragosacademyapi.entity.request.RegisterRequest;
 import org.binar.pragosacademyapi.entity.request.UpdateUserRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.enumeration.Role;
+import org.binar.pragosacademyapi.repository.DetailChapterRepository;
+import org.binar.pragosacademyapi.repository.UserDetailChapterRepository;
 import org.binar.pragosacademyapi.repository.UserRepository;
 import org.binar.pragosacademyapi.repository.UserVerificationRepository;
 import org.binar.pragosacademyapi.service.UserService;
@@ -33,6 +35,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Random;
 
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -45,6 +48,10 @@ public class UserServiceImpl implements UserService {
     private final Random random = new Random();
     @Autowired
     private UserVerificationRepository userVerificationRepository;
+    @Autowired
+    private UserDetailChapterRepository userDetailChapterRepository;
+    @Autowired
+    private DetailChapterRepository detailChapterRepository;
     private final Path root = Paths.get("./uploads");
 
     @Override
@@ -247,6 +254,27 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public String setDoneChapter(Long detailChapterId) {
+        try {
+            User user = userRepository.findByEmail(getEmailUserContext());
+            DetailChapter detailChapter = detailChapterRepository.findById(detailChapterId).orElse(null);
+            if (detailChapter != null){
+                UserDetailChapter userDetailChapter = new UserDetailChapter();
+                userDetailChapter.setUser(user);
+                userDetailChapter.setDetailChapter(detailChapter);
+                userDetailChapter.setIsDone(true);
+                userDetailChapterRepository.save(userDetailChapter);
+                return "Success";
+            }
+            return "Detail chapter dengan id: "+ detailChapterId+" Tidak ditemukan";
+
+        }catch (Exception e){
+            log.error(e.getMessage());
+            return "Terjadi kesalahan";
+        }
+    }
+
     private void sendEmail(String email, Integer code) throws MessagingException, UnsupportedEncodingException {
         String subject = "Code verifikasi Pragos Academy";
         String content = "Kode verifikasi anda: "+ code + " kode verifikasi akan expired dalam 5 menit. Jangan kirimkan kode ini kesiapapun jika tidak mendaftar di pragos academy.";
@@ -261,7 +289,7 @@ public class UserServiceImpl implements UserService {
         mailSender.send(message);
     }
 
-    private String getEmailUserContext(){
+    protected String getEmailUserContext(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!(authentication instanceof AnonymousAuthenticationToken)){
             return authentication.getName();

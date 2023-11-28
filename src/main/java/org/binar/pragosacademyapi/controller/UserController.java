@@ -16,7 +16,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -101,4 +100,10 @@ public class UserController {
     public ResponseEntity<Response<String>> updateUser(@ModelAttribute UpdateUserRequest request){
         return ResponseEntity.ok(userService.update(request));
    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping(value = "/detailchapter/setdone/{id}")
+    public ResponseEntity<String> setDoneDetailChapter(@PathVariable Long id){
+        return ResponseEntity.ok(userService.setDoneChapter(id));
+    }
 }
