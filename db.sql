@@ -34,7 +34,6 @@ CREATE TABLE courses(
     type VARCHAR NOT NULL ,
     price INT NOT NULL ,
     discount INT,
-    rating FLOAT NOT NULL ,
     constraint fk_courses_category foreign key (category_id) references categories(id)
 );
 
@@ -84,6 +83,10 @@ CREATE TABLE payments(
      course_code VARCHAR NOT NULL ,
      amount BIGINT NOT NULL ,
      payment_method VARCHAR NOT NULL ,
+     card_number VARCHAR NOT NULL ,
+     card_holder_name VARCHAR NOT NULL ,
+     cvv VARCHAR NOT NULL ,
+     expiry_date VARCHAR NOT NULL ,
      status boolean NOT NULL ,
      payment_date DATE ,
      rating INT,
@@ -92,3 +95,5 @@ CREATE TABLE payments(
 );
 
 SELECT * FROM chapters;
+
+SELECT * FROM payments;
