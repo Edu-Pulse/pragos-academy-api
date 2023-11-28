@@ -3,8 +3,6 @@ package org.binar.pragosacademyapi.entity.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.binar.pragosacademyapi.entity.DetailChapter;
-
 import java.util.List;
 
 @Data
