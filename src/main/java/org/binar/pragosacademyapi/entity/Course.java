@@ -31,7 +31,6 @@ public class Course {
     private Type type;
     private Integer price;
     private Integer discount;
-    private Float rating;
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     List<Chapter> chapters;
 }
