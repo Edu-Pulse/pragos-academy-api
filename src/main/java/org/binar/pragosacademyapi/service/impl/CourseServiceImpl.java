@@ -1,12 +1,17 @@
 package org.binar.pragosacademyapi.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.binar.pragosacademyapi.entity.Course;
+import org.binar.pragosacademyapi.entity.User;
 import org.binar.pragosacademyapi.entity.dto.ChapterDto;
 import org.binar.pragosacademyapi.entity.dto.CourseDetailDto;
 import org.binar.pragosacademyapi.entity.dto.CourseDto;
 import org.binar.pragosacademyapi.entity.dto.DetailChapterDto;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.repository.CourseRepository;
+import org.binar.pragosacademyapi.repository.PaymentRepository;
+import org.binar.pragosacademyapi.repository.UserDetailChapterRepository;
+import org.binar.pragosacademyapi.repository.UserRepository;
 import org.binar.pragosacademyapi.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,10 +19,19 @@ import org.springframework.beans.BeanUtils;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class CourseServiceImpl implements CourseService {
     @Autowired
     private CourseRepository courseRepository;
+    @Autowired
+    private PaymentRepository paymentRepository;
+    @Autowired
+    private UserServiceImpl userService;
+    @Autowired
+    private UserDetailChapterRepository userDetailChapterRepository;
+    @Autowired
+    private UserRepository userRepository;
     @Override
     public Response<List<CourseDto>> listAllCourse() {
         Response<List<CourseDto>> response = new Response<>();
@@ -41,19 +55,48 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Response<CourseDetailDto> courseDetail(String courseCode) {
         Response<CourseDetailDto> response = new Response<>();
+        User user = userRepository.findByEmail(userService.getEmailUserContext());
         try {
-            Course course = courseRepository.findByCode(courseCode);
-            if (course != null){
-                List<ChapterDto> chapters = course.getChapters().stream().map(chapter -> new ChapterDto(chapter.getCapther(), chapter.getDetailChapters().stream().map(detailChapter -> new DetailChapterDto(detailChapter.getId(), detailChapter.getName(), detailChapter.getVideo(), detailChapter.getMaterial())).collect(Collectors.toList()))).collect(Collectors.toList());
-                response.setError(false);
-                response.setMessage("Success to get data "+ courseCode);
-                response.setData(
-                        new CourseDetailDto(course.getCode(), course.getCategory().getImage(),course.getCategory().getName(), course.getName(), course.getDescription(), course.getIntended().split(","), course.getLecturer(), course.getLevel().toString(), course.getType().toString(), course.getPrice(), course.getDiscount(), course.getRating(), chapters)
-                );
+            if (user != null){
+                Course course = paymentRepository.detailCourse(courseCode, user.getEmail());
+                if (course != null){
+                    List<ChapterDto> chapters = course.getChapters().stream().map(chapter -> new ChapterDto(chapter.getCapther(), chapter.getDetailChapters().stream().map(detailChapter -> new DetailChapterDto(detailChapter.getId(), detailChapter.getName(), detailChapter.getVideo(), detailChapter.getMaterial(), userDetailChapterRepository.existsByUserIdAndDetailChapter_IdAndAndIsDone(user.getId(), detailChapter.getId(), true))).collect(Collectors.toList()))).collect(Collectors.toList());
+                    response.setError(false);
+                    response.setMessage("Success to get data "+ courseCode);
+                    response.setData(
+                            new CourseDetailDto(course.getCode(), course.getCategory().getImage(),course.getCategory().getName(), course.getName(), course.getDescription(), course.getIntended().split(","), course.getLecturer(), course.getLevel().toString(), course.getType().toString(), course.getPrice(), course.getDiscount(), course.getRating(),courseRepository.getCountDetailChapter(courseCode), courseRepository.getCountDetailChapterDone(courseCode, user.getEmail()), chapters)
+                    );
+                }else {
+                    course = courseRepository.findByCode(courseCode);
+                    if (course != null){
+                        List<ChapterDto> chapters = course.getChapters().stream().map(chapter -> new ChapterDto(chapter.getCapther(), chapter.getDetailChapters().stream().map(detailChapter -> new DetailChapterDto(detailChapter.getId(), detailChapter.getName(), null, null, null)).collect(Collectors.toList()))).collect(Collectors.toList());
+                        response.setError(false);
+                        response.setMessage("Success to get data "+ courseCode);
+                        response.setData(
+                                new CourseDetailDto(course.getCode(), course.getCategory().getImage(),course.getCategory().getName(), course.getName(), course.getDescription(), course.getIntended().split(","), course.getLecturer(), course.getLevel().toString(), course.getType().toString(), course.getPrice(), course.getDiscount(), course.getRating(),courseRepository.getCountDetailChapter(courseCode), null, chapters)
+                        );
+                    }else {
+                        response.setError(true);
+                        log.error(userService.getEmailUserContext());
+                        response.setMessage("Failed to get data "+ courseCode+ " not found");
+                        response.setData(null);
+                    }
+                }
             }else {
-                response.setError(true);
-                response.setMessage("Failed to get data "+ courseCode+ " not found");
-                response.setData(null);
+                Course course = courseRepository.findByCode(courseCode);
+                if (course != null){
+                    List<ChapterDto> chapters = course.getChapters().stream().map(chapter -> new ChapterDto(chapter.getCapther(), chapter.getDetailChapters().stream().map(detailChapter -> new DetailChapterDto(detailChapter.getId(), detailChapter.getName(), null, null, null)).collect(Collectors.toList()))).collect(Collectors.toList());
+                    response.setError(false);
+                    response.setMessage("Success to get data "+ courseCode);
+                    response.setData(
+                            new CourseDetailDto(course.getCode(), course.getCategory().getImage(),course.getCategory().getName(), course.getName(), course.getDescription(), course.getIntended().split(","), course.getLecturer(), course.getLevel().toString(), course.getType().toString(), course.getPrice(), course.getDiscount(), course.getRating(), courseRepository.getCountDetailChapter(courseCode), null,chapters)
+                    );
+                }else {
+                    response.setError(true);
+                    log.error(userService.getEmailUserContext());
+                    response.setMessage("Failed to get data "+ courseCode+ " not found");
+                    response.setData(null);
+                }
             }
         }catch (Exception e){
             response.setError(true);
