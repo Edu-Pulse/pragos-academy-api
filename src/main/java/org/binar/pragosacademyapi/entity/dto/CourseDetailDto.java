@@ -20,5 +20,7 @@ public class CourseDetailDto {
     private Integer price;
     private Integer discount;
     private Float rating;
+    private Integer totalMaterial;
+    private Integer doneMaterial;
     private List<ChapterDto> chapters;
 }
