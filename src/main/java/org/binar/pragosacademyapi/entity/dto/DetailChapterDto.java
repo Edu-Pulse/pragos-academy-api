@@ -12,4 +12,5 @@ public class DetailChapterDto {
     private String name;
     private String video;
     private String material;
+    private Boolean isDone;
 }
