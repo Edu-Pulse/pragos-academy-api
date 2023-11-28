@@ -64,7 +64,7 @@ public class CourseServiceImpl implements CourseService {
                     response.setError(false);
                     response.setMessage("Success to get data "+ courseCode);
                     response.setData(
-                            new CourseDetailDto(course.getCode(), course.getCategory().getImage(),course.getCategory().getName(), course.getName(), course.getDescription(), course.getIntended().split(","), course.getLecturer(), course.getLevel().toString(), course.getType().toString(), course.getPrice(), course.getDiscount(), course.getRating(),courseRepository.getCountDetailChapter(courseCode), courseRepository.getCountDetailChapterDone(courseCode, user.getEmail()), chapters)
+                            new CourseDetailDto(course.getCode(), course.getCategory().getImage(),course.getCategory().getName(), course.getName(), course.getDescription(), course.getIntended().split(","), course.getLecturer(), course.getLevel().toString(), course.getType().toString(), course.getPrice(), course.getDiscount(), getRating(course.getCode()),courseRepository.getCountDetailChapter(courseCode), courseRepository.getCountDetailChapterDone(courseCode, user.getEmail()), chapters)
                     );
                 }else {
                     course = courseRepository.findByCode(courseCode);
@@ -73,7 +73,7 @@ public class CourseServiceImpl implements CourseService {
                         response.setError(false);
                         response.setMessage("Success to get data "+ courseCode);
                         response.setData(
-                                new CourseDetailDto(course.getCode(), course.getCategory().getImage(),course.getCategory().getName(), course.getName(), course.getDescription(), course.getIntended().split(","), course.getLecturer(), course.getLevel().toString(), course.getType().toString(), course.getPrice(), course.getDiscount(), course.getRating(),courseRepository.getCountDetailChapter(courseCode), null, chapters)
+                                new CourseDetailDto(course.getCode(), course.getCategory().getImage(),course.getCategory().getName(), course.getName(), course.getDescription(), course.getIntended().split(","), course.getLecturer(), course.getLevel().toString(), course.getType().toString(), course.getPrice(), course.getDiscount(), getRating(course.getCode()),courseRepository.getCountDetailChapter(courseCode), null, chapters)
                         );
                     }else {
                         response.setError(true);
@@ -89,7 +89,7 @@ public class CourseServiceImpl implements CourseService {
                     response.setError(false);
                     response.setMessage("Success to get data "+ courseCode);
                     response.setData(
-                            new CourseDetailDto(course.getCode(), course.getCategory().getImage(),course.getCategory().getName(), course.getName(), course.getDescription(), course.getIntended().split(","), course.getLecturer(), course.getLevel().toString(), course.getType().toString(), course.getPrice(), course.getDiscount(), course.getRating(), courseRepository.getCountDetailChapter(courseCode), null,chapters)
+                            new CourseDetailDto(course.getCode(), course.getCategory().getImage(),course.getCategory().getName(), course.getName(), course.getDescription(), course.getIntended().split(","), course.getLecturer(), course.getLevel().toString(), course.getType().toString(), course.getPrice(), course.getDiscount(), getRating(course.getCode()), courseRepository.getCountDetailChapter(courseCode), null,chapters)
                     );
                 }else {
                     response.setError(true);
@@ -112,7 +112,21 @@ public class CourseServiceImpl implements CourseService {
         dto.setCategory(course.getCategory().getName());
         dto.setLevel(course.getLevel().toString());
         dto.setType(course.getType().toString());
+        dto.setRating(getRating(course.getCode()));
         dto.setImage(course.getCategory().getImage()); // asumsikan category memiliki properti image
         return dto;
+    }
+
+    private Float getRating(String courseCode){
+        List<Integer> ratings = paymentRepository.getListRating(courseCode);
+        if (ratings.isEmpty()){
+            return null;
+        }else {
+            double sumRating = 0;
+            for (Integer rating : ratings) {
+                sumRating += rating;
+            }
+            return (float) (sumRating/ratings.size());
+        }
     }
 }
