@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
     private UserDetailChapterRepository userDetailChapterRepository;
     @Autowired
     private DetailChapterRepository detailChapterRepository;
-    private final Path root = Paths.get("./uploads");
+    private final Path root = Paths.get("../uploads");
 
     @PostConstruct
     public void init(){
