@@ -10,7 +10,7 @@ import java.util.List;
 public interface CourseService {
     Response<List<CourseDto>> listAllCourse();
     Response<CourseDetailDto> courseDetail(String courseCode);
-    Response<List<CourseDto>>filter(@Param("discount") Boolean discount, @Param("category")Long  category, @Param("level")String level, @Param("type")String type);
+    Response<List<CourseDto>>filter( Boolean discount, @Param("category")Long  category, @Param("level")String level, @Param("type")String type);
 
 
 
