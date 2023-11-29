@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.PostConstruct;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.InputStream;
@@ -53,6 +54,20 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private DetailChapterRepository detailChapterRepository;
     private final Path root = Paths.get("./uploads");
+
+    @PostConstruct
+    public void init(){
+        try {
+            if (!Files.exists(root)){
+                Files.createDirectories(root);
+                log.info("Created directory successfully on: "+ root.toAbsolutePath());
+            }else {
+                log.info("Directory 'uploads' already exist: "+ root.toAbsolutePath());
+            }
+        }catch (Exception e){
+            log.error("Terjadi kesalahan: "+ e.getMessage());
+        }
+    }
 
     @Override
     public Response<UserDto> getProfile() {
