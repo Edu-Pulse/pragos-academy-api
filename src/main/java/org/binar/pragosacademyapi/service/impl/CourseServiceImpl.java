@@ -2,6 +2,7 @@ package org.binar.pragosacademyapi.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.binar.pragosacademyapi.entity.Course;
+import org.binar.pragosacademyapi.entity.Payment;
 import org.binar.pragosacademyapi.entity.User;
 import org.binar.pragosacademyapi.entity.dto.ChapterDto;
 import org.binar.pragosacademyapi.entity.dto.CourseDetailDto;
@@ -16,6 +17,7 @@ import org.binar.pragosacademyapi.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.BeanUtils;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -102,6 +104,55 @@ public class CourseServiceImpl implements CourseService {
             response.setError(true);
             response.setMessage("Failed to get data "+ courseCode);
             response.setData(null);
+        }
+        return response;
+    }
+
+    @Override
+    public Response<String> enrollCourse(String courseCode) {
+        Response<String> response = new Response<>();
+        try {
+            Course course = courseRepository.findByCode(courseCode);
+            User user = userRepository.findByEmail(userService.getEmailUserContext());
+            if (course != null){
+                Payment checkPayment = paymentRepository.findByUser_IdAndCourse_Code(user.getId(), courseCode);
+                if (checkPayment == null){
+                    if (course.getPrice() == 0){
+                        Payment payment = new Payment();
+                        payment.setUser(user);
+                        payment.setCourse(course);
+                        payment.setAmount(0L);
+                        payment.setPaymentMethod("GRATIS");
+                        payment.setCardNumber("-");
+                        payment.setCardHolderName("-");
+                        payment.setCvv("-");
+                        payment.setExpiryDate("-");
+                        payment.setStatus(true);
+                        payment.setPaymentDate(LocalDateTime.now());
+                        paymentRepository.save(payment);
+
+                        response.setError(false);
+                        response.setMessage("Success");
+                        response.setData("Berhasil enroll course : "+courseCode);
+                    }else {
+                        response.setError(true);
+                        response.setMessage("Failed");
+                        response.setData("Course ini berbayar");
+                    }
+                }else {
+                    response.setError(true);
+                    response.setMessage("Failed");
+                    response.setData("Kamu sudah enroll kelas ini");
+                }
+            }else {
+                response.setError(true);
+                response.setMessage("Failed");
+                response.setData("Course dengan code "+courseCode+" tidak ditemukan");
+            }
+        }catch (Exception e){
+            response.setError(true);
+            response.setMessage("Failed");
+            response.setData("Terjadi kesalahan");
         }
         return response;
     }
