@@ -11,9 +11,8 @@ FROM eclipse-temurin:20-jre
 
 WORKDIR /app
 COPY --from=builder /app/target/*.jar /app/app.jar
-RUN mkdir /app/uploads && chown -R runtime /app/uploads
+RUN mkdir /app/uploads 
 ARG PORT
 ENV PORT=${PORT}
-RUN useradd runtime
-USER runtime
+USER root
 ENTRYPOINT [ "java", "-Dserver.port=${PORT}", "-jar", "/app/app.jar" ]
