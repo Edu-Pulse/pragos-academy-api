@@ -5,6 +5,7 @@ import org.binar.pragosacademyapi.entity.Payment;
 import org.binar.pragosacademyapi.entity.dto.ChapterDto;
 import org.binar.pragosacademyapi.entity.dto.CourseDetailDto;
 import org.binar.pragosacademyapi.entity.dto.CourseDto;
+import org.binar.pragosacademyapi.entity.request.PaymentRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.repository.CourseRepository;
 import org.binar.pragosacademyapi.repository.PaymentRepository;
@@ -72,7 +73,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     @Transactional
-    public Response<List<CourseDto>> enrollCourse(String courseCode) {
+    public Response enrollCourse(String courseCode, PaymentRequest request) {
         try {
             Course course = courseRepository.findByCode(courseCode);
             if (course != null) {
@@ -80,16 +81,25 @@ public class CourseServiceImpl implements CourseService {
                 payment.setCourse(course);
                 payment.setStatus(false); // Pembayaran status false
                 payment.setAmount(Long.valueOf(course.getPrice()));
-//                payment.setPaymentDate(LocalDateTime.now()); // Atur waktu pembayaran ke waktu saat ini
+                payment.setPaymentDate(LocalDateTime.now()); // Atur waktu pembayaran ke waktu saat ini
+
+                // Set informasi pembayaran dari PaymentRequest
+                payment.setCardNumber(request.getCardNumber());
+                payment.setCardHolderName(request.getCardHolderName());
+                payment.setCvv(request.getCvv());
+                payment.setExpiryDate(request.getExpiryDate());
+
                 paymentRepository.save(payment);
-                return new Response<>(false, "success", null);
+                return new Response(false, "success", null);
             } else {
-                return new Response<>(true, "failed", null);
+                return new Response(true, "failed", null);
             }
         } catch (Exception e) {
-            return new Response<>(true, "failed", null);
+            return new Response(true, "failed", null);
         }
     }
+
+
 
     private CourseDto convertToDto(Course course) {
         CourseDto dto = new CourseDto();
