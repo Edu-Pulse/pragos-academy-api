@@ -7,8 +7,10 @@ import org.binar.pragosacademyapi.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -45,5 +47,12 @@ public class CourseController {
             response.setData(null);
             return ResponseEntity.status(500).body(response); // 500 Internal Server Error
         }
+    }
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping(
+            value = "/course/enroll/{code}"
+    )
+    public ResponseEntity<Response<String>> enrollClass(@PathVariable String code){
+        return ResponseEntity.ok(courseService.enrollCourse(code));
     }
 }

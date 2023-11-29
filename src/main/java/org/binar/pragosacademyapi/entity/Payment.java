@@ -25,6 +25,14 @@ public class Payment {
     private Long amount;
     @Column(name = "payment_method")
     private String paymentMethod;
+    @Column(name = "card_number")
+    private String cardNumber;
+    @Column(name = "card_holder_name")
+    private String cardHolderName;
+    @Column(name = "cvv")
+    private String cvv;
+    @Column(name = "expiry_date")
+    private String expiryDate;
     private Boolean status;
     @Column(name = "payment_date")
     private LocalDateTime paymentDate;

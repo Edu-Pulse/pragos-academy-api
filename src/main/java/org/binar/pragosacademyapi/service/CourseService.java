@@ -9,4 +9,5 @@ import java.util.List;
 public interface CourseService {
     Response<List<CourseDto>> listAllCourse();
     Response<CourseDetailDto> courseDetail(String courseCode);
+    Response<String> enrollCourse(String courseCode);
 }
