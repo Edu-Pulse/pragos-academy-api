@@ -3,24 +3,22 @@ package org.binar.pragosacademyapi.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import javax.persistence.*;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "chapters")
-public class Chapter {
+@Table(name = "detail_chapters")
+public class DetailChapter {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "course_code", referencedColumnName = "code")
-    private Course course;
-    @Column(name = "chapter")
-    private String capther;
-    @OneToMany(mappedBy = "chapter")
-    private List<DetailChapter> detailChapters;
+    @JoinColumn(name = "chapter_id", referencedColumnName = "id")
+    private Chapter chapter;
+    private String name;
+    private String video;
+    private String material;
 }

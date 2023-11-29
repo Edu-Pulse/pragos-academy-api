@@ -10,5 +10,6 @@ import java.util.List;
 public interface CourseService {
     Response<List<CourseDto>> listAllCourse();
     Response<CourseDetailDto> courseDetail(String courseCode);
-    Response enrollCourse(String courseCode, PaymentRequest request);
+    Response<String> enrollCourse(String courseCode);
+    Response<String> enrollPaidCourse(String courseCode, PaymentRequest paymentRequest);
 }
