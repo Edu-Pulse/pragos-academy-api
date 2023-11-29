@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
     private UserDetailChapterRepository userDetailChapterRepository;
     @Autowired
     private DetailChapterRepository detailChapterRepository;
-    private final Path root = Paths.get("./uploads");
+    private final Path root = Paths.get("/app/uploads");
 
     @PostConstruct
     public void init(){
@@ -179,8 +179,9 @@ public class UserServiceImpl implements UserService {
                 }
             }
         }catch (Exception e){
+            log.error(e.getMessage());
             response.setError(true);
-            response.setMessage("Failed to update data");
+            response.setMessage("Failed to update data "+e.getMessage());
             response.setData("Terjadi kesalahan");
         }
         return response;
