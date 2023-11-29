@@ -180,7 +180,7 @@ public class UserServiceImpl implements UserService {
             }
         }catch (Exception e){
             response.setError(true);
-            response.setMessage("Failed to update data ");
+            response.setMessage("Failed to update data "+e.getMessage());
             response.setData("Terjadi kesalahan");
         }
         return response;
