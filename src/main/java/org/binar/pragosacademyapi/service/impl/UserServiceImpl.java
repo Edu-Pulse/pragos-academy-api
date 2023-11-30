@@ -140,13 +140,15 @@ public class UserServiceImpl implements UserService {
         try {
             User user = userRepository.findByEmail(getEmailUserContext());
             MultipartFile file = updateUser.getFile();
-            try(InputStream inputStream = file.getInputStream()) {
-                Files.copy(inputStream, this.root.resolve(user.getId() + file.getOriginalFilename()), StandardCopyOption.REPLACE_EXISTING);
+            if (!file.isEmpty()){
+                try(InputStream inputStream = file.getInputStream()) {
+                    Files.copy(inputStream, this.root.resolve(user.getId() + file.getOriginalFilename()), StandardCopyOption.REPLACE_EXISTING);
+                }
+                user.setImageProfile(user.getId()+file.getOriginalFilename());
             }
             user.setName(updateUser.getName());
             user.setCity(updateUser.getCity());
             user.setCountry(updateUser.getCountry());
-            user.setImageProfile(user.getId()+file.getOriginalFilename());
             if (Objects.equals(updateUser.getEmail(), user.getEmail())){
                 user.setEmail(updateUser.getEmail());
                 if (Objects.equals(updateUser.getPhone(), user.getPhone())){
