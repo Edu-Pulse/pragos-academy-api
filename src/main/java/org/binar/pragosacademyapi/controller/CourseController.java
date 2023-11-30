@@ -50,7 +50,7 @@ public class CourseController {
             value = "/courses/{type}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<List<CourseDto>>> filter(@PathVariable String type) {
+    public ResponseEntity<Response<List<CourseDto>>> filter(@RequestParam String type) {
         return ResponseEntity.ok(courseService.filter(type));
     }
     @PreAuthorize("hasRole('USER')")
