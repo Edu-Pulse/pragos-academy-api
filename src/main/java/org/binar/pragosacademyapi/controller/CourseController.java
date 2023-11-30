@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -47,6 +48,14 @@ public class CourseController {
             response.setData(null);
             return ResponseEntity.status(500).body(response); // 500 Internal Server Error
         }
+
+    }
+    @GetMapping(
+            value = "/courses/{type}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Response<List<CourseDto>>> filter(@PathVariable String type) {
+        return ResponseEntity.ok(courseService.filter(type));
     }
     @PreAuthorize("hasRole('USER')")
     @PostMapping(
@@ -54,5 +63,12 @@ public class CourseController {
     )
     public ResponseEntity<Response<String>> enrollClass(@PathVariable String code){
         return ResponseEntity.ok(courseService.enrollCourse(code));
+    }
+
+    @GetMapping(
+            value = "/courses/search"
+    )
+    public ResponseEntity<Response<List<CourseDto>>> searchCourse(@RequestParam String courseName){
+        return ResponseEntity.ok(courseService.search(courseName));
     }
 }
