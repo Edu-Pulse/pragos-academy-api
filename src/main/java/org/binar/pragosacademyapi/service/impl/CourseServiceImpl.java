@@ -9,6 +9,8 @@ import org.binar.pragosacademyapi.entity.dto.CourseDetailDto;
 import org.binar.pragosacademyapi.entity.dto.CourseDto;
 import org.binar.pragosacademyapi.entity.dto.DetailChapterDto;
 import org.binar.pragosacademyapi.entity.response.Response;
+import org.binar.pragosacademyapi.enumeration.Level;
+import org.binar.pragosacademyapi.enumeration.Type;
 import org.binar.pragosacademyapi.repository.CourseRepository;
 import org.binar.pragosacademyapi.repository.PaymentRepository;
 import org.binar.pragosacademyapi.repository.UserDetailChapterRepository;
@@ -155,6 +157,20 @@ public class CourseServiceImpl implements CourseService {
             response.setData("Terjadi kesalahan");
         }
         return response;
+    }
+
+    @Override
+    public Response<List<CourseDto>> filter(Boolean discount, Long category, String level, String type) {
+        List<Course> filteredCourses = courseRepository.filter(discount, category, level, type);
+        List<CourseDto> filteredCourseDTO = filteredCourses.stream().map(course -> {
+            return convertToDto(course);
+        }).collect(Collectors.toList());
+
+        Response<List<CourseDto>> responses = new Response<>();
+        responses.setData(filteredCourseDTO);
+        responses.setMessage("Course Filter Sucsess");
+        return responses;
+
     }
 
     private CourseDto convertToDto(Course course) {
