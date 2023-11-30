@@ -51,10 +51,10 @@ public class CourseController {
 
     }
     @GetMapping(
-            value = "/courses/filter",
+            value = "/courses/{type}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<List<CourseDto>>> filter(@RequestParam String type) {
+    public ResponseEntity<Response<List<CourseDto>>> filter(@PathVariable String type) {
         return ResponseEntity.ok(courseService.filter(type));
     }
     @PreAuthorize("hasRole('USER')")
@@ -63,5 +63,12 @@ public class CourseController {
     )
     public ResponseEntity<Response<String>> enrollClass(@PathVariable String code){
         return ResponseEntity.ok(courseService.enrollCourse(code));
+    }
+
+    @GetMapping(
+            value = "/courses/search"
+    )
+    public ResponseEntity<Response<List<CourseDto>>> searchCourse(@RequestParam String courseName){
+        return ResponseEntity.ok(courseService.search(courseName));
     }
 }
