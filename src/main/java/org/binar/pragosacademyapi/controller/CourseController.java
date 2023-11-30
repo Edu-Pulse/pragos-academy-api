@@ -51,11 +51,11 @@ public class CourseController {
 
     }
     @GetMapping(
-            value = "/filterCourses",
+            value = "/courses/filter",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<List<CourseDto>>> filter(@RequestParam Boolean discount, @RequestParam Long category, @RequestParam String level, @RequestParam String type) {
-        return ResponseEntity.ok(courseService.filter(discount, category, level, type));
+    public ResponseEntity<Response<List<CourseDto>>> filter(@RequestParam String type) {
+        return ResponseEntity.ok(courseService.filter(type));
     }
     @PreAuthorize("hasRole('USER')")
     @PostMapping(

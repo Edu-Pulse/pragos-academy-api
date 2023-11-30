@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -20,10 +19,9 @@ public class CategoryServiceImpl implements CategoryService {
     public Response<List<CategoryDto>> listCategory() {
         Response<List<CategoryDto>> response = new Response<>();
         try {
-            List<CategoryDto> categories = categoryRepository.selectAll().stream().map(category -> new CategoryDto(category.getId(), category.getName(), category.getImage())).collect(Collectors.toList());
             response.setError(false);
             response.setMessage("success");
-            response.setData(categories);
+            response.setData(categoryRepository.selectAll());
         }catch (Exception e){
             response.setError(true);
             response.setMessage("Terjadi kesalahan");
