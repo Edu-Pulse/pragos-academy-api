@@ -166,6 +166,7 @@ public class CourseServiceImpl implements CourseService {
         Response<List<CourseDto>> response = new Response<>();
         try {
             List<CourseDto> courseDtoList = courseRepository.searchByCourseName("%"+courseName+"%");
+            courseDtoList.forEach(courseDto -> courseDto.setRating(getRating(courseDto.getCode())));
             response.setError(false);
             response.setMessage("Success get data");
             response.setData(courseDtoList);
@@ -177,6 +178,25 @@ public class CourseServiceImpl implements CourseService {
         return response;
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public Response<List<CourseDto>> filterByCategory(Integer categoryId) {
+        Response<List<CourseDto>> response = new Response<>();
+        try {
+            List<CourseDto> courseDtoList = courseRepository.searchByCategory(categoryId);
+            courseDtoList.forEach(courseDto -> courseDto.setRating(getRating(courseDto.getCode())));
+            response.setError(false);
+            response.setMessage("Success get data");
+            response.setData(courseDtoList);
+        }catch (Exception e){
+            response.setError(true);
+            response.setMessage("Failed get data");
+            response.setData(null);
+        }
+        return response;
+    }
+
+    @Transactional(readOnly = true)
     @Override
     public Response<List<CourseDto>> filter(String type) {
         List<CourseDto> filteredCourses = courseRepository.filterByType(Type.valueOf(type.toUpperCase()));

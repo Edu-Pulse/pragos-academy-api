@@ -12,5 +12,6 @@ public interface CourseService {
     Response<List<CourseDto>>filter(String type);
     Response<String> enrollCourse(String courseCode);
     Response<List<CourseDto>> search(String courseName);
+    Response<List<CourseDto>> filterByCategory(Integer categoryId);
   
 }
