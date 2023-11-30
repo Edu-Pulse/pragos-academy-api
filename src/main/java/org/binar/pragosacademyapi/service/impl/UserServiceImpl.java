@@ -13,6 +13,7 @@ import org.binar.pragosacademyapi.repository.UserRepository;
 import org.binar.pragosacademyapi.repository.UserVerificationRepository;
 import org.binar.pragosacademyapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -53,7 +54,9 @@ public class UserServiceImpl implements UserService {
     private UserDetailChapterRepository userDetailChapterRepository;
     @Autowired
     private DetailChapterRepository detailChapterRepository;
-    private final Path root = Paths.get("/app/uploads");
+    @Value("${spring.mail.username}")
+    private String EMAIL;
+    private final Path root = Paths.get("./uploads");
 
     @PostConstruct
     public void init(){
@@ -292,16 +295,16 @@ public class UserServiceImpl implements UserService {
     }
 
     private void sendEmail(String email, Integer code) throws MessagingException, UnsupportedEncodingException {
-        String subject = "Code verifikasi Pragos Academy";
-        String content = "Kode verifikasi anda: "+ code + " kode verifikasi akan expired dalam 5 menit. Jangan kirimkan kode ini kesiapapun jika tidak mendaftar di pragos academy.";
+        String subject = "Kode verifikasi Pragos Academy";
+        String content = "Kode verifikasi anda: <b>"+ code + "</b> kode verifikasi akan expired dalam 5 menit. Jangan kirimkan kode ini kesiapapun jika tidak mendaftar di pragos academy.";
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
 
-        helper.setFrom("gunawann.dev@gmail.com", "Pragos Academy");
+        helper.setFrom(EMAIL, "Pragos Academy");
         helper.setTo(email);
         helper.setSubject(subject);
-        helper.setText(content);
+        helper.setText(content, true);
         mailSender.send(message);
     }
 
