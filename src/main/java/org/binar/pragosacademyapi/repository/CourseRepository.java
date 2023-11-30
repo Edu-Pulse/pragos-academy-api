@@ -41,4 +41,9 @@ public interface CourseRepository extends JpaRepository<Course, String> {
             "where lower(c.name) like lower(:courseName) ")
     List<CourseDto> searchByCourseName(@Param("courseName") String courseName);
 
+    @Query("select " +
+            "new org.binar.pragosacademyapi.entity.dto.CourseDto(c.code, c.category.image, c.category.name, c.name, c.description, c.lecturer, c.level, c.type, c.price, c.discount) " +
+            "from Course c " +
+            "where c.category.id = :category")
+    List<CourseDto> searchByCategory(@Param("category") Integer category);
 }
