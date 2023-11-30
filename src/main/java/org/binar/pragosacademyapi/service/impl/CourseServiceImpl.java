@@ -9,7 +9,6 @@ import org.binar.pragosacademyapi.entity.dto.CourseDetailDto;
 import org.binar.pragosacademyapi.entity.dto.CourseDto;
 import org.binar.pragosacademyapi.entity.dto.DetailChapterDto;
 import org.binar.pragosacademyapi.entity.response.Response;
-import org.binar.pragosacademyapi.enumeration.Level;
 import org.binar.pragosacademyapi.enumeration.Type;
 import org.binar.pragosacademyapi.repository.CourseRepository;
 import org.binar.pragosacademyapi.repository.PaymentRepository;
@@ -160,14 +159,11 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Response<List<CourseDto>> filter(Boolean discount, Long category, String level, String type) {
-        List<Course> filteredCourses = courseRepository.filter(discount, category, level, type);
-        List<CourseDto> filteredCourseDTO = filteredCourses.stream().map(course -> {
-            return convertToDto(course);
-        }).collect(Collectors.toList());
+    public Response<List<CourseDto>> filter(String type) {
+        List<CourseDto> filteredCourses = courseRepository.filterByType(Type.valueOf(type.toUpperCase())).stream().peek(courseDto -> courseDto.setRating(getRating(courseDto.getCode()))).collect(Collectors.toList());
 
         Response<List<CourseDto>> responses = new Response<>();
-        responses.setData(filteredCourseDTO);
+        responses.setData(filteredCourses);
         responses.setMessage("Course Filter Sucsess");
         return responses;
 
@@ -177,8 +173,8 @@ public class CourseServiceImpl implements CourseService {
         CourseDto dto = new CourseDto();
         BeanUtils.copyProperties(course, dto);
         dto.setCategory(course.getCategory().getName());
-        dto.setLevel(course.getLevel().toString());
-        dto.setType(course.getType().toString());
+        dto.setLevel(course.getLevel());
+        dto.setType(course.getType());
         dto.setRating(getRating(course.getCode()));
         dto.setImage(course.getCategory().getImage()); // asumsikan category memiliki properti image
         return dto;

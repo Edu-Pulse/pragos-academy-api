@@ -1,7 +1,8 @@
 package org.binar.pragosacademyapi.repository;
 
 import org.binar.pragosacademyapi.entity.Course;
-import org.springframework.data.domain.Sort;
+import org.binar.pragosacademyapi.entity.dto.CourseDto;
+import org.binar.pragosacademyapi.enumeration.Type;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,8 +13,6 @@ import java.util.List;
 @Repository
 public interface CourseRepository extends JpaRepository<Course, String> {
     Course findByCode(String code);
-    @Query("SELECT C FROM Course C WHERE C.discount =: discount OR C.category =: category.id OR C.level =: level OR C.type =: type ")
-    List<Course> filter(@Param("discount") Boolean discount, @Param("category")Long category, @Param("level")String level, @Param("type")String type);
     @Query("select count(dc.id) " +
             "from Course c " +
             "left join Chapter ch on c.code = ch.course.code " +
@@ -30,5 +29,11 @@ public interface CourseRepository extends JpaRepository<Course, String> {
             "and " +
             "udc.isDone = true ")
     Integer getCountDetailChapterDone(@Param("courseCode") String courseCode, @Param("email") String email);
+
+    @Query("select " +
+            "new org.binar.pragosacademyapi.entity.dto.CourseDto(c.code, c.category.image, c.category.name, c.name, c.description, c.lecturer, c.level, c.type, c.price, c.discount) " +
+            "from Course c " +
+            "where c.type =:type")
+    List<CourseDto> filterByType(@Param("type") Type type);
 
 }
