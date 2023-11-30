@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
     private DetailChapterRepository detailChapterRepository;
     @Value("${spring.mail.username}")
     private String EMAIL;
-    private final Path root = Paths.get("./uploads");
+    private final Path root = Paths.get("/app/uploads");
 
     @PostConstruct
     public void init(){
