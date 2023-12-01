@@ -8,6 +8,7 @@ import org.binar.pragosacademyapi.entity.dto.ChapterDto;
 import org.binar.pragosacademyapi.entity.dto.CourseDetailDto;
 import org.binar.pragosacademyapi.entity.dto.CourseDto;
 import org.binar.pragosacademyapi.entity.dto.DetailChapterDto;
+import org.binar.pragosacademyapi.entity.request.PaymentRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.enumeration.Type;
 import org.binar.pragosacademyapi.repository.CourseRepository;
@@ -19,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.BeanUtils;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,12 +31,14 @@ public class CourseServiceImpl implements CourseService {
     private CourseRepository courseRepository;
     @Autowired
     private PaymentRepository paymentRepository;
+
     @Autowired
     private UserServiceImpl userService;
     @Autowired
     private UserDetailChapterRepository userDetailChapterRepository;
     @Autowired
     private UserRepository userRepository;
+
     @Override
     public Response<List<CourseDto>> listAllCourse() {
         Response<List<CourseDto>> response = new Response<>();
@@ -159,7 +161,66 @@ public class CourseServiceImpl implements CourseService {
         }
         return response;
     }
+  
+    @Override
+    public Response<String> enrollPaidCourse(String courseCode, PaymentRequest paymentRequest) {
+        Response<String> response = new Response<>();
+        try {
+            Course course = courseRepository.findByCode(courseCode);
+            User user = userRepository.findByEmail(userService.getEmailUserContext());
+            if (course != null){
+                Payment checkPayment = paymentRepository.findByUser_IdAndCourse_Code(user.getId(), courseCode);
+                if (checkPayment == null){
+                    if (course.getPrice() > 0){
+                        if (isValidCardDetails(paymentRequest.getCardNumber(), paymentRequest.getCardHolderName(),
+                                paymentRequest.getCvv(), paymentRequest.getExpiryDate())) {
+                            Payment payment = new Payment();
+                            payment.setUser(user);
+                            payment.setCourse(course);
+                            payment.setAmount(Long.valueOf(course.getPrice()));
+                            payment.setPaymentMethod("CREDIT_CARD");
+                            payment.setCardNumber(paymentRequest.getCardNumber());
+                            payment.setCardHolderName(paymentRequest.getCardHolderName());
+                            payment.setCvv(paymentRequest.getCvv());
+                            payment.setExpiryDate(paymentRequest.getExpiryDate());
+                            payment.setStatus(true);
+                            payment.setPaymentDate(LocalDateTime.now());
+                            paymentRepository.save(payment);
 
+                            response.setError(false);
+                            response.setMessage("Sukses");
+                            response.setData("Berhasil mendaftar kursus: " + courseCode);
+                        } else {
+                            response.setError(true);
+                            response.setMessage("Gagal");
+                            response.setData("Detail kartu tidak valid");
+                        }
+                    } else {
+                        response.setError(true);
+                        response.setMessage("Gagal");
+                        response.setData("Kursus ini gratis");
+                    }
+                } else {
+                    response.setError(true);
+                    response.setMessage("Gagal");
+                    response.setData("Anda sudah mendaftar kursus ini");
+                }
+            } else {
+                response.setError(true);
+                response.setMessage("Gagal");
+                response.setData("Kursus dengan kode " + courseCode + " tidak ditemukan");
+            }
+        } catch (Exception e) {
+            response.setError(true);
+            response.setMessage("Gagal");
+            response.setData("Terjadi kesalahan");
+        }
+        return response;
+    }
+    private boolean isValidCardDetails(String cardNumber, String cardHolderName, String cvv, String expiryDate) {
+        return cardNumber != null && cardNumber.length() == 16;// Contoh nomor kartunya 16 digit
+    }
+  
     @Transactional(readOnly = true)
     @Override
     public Response<List<CourseDto>> search(String courseName) {
@@ -206,7 +267,6 @@ public class CourseServiceImpl implements CourseService {
         responses.setData(filteredCourses);
         responses.setMessage("Course Filter Sucsess");
         return responses;
-
     }
 
     private CourseDto convertToDto(Course course) {
