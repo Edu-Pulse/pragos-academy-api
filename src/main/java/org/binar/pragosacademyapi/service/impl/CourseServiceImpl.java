@@ -10,6 +10,7 @@ import org.binar.pragosacademyapi.entity.dto.CourseDto;
 import org.binar.pragosacademyapi.entity.dto.DetailChapterDto;
 import org.binar.pragosacademyapi.entity.request.PaymentRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
+import org.binar.pragosacademyapi.enumeration.Type;
 import org.binar.pragosacademyapi.repository.CourseRepository;
 import org.binar.pragosacademyapi.repository.PaymentRepository;
 import org.binar.pragosacademyapi.repository.UserDetailChapterRepository;
@@ -18,6 +19,7 @@ import org.binar.pragosacademyapi.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.BeanUtils;
+import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -159,7 +161,7 @@ public class CourseServiceImpl implements CourseService {
         }
         return response;
     }
-
+  
     @Override
     public Response<String> enrollPaidCourse(String courseCode, PaymentRequest paymentRequest) {
         Response<String> response = new Response<>();
@@ -218,13 +220,61 @@ public class CourseServiceImpl implements CourseService {
     private boolean isValidCardDetails(String cardNumber, String cardHolderName, String cvv, String expiryDate) {
         return cardNumber != null && cardNumber.length() == 16;// Contoh nomor kartunya 16 digit
     }
+  
+    @Transactional(readOnly = true)
+    @Override
+    public Response<List<CourseDto>> search(String courseName) {
+        Response<List<CourseDto>> response = new Response<>();
+        try {
+            List<CourseDto> courseDtoList = courseRepository.searchByCourseName("%"+courseName+"%");
+            courseDtoList.forEach(courseDto -> courseDto.setRating(getRating(courseDto.getCode())));
+            response.setError(false);
+            response.setMessage("Success get data");
+            response.setData(courseDtoList);
+        }catch (Exception e){
+            response.setError(true);
+            response.setMessage("Failed get data");
+            response.setData(null);
+        }
+        return response;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Response<List<CourseDto>> filterByCategory(Integer categoryId) {
+        Response<List<CourseDto>> response = new Response<>();
+        try {
+            List<CourseDto> courseDtoList = courseRepository.searchByCategory(categoryId);
+            courseDtoList.forEach(courseDto -> courseDto.setRating(getRating(courseDto.getCode())));
+            response.setError(false);
+            response.setMessage("Success get data");
+            response.setData(courseDtoList);
+        }catch (Exception e){
+            response.setError(true);
+            response.setMessage("Failed get data");
+            response.setData(null);
+        }
+        return response;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Response<List<CourseDto>> filter(String type) {
+        List<CourseDto> filteredCourses = courseRepository.filterByType(Type.valueOf(type.toUpperCase()));
+        filteredCourses.forEach(courseDto -> courseDto.setRating(getRating(courseDto.getCode())));
+
+        Response<List<CourseDto>> responses = new Response<>();
+        responses.setData(filteredCourses);
+        responses.setMessage("Course Filter Sucsess");
+        return responses;
+    }
 
     private CourseDto convertToDto(Course course) {
         CourseDto dto = new CourseDto();
         BeanUtils.copyProperties(course, dto);
         dto.setCategory(course.getCategory().getName());
-        dto.setLevel(course.getLevel().toString());
-        dto.setType(course.getType().toString());
+        dto.setLevel(course.getLevel());
+        dto.setType(course.getType());
         dto.setRating(getRating(course.getCode()));
         dto.setImage(course.getCategory().getImage()); // asumsikan category memiliki properti image
         return dto;

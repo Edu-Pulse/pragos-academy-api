@@ -10,6 +10,9 @@ import java.util.List;
 public interface CourseService {
     Response<List<CourseDto>> listAllCourse();
     Response<CourseDetailDto> courseDetail(String courseCode);
+    Response<List<CourseDto>>filter(String type);
     Response<String> enrollCourse(String courseCode);
     Response<String> enrollPaidCourse(String courseCode, PaymentRequest paymentRequest);
+    Response<List<CourseDto>> search(String courseName);
+    Response<List<CourseDto>> filterByCategory(Integer categoryId);
 }

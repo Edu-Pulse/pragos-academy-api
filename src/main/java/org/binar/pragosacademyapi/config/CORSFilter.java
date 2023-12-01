@@ -1,12 +1,11 @@
 package org.binar.pragosacademyapi.config;
 
-import org.springframework.context.annotation.Configuration;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-@Configuration
+
 public class CORSFilter implements Filter {
 
     @Override

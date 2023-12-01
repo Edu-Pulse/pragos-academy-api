@@ -1,10 +1,14 @@
 package org.binar.pragosacademyapi.repository;
 
 import org.binar.pragosacademyapi.entity.Course;
+import org.binar.pragosacademyapi.entity.dto.CourseDto;
+import org.binar.pragosacademyapi.enumeration.Type;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, String> {
@@ -25,4 +29,21 @@ public interface CourseRepository extends JpaRepository<Course, String> {
             "and " +
             "udc.isDone = true ")
     Integer getCountDetailChapterDone(@Param("courseCode") String courseCode, @Param("email") String email);
+
+    @Query("select " +
+            "new org.binar.pragosacademyapi.entity.dto.CourseDto(c.code, c.category.image, c.category.name, c.name, c.description, c.lecturer, c.level, c.type, c.price, c.discount) " +
+            "from Course c " +
+            "where c.type =:type")
+    List<CourseDto> filterByType(@Param("type") Type type);
+    @Query("select " +
+            "new org.binar.pragosacademyapi.entity.dto.CourseDto(c.code, c.category.image, c.category.name, c.name, c.description, c.lecturer, c.level, c.type, c.price, c.discount) " +
+            "from Course c " +
+            "where lower(c.name) like lower(:courseName) ")
+    List<CourseDto> searchByCourseName(@Param("courseName") String courseName);
+
+    @Query("select " +
+            "new org.binar.pragosacademyapi.entity.dto.CourseDto(c.code, c.category.image, c.category.name, c.name, c.description, c.lecturer, c.level, c.type, c.price, c.discount) " +
+            "from Course c " +
+            "where c.category.id = :category")
+    List<CourseDto> searchByCategory(@Param("category") Integer category);
 }
