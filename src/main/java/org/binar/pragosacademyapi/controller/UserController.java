@@ -52,6 +52,7 @@ public class UserController {
             response.setMessage("Login Berhasil");
             Map<String, String> dataToken = new HashMap<>();
             dataToken.put("token", token);
+            dataToken.put("role",authentication.getAuthorities().toString());
             response.setData(dataToken);
         }else {
             response.setError(true);
