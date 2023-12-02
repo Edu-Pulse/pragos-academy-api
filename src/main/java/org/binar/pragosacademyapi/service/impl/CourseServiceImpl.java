@@ -258,10 +258,10 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Response<List<CourseDto>> getCoursesByUserAll(String userEmail) {
+    public Response<List<CourseDto>> getCoursesByUserAll() {
         Response<List<CourseDto>> response = new Response<>();
         try {
-            List<Payment> payments = paymentRepository.findByUser_EmailAndStatusTrue(userEmail);
+            List<Payment> payments = paymentRepository.findByUser_EmailAndStatusTrue(userService.getEmailUserContext());
 
             List<CourseDto> courseDtos = payments.stream()
                     .map(payment -> convertToDto(payment.getCourse()))

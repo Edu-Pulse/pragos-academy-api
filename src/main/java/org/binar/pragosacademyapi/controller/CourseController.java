@@ -72,11 +72,12 @@ public class CourseController {
         return ResponseEntity.ok(courseService.search(courseName));
     }
 
+    @PreAuthorize("hasRole('USER')")
     @GetMapping(
             value = "/courses/user"
     )
-    public ResponseEntity<Response<List<CourseDto>>> getCoursesByUserAll(@RequestParam String userEmail) {
-        Response<List<CourseDto>> response = courseService.getCoursesByUserAll(userEmail);
+    public ResponseEntity<Response<List<CourseDto>>> getCoursesByUserAll() {
+        Response<List<CourseDto>> response = courseService.getCoursesByUserAll();
 
         HttpStatus httpStatus = response.getError() ? HttpStatus.INTERNAL_SERVER_ERROR : HttpStatus.OK;
 
