@@ -257,6 +257,27 @@ public class CourseServiceImpl implements CourseService {
         return response;
     }
 
+    @Override
+    public Response<List<CourseDto>> getCoursesByUserAll(String userEmail) {
+        Response<List<CourseDto>> response = new Response<>();
+        try {
+            List<Payment> payments = paymentRepository.findByUser_EmailAndStatusTrue(userEmail);
+
+            List<CourseDto> courseDtos = payments.stream()
+                    .map(payment -> convertToDto(payment.getCourse()))
+                    .collect(Collectors.toList());
+
+            response.setError(false);
+            response.setMessage("Success to get courses by user");
+            response.setData(courseDtos);
+        } catch (Exception e) {
+            response.setError(true);
+            response.setMessage("Failed to get courses by user");
+            response.setData(null);
+        }
+        return response;
+    }
+
     @Transactional(readOnly = true)
     @Override
     public Response<List<CourseDto>> filter(String type) {
