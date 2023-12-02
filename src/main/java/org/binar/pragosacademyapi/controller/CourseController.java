@@ -5,6 +5,7 @@ import org.binar.pragosacademyapi.entity.dto.CourseDto;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -70,5 +71,13 @@ public class CourseController {
     public ResponseEntity<Response<List<CourseDto>>> searchCourse(@RequestParam String courseName){
         return ResponseEntity.ok(courseService.search(courseName));
     }
-  
+
+    @GetMapping("/user")
+    public ResponseEntity<Response<List<CourseDto>>> getCoursesByUserAll(@RequestParam String userEmail) {
+        Response<List<CourseDto>> response = courseService.getCoursesByUserAll(userEmail);
+
+        HttpStatus httpStatus = response.getError() ? HttpStatus.INTERNAL_SERVER_ERROR : HttpStatus.OK;
+
+        return new ResponseEntity<>(response, httpStatus);
+    }
 }

@@ -15,4 +15,5 @@ public interface CourseService {
     Response<String> enrollPaidCourse(String courseCode, PaymentRequest paymentRequest);
     Response<List<CourseDto>> search(String courseName);
     Response<List<CourseDto>> filterByCategory(Integer categoryId);
+    Response<List<CourseDto>> getCoursesByUserAll(String userEmail);
 }
