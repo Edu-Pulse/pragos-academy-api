@@ -106,4 +106,18 @@ public class UserController {
     public ResponseEntity<String> setDoneDetailChapter(@PathVariable Long id){
         return ResponseEntity.ok(userService.setDoneChapter(id));
     }
+
+    @GetMapping(
+            value = "/forgot-password/{email}"
+    )
+    public ResponseEntity<Response<String>> forgotPassword(@PathVariable String email){
+        return ResponseEntity.ok(userService.forgotPassword(email));
+    }
+
+    @PostMapping(
+            value = "/reset-password"
+    )
+    public ResponseEntity<Response<String>> resetPassword(@RequestParam String email, @RequestParam Integer verificationCode, @RequestBody String newPassword){
+        return ResponseEntity.ok(userService.resetPassword(verificationCode, email, newPassword));
+    }
 }
