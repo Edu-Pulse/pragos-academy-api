@@ -11,6 +11,7 @@ import org.binar.pragosacademyapi.repository.DetailChapterRepository;
 import org.binar.pragosacademyapi.repository.UserDetailChapterRepository;
 import org.binar.pragosacademyapi.repository.UserRepository;
 import org.binar.pragosacademyapi.repository.UserVerificationRepository;
+import org.binar.pragosacademyapi.service.NotificationService;
 import org.binar.pragosacademyapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,6 +57,8 @@ public class UserServiceImpl implements UserService {
     private DetailChapterRepository detailChapterRepository;
     @Value("${spring.mail.username}")
     private String EMAIL;
+    @Autowired
+    private NotificationService notificationService;
     private final Path root = Paths.get("/app/uploads");
 
     @PostConstruct
@@ -157,6 +160,7 @@ public class UserServiceImpl implements UserService {
                     response.setError(false);
                     response.setMessage("Success");
                     response.setData("Success update data");
+                    notificationService.sendNotification(user.getId(), "Data kamu berhasil diupdate");
                 }else {
                     try {
                         user.setPhone(updateUser.getPhone());
@@ -164,6 +168,7 @@ public class UserServiceImpl implements UserService {
                         response.setError(false);
                         response.setMessage("Success");
                         response.setData("Success update data");
+                        notificationService.sendNotification(user.getId(), "Data kamu berhasil diupdate");
                     }catch (Exception e){
                         response.setError(true);
                         response.setMessage("Failed to update data");
@@ -177,6 +182,7 @@ public class UserServiceImpl implements UserService {
                     response.setError(false);
                     response.setMessage("Success");
                     response.setData("Success update data");
+                    notificationService.sendNotification(user.getId(), "Data kamu berhasil diupdate");
                 }catch (Exception e){
                     response.setError(true);
                     response.setMessage("Failed to update data");
