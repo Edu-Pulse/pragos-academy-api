@@ -2,10 +2,10 @@ package org.binar.pragosacademyapi.controller;
 
 import org.binar.pragosacademyapi.entity.dto.CourseDetailDto;
 import org.binar.pragosacademyapi.entity.dto.CourseDto;
-import org.binar.pragosacademyapi.entity.request.PaymentRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +30,6 @@ public class CourseController {
     }
 
     @GetMapping(
-            value = "/courses",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<List<CourseDto>>> listAllCourses() {
@@ -66,13 +65,6 @@ public class CourseController {
         return ResponseEntity.ok(courseService.enrollCourse(code));
     }
 
-    @PreAuthorize("hasRole('USER')")
-    @PostMapping(
-            value = "/course/enroll-paid/{code}"
-    )
-    public ResponseEntity<Response<String>> enrollClassPaid(@PathVariable String code, @RequestBody PaymentRequest request){
-        return ResponseEntity.ok(courseService.enrollPaidCourse(code, request));
-    }
     @GetMapping(
             value = "/courses/search"
     )
@@ -80,12 +72,15 @@ public class CourseController {
         return ResponseEntity.ok(courseService.search(courseName));
     }
 
-    @PreAuthorize("hasRole('USER')")
-    @PutMapping(
-            value = "/course/rating/{courseCode}"
+    @GetMapping(
+            value = "/courses/user"
     )
-    public ResponseEntity<Response<String>> setRating(@PathVariable String courseCode, @RequestParam Integer rating){
-        return ResponseEntity.ok(courseService.setRating(courseCode, rating));
+    public ResponseEntity<Response<List<CourseDto>>> getCoursesByUserAll(@RequestParam String userEmail) {
+        Response<List<CourseDto>> response = courseService.getCoursesByUserAll(userEmail);
+
+        HttpStatus httpStatus = response.getError() ? HttpStatus.INTERNAL_SERVER_ERROR : HttpStatus.OK;
+
+        return new ResponseEntity<>(response, httpStatus);
     }
   
 }
