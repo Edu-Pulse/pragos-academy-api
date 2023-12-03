@@ -11,6 +11,7 @@ import org.binar.pragosacademyapi.repository.DetailChapterRepository;
 import org.binar.pragosacademyapi.repository.UserDetailChapterRepository;
 import org.binar.pragosacademyapi.repository.UserRepository;
 import org.binar.pragosacademyapi.repository.UserVerificationRepository;
+import org.binar.pragosacademyapi.service.NotificationService;
 import org.binar.pragosacademyapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,6 +57,10 @@ public class UserServiceImpl implements UserService {
     private DetailChapterRepository detailChapterRepository;
     @Value("${spring.mail.username}")
     private String EMAIL;
+    @Value("${base.url.fe}")
+    private String BASE_URL_FE;
+    @Autowired
+    private NotificationService notificationService;
     private final Path root = Paths.get("/app/uploads");
 
     @PostConstruct
@@ -157,6 +162,7 @@ public class UserServiceImpl implements UserService {
                     response.setError(false);
                     response.setMessage("Success");
                     response.setData("Success update data");
+                    notificationService.sendNotification(user.getId(), "Data kamu berhasil diupdate");
                 }else {
                     try {
                         user.setPhone(updateUser.getPhone());
@@ -164,6 +170,7 @@ public class UserServiceImpl implements UserService {
                         response.setError(false);
                         response.setMessage("Success");
                         response.setData("Success update data");
+                        notificationService.sendNotification(user.getId(), "Data kamu berhasil diupdate");
                     }catch (Exception e){
                         response.setError(true);
                         response.setMessage("Failed to update data");
@@ -177,6 +184,7 @@ public class UserServiceImpl implements UserService {
                     response.setError(false);
                     response.setMessage("Success");
                     response.setData("Success update data");
+                    notificationService.sendNotification(user.getId(), "Data kamu berhasil diupdate");
                 }catch (Exception e){
                     response.setError(true);
                     response.setMessage("Failed to update data");
@@ -296,9 +304,88 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    @Override
+    public Response<String> resetPassword(Integer verificationCode, String email, String newPassword) {
+        Response<String> response = new Response<>();
+        try {
+            User user = userRepository.findByEmail(email);
+            if (user != null){
+                UserVerification userVerification = userVerificationRepository.findByUser_Id(user.getId());
+                if (Objects.equals(verificationCode, userVerification.getVerificationCode()) && !LocalDateTime.now().isAfter(userVerification.getExpiredAt())){
+                    user.setPassword(bCryptPasswordEncoder.encode(newPassword));
+                    userRepository.save(user);
+                    response.setError(false);
+                    response.setMessage("Kode verifikasi salah atau sudah expired");
+                    response.setData("Password berhasil diubah. Silahkan login dengan password yang baru");
+                    notificationService.sendNotification(user.getId(), "Password kamu baru saja diganti");
+                }else {
+                    response.setError(false);
+                    response.setMessage("Kode verifikasi salah atau sudah expired");
+                    response.setData(null);
+                }
+            }else {
+                response.setError(true);
+                response.setMessage("User tidak ditemukan");
+                response.setData(null);
+            }
+        }catch (Exception e){
+            response.setError(true);
+            response.setMessage("Terjadi kesalahan. Silahkan coba lagi");
+            response.setData(null);
+        }
+        return response;
+    }
+
+    @Override
+    public Response<String> forgotPassword(String email) {
+        Response<String> response = new Response<>();
+        Integer code = random.nextInt(9999 - 1000) + 1000;
+        try {
+            User user = userRepository.findByEmail(email);
+            if (user != null){
+                UserVerification userVerification = user.getUserVerification();
+                userVerification.setVerificationCode(code);
+                userVerification.setExpiredAt(LocalDateTime.now().plusMinutes(5));
+                user.setUserVerification(userVerification);
+                userRepository.save(user);
+
+                sendEmailForgotPassword(email, code);
+                response.setError(false);
+                response.setMessage("Success");
+                response.setData("Tautan ganti password sudah dikirim ke email kamu");
+            }else {
+                response.setError(true);
+                response.setMessage("User dengan email: "+ email + " tidak ditemukan");
+                response.setData(null);
+            }
+
+        }catch (Exception e){
+            response.setError(true);
+            response.setMessage("Terjadi kesalahan");
+            response.setData(null);
+        }
+
+        return response;
+    }
+
     private void sendEmail(String email, Integer code) throws MessagingException, UnsupportedEncodingException {
         String subject = "Kode verifikasi Pragos Academy";
         String content = "Kode verifikasi anda: <b>"+ code + "</b> kode verifikasi akan expired dalam 5 menit. Jangan kirimkan kode ini kesiapapun jika tidak mendaftar di pragos academy.";
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+
+        helper.setFrom(EMAIL, "Pragos Academy");
+        helper.setTo(email);
+        helper.setSubject(subject);
+        helper.setText(content, true);
+        mailSender.send(message);
+    }
+
+    private void sendEmailForgotPassword(String email, Integer code) throws MessagingException, UnsupportedEncodingException {
+        String subject = "Tautan ganti password";
+        String content = "Klik tautan untuk ganti password anda <a href=\""+BASE_URL_FE+"reset-password?email="+email+"&verificationCode="+code+"\">Ganti password</a><br>" +
+                "<b>Tautan akan expired dalam 5 menit</b>";
 
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
