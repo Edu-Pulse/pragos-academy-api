@@ -74,7 +74,7 @@ public class CourseController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping(value = "/courses/user/all")
+    @GetMapping(value = "/courses/user")
     public ResponseEntity<Response<List<CourseDto>>> getCoursesByUserAll() {
         Response<List<CourseDto>> response = courseService.getCoursesByUserAll();
 
@@ -82,17 +82,10 @@ public class CourseController {
 
         return new ResponseEntity<>(response, httpStatus);
     }
-
-    @GetMapping(value = "/courses/user")
-    public ResponseEntity<Response<List<CourseDto>>> getCoursesByUserAndStatus(
-            @RequestParam("userEmail") String userEmail,
-            @RequestParam("status") CourseStatus status) {
-        Response<List<CourseDto>> response = courseService.getCoursesByUserAndStatus(userEmail, status);
-
-        if (response.getError()) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        } else {
-            return ResponseEntity.ok(response);
-        }
+    @GetMapping(value = "/courses/user/{userEmail}/status")
+    public Response<List<CourseDto>> getCoursesByUserAndStatus(
+            @PathVariable String userEmail,
+            @RequestParam CourseStatus status) {
+        return courseService.getCoursesByUserAndStatus(userEmail, status);
     }
 }

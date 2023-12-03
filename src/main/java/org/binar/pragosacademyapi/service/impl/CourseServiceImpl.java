@@ -9,6 +9,7 @@ import org.binar.pragosacademyapi.entity.dto.DetailChapterDto;
 import org.binar.pragosacademyapi.entity.request.CourseRequest;
 import org.binar.pragosacademyapi.entity.request.PaymentRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
+import org.binar.pragosacademyapi.enumeration.CourseStatus;
 import org.binar.pragosacademyapi.enumeration.Level;
 import org.binar.pragosacademyapi.enumeration.Type;
 import org.binar.pragosacademyapi.repository.*;
@@ -312,6 +313,42 @@ public class CourseServiceImpl implements CourseService {
             response.setData(null);
         }
         return response;
+    }
+
+    @Override
+    public Response<List<CourseDto>> getCoursesByUserAndStatus(String userEmail, CourseStatus status) {
+        Response<List<CourseDto>> response = new Response<>();
+        try {
+            List<Payment> payments = paymentRepository.findByUser_EmailAndStatusTrue(userEmail);
+            List<Payment> filteredPayments = payments.stream()
+                    .filter(payment -> isCourseInStatus(payment.getCourse(), status, userEmail))
+                    .collect(Collectors.toList());
+            List<CourseDto> courseDtos = filteredPayments.stream()
+                    .map(payment -> convertToDto(payment.getCourse()))
+                    .collect(Collectors.toList());
+
+            response.setError(false);
+            response.setMessage("Success to get courses by user and status");
+            response.setData(courseDtos);
+        } catch (Exception e) {
+            response.setError(true);
+            response.setMessage("Failed to get courses by user and status");
+            response.setData(null);
+        }
+
+        return response;
+    }
+
+    private boolean isCourseInStatus(Course course, CourseStatus status, String userEmail) {
+        int countDetailChapterDone = courseRepository.getCountDetailChapterDone(course.getCode(), userEmail);
+        int countTotalDetailChapter = courseRepository.getCountDetailChapter(course.getCode());
+
+        if (status == CourseStatus.IN_PROGRESS) {
+            return countDetailChapterDone < countTotalDetailChapter;
+        } else if (status == CourseStatus.COMPLETED) {
+            return countDetailChapterDone == countTotalDetailChapter;
+        }
+        return false;
     }
 
     @Transactional(readOnly = true)

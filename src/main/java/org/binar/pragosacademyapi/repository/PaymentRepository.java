@@ -17,4 +17,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Payment findByUser_IdAndCourse_Code(Long userId, String courseCode);
 
     List<Payment> findByUser_EmailAndStatusTrue(String userEmail);
+
+    List<Payment> findByType(String type);
 }
