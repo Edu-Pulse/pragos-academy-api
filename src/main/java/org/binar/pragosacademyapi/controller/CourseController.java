@@ -3,6 +3,7 @@ package org.binar.pragosacademyapi.controller;
 import org.binar.pragosacademyapi.entity.dto.CourseDetailDto;
 import org.binar.pragosacademyapi.entity.dto.CourseDto;
 import org.binar.pragosacademyapi.entity.response.Response;
+import org.binar.pragosacademyapi.enumeration.CourseStatus;
 import org.binar.pragosacademyapi.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -73,9 +74,7 @@ public class CourseController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping(
-            value = "/courses/user"
-    )
+    @GetMapping(value = "/courses/user/all")
     public ResponseEntity<Response<List<CourseDto>>> getCoursesByUserAll() {
         Response<List<CourseDto>> response = courseService.getCoursesByUserAll();
 
@@ -83,5 +82,17 @@ public class CourseController {
 
         return new ResponseEntity<>(response, httpStatus);
     }
-  
+
+    @GetMapping(value = "/courses/user")
+    public ResponseEntity<Response<List<CourseDto>>> getCoursesByUserAndStatus(
+            @RequestParam("userEmail") String userEmail,
+            @RequestParam("status") CourseStatus status) {
+        Response<List<CourseDto>> response = courseService.getCoursesByUserAndStatus(userEmail, status);
+
+        if (response.getError()) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        } else {
+            return ResponseEntity.ok(response);
+        }
+    }
 }

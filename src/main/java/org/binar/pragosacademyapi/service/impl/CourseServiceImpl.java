@@ -10,6 +10,7 @@ import org.binar.pragosacademyapi.entity.dto.CourseDto;
 import org.binar.pragosacademyapi.entity.dto.DetailChapterDto;
 import org.binar.pragosacademyapi.entity.request.PaymentRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
+import org.binar.pragosacademyapi.enumeration.CourseStatus;
 import org.binar.pragosacademyapi.enumeration.Type;
 import org.binar.pragosacademyapi.repository.CourseRepository;
 import org.binar.pragosacademyapi.repository.PaymentRepository;
@@ -276,6 +277,49 @@ public class CourseServiceImpl implements CourseService {
             response.setData(null);
         }
         return response;
+    }
+
+    @Override
+    public Response<List<CourseDto>> getCoursesByUserAndStatus(String userEmail, CourseStatus status) {
+        Response<List<CourseDto>> response = new Response<>();
+        try {
+            List<Payment> payments = paymentRepository.findByUser_EmailAndStatusTrue(userEmail);
+
+            List<CourseDto> courseDtos = payments.stream()
+                    .filter(payment -> isCourseInStatus(payment.getCourse(), status, userEmail))
+                    .map(payment -> convertToDto(payment.getCourse()))
+                    .collect(Collectors.toList());
+
+            response.setError(false);
+            response.setMessage("Success to get courses by user and status");
+            response.setData(courseDtos);
+        } catch (Exception e) {
+            response.setError(true);
+            response.setMessage("Failed to get courses by user and status");
+            response.setData(null);
+        }
+        return response;
+    }
+
+    private boolean isCourseInStatus(Course course, CourseStatus status, String userEmail) {
+        try {
+            int countDetailChapterDone = courseRepository.getCountDetailChapterDone(course.getCode(), userEmail);
+
+            if (status == CourseStatus.IN_PROGRESS) {
+                return countDetailChapterDone < getCountDetailChapter(course);
+            } else if (status == CourseStatus.COMPLETED) {
+                return countDetailChapterDone == getCountDetailChapter(course);
+            }
+
+            return false;
+        } catch (Exception e) {
+            log.error("Error checking course status", e);
+            throw new RuntimeException("Failed to check course status", e);
+        }
+    }
+
+    private int getCountDetailChapter(Course course) {
+        return courseRepository.getCountDetailChapter(course.getCode());
     }
 
     @Transactional(readOnly = true)
