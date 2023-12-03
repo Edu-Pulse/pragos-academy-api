@@ -1,26 +1,24 @@
 package org.binar.pragosacademyapi.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.binar.pragosacademyapi.entity.Course;
-import org.binar.pragosacademyapi.entity.Payment;
-import org.binar.pragosacademyapi.entity.User;
+import org.binar.pragosacademyapi.entity.*;
 import org.binar.pragosacademyapi.entity.dto.ChapterDto;
 import org.binar.pragosacademyapi.entity.dto.CourseDetailDto;
 import org.binar.pragosacademyapi.entity.dto.CourseDto;
 import org.binar.pragosacademyapi.entity.dto.DetailChapterDto;
+import org.binar.pragosacademyapi.entity.request.CourseRequest;
 import org.binar.pragosacademyapi.entity.request.PaymentRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
+import org.binar.pragosacademyapi.enumeration.Level;
 import org.binar.pragosacademyapi.enumeration.Type;
-import org.binar.pragosacademyapi.repository.CourseRepository;
-import org.binar.pragosacademyapi.repository.PaymentRepository;
-import org.binar.pragosacademyapi.repository.UserDetailChapterRepository;
-import org.binar.pragosacademyapi.repository.UserRepository;
+import org.binar.pragosacademyapi.repository.*;
 import org.binar.pragosacademyapi.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.BeanUtils;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,6 +36,8 @@ public class CourseServiceImpl implements CourseService {
     private UserDetailChapterRepository userDetailChapterRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CategoryRepository categoryRepository;
 
     @Override
     public Response<List<CourseDto>> listAllCourse() {
@@ -273,6 +273,42 @@ public class CourseServiceImpl implements CourseService {
         } catch (Exception e) {
             response.setError(true);
             response.setMessage("Failed to get courses by user");
+            response.setData(null);
+        }
+        return response;
+    }
+
+    @Override
+    public Response<String> createCourse(CourseRequest request) {
+        Response<String> response = new Response<>();
+        try {
+            Course course = courseRepository.findByCode(request.getCourseCode());
+            if (course == null){
+                Course newCourse = new Course();
+                newCourse.setCode(request.getCourseCode());
+                newCourse.setName(request.getCourseName());
+                newCourse.setDescription(request.getDescription());
+                newCourse.setLecturer(request.getLecturer());
+                newCourse.setIntended(request.getIntended());
+                newCourse.setLevel(Level.valueOf(request.getLevel().toUpperCase()));
+                newCourse.setType(Type.valueOf(request.getType().toUpperCase()));
+                Category category = categoryRepository.findById(request.getCategory()).orElse(null);
+                newCourse.setCategory(category);
+                newCourse.setPrice(request.getPrice());
+                newCourse.setDiscount(request.getDiscount());
+                newCourse.setChapters(new ArrayList<>());
+
+                courseRepository.save(newCourse);
+                response.setError(false);
+                response.setMessage("Success");
+                response.setData("Success add course");
+            }else {
+                response.setError(true);
+                response.setMessage("Failed");
+                response.setData("Course code already exist");
+            }
+        }catch (Exception e){
+            response.setError(true);
             response.setData(null);
         }
         return response;

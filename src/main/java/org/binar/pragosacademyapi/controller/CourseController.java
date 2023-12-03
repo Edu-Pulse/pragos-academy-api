@@ -2,6 +2,7 @@ package org.binar.pragosacademyapi.controller;
 
 import org.binar.pragosacademyapi.entity.dto.CourseDetailDto;
 import org.binar.pragosacademyapi.entity.dto.CourseDto;
+import org.binar.pragosacademyapi.entity.request.CourseRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +83,15 @@ public class CourseController {
         HttpStatus httpStatus = response.getError() ? HttpStatus.INTERNAL_SERVER_ERROR : HttpStatus.OK;
 
         return new ResponseEntity<>(response, httpStatus);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping(
+            value = "/course",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Response<String>> createCourse(@RequestBody CourseRequest request){
+        return ResponseEntity.ok(courseService.createCourse(request));
     }
   
 }
