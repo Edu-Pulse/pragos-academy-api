@@ -10,7 +10,9 @@ import java.util.List;
 
 @Repository
 public interface ChapterRepository extends JpaRepository<Chapter, Long> {
-    Chapter findByCapther(String chapter);
+
+    @Query("select c from Chapter c where c.course.code = :courseCode and c.capther = :chapterName")
+    Chapter chapterByCourseAndName(@Param("courseCode") String courseCode, @Param("chapterName") String chapterName);
     @Query("select ch.capther from Chapter ch where ch.course.code =:courseCode")
     List<String> listChapterByCourse(@Param("courseCode") String courseCode);
 }
