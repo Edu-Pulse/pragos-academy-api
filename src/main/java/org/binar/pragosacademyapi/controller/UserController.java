@@ -97,7 +97,7 @@ public class UserController {
    }
 
    @PreAuthorize("hasRole('USER')")
-    @PutMapping(
+    @PostMapping(
             value = "/user/update"
     )
     public ResponseEntity<Response<String>> updateUser(@ModelAttribute UpdateUserRequest request){
