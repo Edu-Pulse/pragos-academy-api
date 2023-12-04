@@ -13,6 +13,7 @@ import org.binar.pragosacademyapi.enumeration.Level;
 import org.binar.pragosacademyapi.enumeration.Type;
 import org.binar.pragosacademyapi.repository.*;
 import org.binar.pragosacademyapi.service.CourseService;
+import org.binar.pragosacademyapi.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.BeanUtils;
@@ -38,6 +39,8 @@ public class CourseServiceImpl implements CourseService {
     private UserRepository userRepository;
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private NotificationService notificationService;
 
     @Override
     public Response<List<CourseDto>> listAllCourse() {
@@ -139,6 +142,7 @@ public class CourseServiceImpl implements CourseService {
                         response.setError(false);
                         response.setMessage("Success");
                         response.setData("Berhasil enroll course : "+courseCode);
+                        notificationService.sendNotification(user.getId(), "Kamu telah terdaftar ke kelas "+ course.getName()+" Semoga ilmu yang akan dipelajari dapat bermanfaat didunia maupun akhirat");
                     }else {
                         response.setError(true);
                         response.setMessage("Failed");
@@ -171,34 +175,32 @@ public class CourseServiceImpl implements CourseService {
             if (course != null){
                 Payment checkPayment = paymentRepository.findByUser_IdAndCourse_Code(user.getId(), courseCode);
                 if (checkPayment == null){
-                    if (course.getPrice() > 0){
-                        if (isValidCardDetails(paymentRequest.getCardNumber(), paymentRequest.getCardHolderName(),
-                                paymentRequest.getCvv(), paymentRequest.getExpiryDate())) {
-                            Payment payment = new Payment();
-                            payment.setUser(user);
-                            payment.setCourse(course);
-                            payment.setAmount(Long.valueOf(course.getPrice()));
-                            payment.setPaymentMethod("CREDIT_CARD");
-                            payment.setCardNumber(paymentRequest.getCardNumber());
-                            payment.setCardHolderName(paymentRequest.getCardHolderName());
-                            payment.setCvv(paymentRequest.getCvv());
-                            payment.setExpiryDate(paymentRequest.getExpiryDate());
-                            payment.setStatus(true);
-                            payment.setPaymentDate(LocalDateTime.now());
-                            paymentRepository.save(payment);
+                    log.info(paymentRequest.getCardNumber());
+                    if (paymentRequest.getCardNumber().length() == 16) {
+                        Payment payment = new Payment();
+                        payment.setUser(user);
+                        payment.setCourse(course);
+                        double discount = (course.getPrice() * ((double) course.getDiscount() / 100));
+                        log.info("Diskon :"+ discount);
+                        Long amount = (long) (course.getPrice() - discount);
+                        payment.setAmount(amount);
+                        payment.setPaymentMethod("CREDIT_CARD");
+                        payment.setCardNumber(paymentRequest.getCardNumber());
+                        payment.setCardHolderName(paymentRequest.getCardHolderName());
+                        payment.setCvv(paymentRequest.getCvv());
+                        payment.setExpiryDate(paymentRequest.getExpiryDate());
+                        payment.setStatus(true);
+                        payment.setPaymentDate(LocalDateTime.now());
+                        paymentRepository.save(payment);
 
-                            response.setError(false);
-                            response.setMessage("Sukses");
-                            response.setData("Berhasil mendaftar kursus: " + courseCode);
-                        } else {
-                            response.setError(true);
-                            response.setMessage("Gagal");
-                            response.setData("Detail kartu tidak valid");
-                        }
+                        response.setError(false);
+                        response.setMessage("Sukses");
+                        response.setData("Berhasil mendaftar kursus: " + courseCode);
+                        notificationService.sendNotification(user.getId(), "Kamu telah terdaftar ke kelas "+ course.getName()+" Semoga ilmu yang akan dipelajari dapat bermanfaat didunia maupun akhirat");
                     } else {
                         response.setError(true);
                         response.setMessage("Gagal");
-                        response.setData("Kursus ini gratis");
+                        response.setData("Detail kartu tidak valid");
                     }
                 } else {
                     response.setError(true);
@@ -211,14 +213,12 @@ public class CourseServiceImpl implements CourseService {
                 response.setData("Kursus dengan kode " + courseCode + " tidak ditemukan");
             }
         } catch (Exception e) {
+            log.error(e.getMessage());
             response.setError(true);
             response.setMessage("Gagal");
             response.setData("Terjadi kesalahan");
         }
         return response;
-    }
-    private boolean isValidCardDetails(String cardNumber, String cardHolderName, String cvv, String expiryDate) {
-        return cardNumber != null && cardNumber.length() == 16;// Contoh nomor kartunya 16 digit
     }
   
     @Transactional(readOnly = true)
@@ -309,6 +309,32 @@ public class CourseServiceImpl implements CourseService {
             }
         }catch (Exception e){
             response.setError(true);
+            response.setData(null);
+        }
+        return response;
+    }
+
+    @Override
+    public Response<String> setRating(String courseCode, Integer rating) {
+        Response<String> response = new Response<>();
+        try {
+            User user = userRepository.findByEmail(userService.getEmailUserContext());
+            Payment payment = paymentRepository.findByUser_IdAndCourse_Code(user.getId(), courseCode);
+            if (payment != null){
+                payment.setRating(rating);
+                paymentRepository.save(payment);
+                response.setError(false);
+                response.setMessage("Success");
+                response.setData("Berhasil menambahkan rating");
+                notificationService.sendNotification(user.getId(), "Terimakasih telah memberikan rating ke course "+ payment.getCourse().getName());
+            }else {
+                response.setError(true);
+                response.setMessage("Kamu belum enroll kelas ini");
+                response.setData(null);
+            }
+        }catch (Exception e){
+            response.setError(true);
+            response.setMessage("Terjadi kesalahan");
             response.setData(null);
         }
         return response;

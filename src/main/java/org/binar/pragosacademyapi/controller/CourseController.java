@@ -2,8 +2,11 @@ package org.binar.pragosacademyapi.controller;
 
 import org.binar.pragosacademyapi.entity.dto.CourseDetailDto;
 import org.binar.pragosacademyapi.entity.dto.CourseDto;
+import org.binar.pragosacademyapi.entity.request.ChapterRequest;
 import org.binar.pragosacademyapi.entity.request.CourseRequest;
+import org.binar.pragosacademyapi.entity.request.PaymentRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
+import org.binar.pragosacademyapi.service.ChapterService;
 import org.binar.pragosacademyapi.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +24,8 @@ import java.util.List;
 public class CourseController {
     @Autowired
     private CourseService courseService;
+    @Autowired
+    private ChapterService chapterService;
 
     @GetMapping(
             value = "/course/{code}",
@@ -31,6 +36,7 @@ public class CourseController {
     }
 
     @GetMapping(
+            value = "/courses",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<List<CourseDto>>> listAllCourses() {
@@ -66,6 +72,22 @@ public class CourseController {
         return ResponseEntity.ok(courseService.enrollCourse(code));
     }
 
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping(
+            value = "/course/enroll-paid/{code}"
+    )
+    public ResponseEntity<Response<String>> enrollClassPaid(@PathVariable String code, @RequestBody PaymentRequest request){
+        return ResponseEntity.ok(courseService.enrollPaidCourse(code, request));
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @PutMapping(
+            value = "/course/rating/{courseCode}"
+    )
+    public ResponseEntity<Response<String>> setRating(@PathVariable String courseCode, @RequestParam Integer rating){
+        return ResponseEntity.ok(courseService.setRating(courseCode, rating));
+    }
+
     @GetMapping(
             value = "/courses/search"
     )
@@ -92,6 +114,15 @@ public class CourseController {
     )
     public ResponseEntity<Response<String>> createCourse(@RequestBody CourseRequest request){
         return ResponseEntity.ok(courseService.createCourse(request));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping(
+            value = "/course/{code}",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Response<String>> addChapter(@PathVariable String code, @RequestBody ChapterRequest request){
+        return ResponseEntity.ok(chapterService.addChapter(code, request));
     }
   
 }
