@@ -54,12 +54,14 @@ public class UserController {
             dataToken.put("token", token);
             dataToken.put("role",authentication.getAuthorities().toString());
             response.setData(dataToken);
+            return ResponseEntity.ok(response);
         }else {
+
             response.setError(true);
             response.setMessage("Anda belum melakukan registrasi atau verifikasi email");
             response.setData(null);
+            return ResponseEntity.status(401).body(response);
         }
-        return ResponseEntity.ok(response);
     }
 
     @PostMapping(
