@@ -81,9 +81,8 @@ public class UserController {
         return ResponseEntity.ok(userService.generateCodeVerification(email));
     }
 
-    @PutMapping(
-            value = "/verification",
-            produces = MediaType.APPLICATION_JSON_VALUE
+    @PostMapping(
+            value = "/verification"
     )
     public ResponseEntity<Response<String>> verification(@RequestParam String email, @RequestParam Integer code){
         return ResponseEntity.ok(userService.verification(email, code));
