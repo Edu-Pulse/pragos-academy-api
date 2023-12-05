@@ -20,4 +20,5 @@ public interface CourseService {
     Response<List<CourseDto>> getCoursesByUserAll();
     Response<String> createCourse(CourseRequest request);
     Response<List<CourseDto>> getCoursesByUserAndStatus(String userEmail, CourseStatus status);
+    Response<String> setRating(String courseCode, Integer rating);
 }

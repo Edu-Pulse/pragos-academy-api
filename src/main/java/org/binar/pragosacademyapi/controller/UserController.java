@@ -55,12 +55,14 @@ public class UserController {
             dataToken.put("token", token);
             dataToken.put("role",authentication.getAuthorities().toString());
             response.setData(dataToken);
+            return ResponseEntity.ok(response);
         }else {
+
             response.setError(true);
             response.setMessage("Anda belum melakukan registrasi atau verifikasi email");
             response.setData(null);
+            return ResponseEntity.status(401).body(response);
         }
-        return ResponseEntity.ok(response);
     }
 
     @PostMapping(
@@ -80,7 +82,7 @@ public class UserController {
         return ResponseEntity.ok(userService.generateCodeVerification(email));
     }
 
-    @PutMapping(
+    @PostMapping(
             value = "/verification"
     )
     public ResponseEntity<Response<String>> verification(@RequestParam String email, @RequestParam Integer code){
@@ -95,8 +97,8 @@ public class UserController {
         return ResponseEntity.ok(userService.getProfile());
     }
 
-    @PreAuthorize("hasRole('USER')")
-    @PutMapping(
+   @PreAuthorize("hasRole('USER')")
+    @PostMapping(
             value = "/user/update"
     )
     public ResponseEntity<Response<String>> updateUser(@ModelAttribute UpdateUserRequest request){
