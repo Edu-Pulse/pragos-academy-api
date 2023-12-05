@@ -2,10 +2,10 @@ package org.binar.pragosacademyapi.controller;
 
 import org.binar.pragosacademyapi.entity.dto.CourseDetailDto;
 import org.binar.pragosacademyapi.entity.dto.CourseDto;
-import org.binar.pragosacademyapi.entity.request.ChapterRequest;
 import org.binar.pragosacademyapi.entity.request.CourseRequest;
-import org.binar.pragosacademyapi.entity.request.PaymentRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
+import org.binar.pragosacademyapi.entity.request.ChapterRequest;
+import org.binar.pragosacademyapi.entity.request.PaymentRequest;
 import org.binar.pragosacademyapi.service.ChapterService;
 import org.binar.pragosacademyapi.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
+@RequestMapping("/course")
 @RestController
 public class CourseController {
     @Autowired
@@ -28,7 +28,7 @@ public class CourseController {
     private ChapterService chapterService;
 
     @GetMapping(
-            value = "/course/{code}",
+            value = "/{code}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<CourseDetailDto>> courseDetail(@PathVariable String code){
@@ -36,7 +36,7 @@ public class CourseController {
     }
 
     @GetMapping(
-            value = "/courses",
+            value = "/all",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<List<CourseDto>>> listAllCourses() {
@@ -57,7 +57,7 @@ public class CourseController {
 
     }
     @GetMapping(
-            value = "/courses/type",
+            value = "/type",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<List<CourseDto>>> filter(@RequestParam String type) {
@@ -66,7 +66,7 @@ public class CourseController {
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping(
-            value = "/course/enroll/{code}"
+            value = "/enroll/{code}"
     )
     public ResponseEntity<Response<String>> enrollClass(@PathVariable String code){
         return ResponseEntity.ok(courseService.enrollCourse(code));
@@ -74,31 +74,29 @@ public class CourseController {
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping(
-            value = "/course/enroll-paid/{code}"
+            value = "/enroll-paid/{code}"
     )
     public ResponseEntity<Response<String>> enrollClassPaid(@PathVariable String code, @RequestBody PaymentRequest request){
         return ResponseEntity.ok(courseService.enrollPaidCourse(code, request));
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PutMapping(
-            value = "/course/rating/{courseCode}"
+    @PostMapping(
+            value = "/rating/{courseCode}"
     )
     public ResponseEntity<Response<String>> setRating(@PathVariable String courseCode, @RequestParam Integer rating){
         return ResponseEntity.ok(courseService.setRating(courseCode, rating));
     }
 
     @GetMapping(
-            value = "/courses/search"
+            value = "/search"
     )
     public ResponseEntity<Response<List<CourseDto>>> searchCourse(@RequestParam String courseName){
         return ResponseEntity.ok(courseService.search(courseName));
     }
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping(
-            value = "/courses/user"
-    )
+    @GetMapping(value = "/user")
     public ResponseEntity<Response<List<CourseDto>>> getCoursesByUserAll() {
         Response<List<CourseDto>> response = courseService.getCoursesByUserAll();
 
@@ -106,23 +104,27 @@ public class CourseController {
 
         return new ResponseEntity<>(response, httpStatus);
     }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping(
-            value = "/course",
-            consumes = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<Response<String>> createCourse(@RequestBody CourseRequest request){
-        return ResponseEntity.ok(courseService.createCourse(request));
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping(value = "/user/status")
+    public ResponseEntity<Response<List<CourseDto>>> getCoursesByUserAndStatus(@RequestParam String status) {
+        return ResponseEntity.ok(courseService.getCoursesByUserAndStatus(status));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping(
-            value = "/course/{code}",
+    @PostMapping(
+            value = "/{code}",
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<String>> addChapter(@PathVariable String code, @RequestBody ChapterRequest request){
         return ResponseEntity.ok(chapterService.addChapter(code, request));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping(
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Response<String>> createCourse(@RequestBody CourseRequest request){
+        return ResponseEntity.ok(courseService.createCourse(request));
     }
   
 }

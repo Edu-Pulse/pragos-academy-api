@@ -10,10 +10,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
 
+@RequestMapping("/category")
 @RestController
 public class CategoryController {
 
@@ -23,14 +24,14 @@ public class CategoryController {
     private CourseService courseService;
 
     @GetMapping(
-            value = "/categories",
+            value = "/all",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<List<CategoryDto>>> listCategory(){
         return ResponseEntity.ok(categoryService.listCategory());
     }
     @GetMapping(
-            value = "/category/{id}",
+            value = "/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<List<CourseDto>>> courseByCategory(@PathVariable Integer id){

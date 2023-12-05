@@ -9,6 +9,7 @@ import org.binar.pragosacademyapi.entity.dto.DetailChapterDto;
 import org.binar.pragosacademyapi.entity.request.CourseRequest;
 import org.binar.pragosacademyapi.entity.request.PaymentRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
+import org.binar.pragosacademyapi.enumeration.CourseStatus;
 import org.binar.pragosacademyapi.enumeration.Level;
 import org.binar.pragosacademyapi.enumeration.Type;
 import org.binar.pragosacademyapi.repository.*;
@@ -110,6 +111,7 @@ public class CourseServiceImpl implements CourseService {
             }
         }catch (Exception e){
             response.setError(true);
+            log.error(e.getMessage());
             response.setMessage("Failed to get data "+ courseCode);
             response.setData(null);
         }
@@ -261,7 +263,7 @@ public class CourseServiceImpl implements CourseService {
     public Response<List<CourseDto>> getCoursesByUserAll() {
         Response<List<CourseDto>> response = new Response<>();
         try {
-            List<Payment> payments = paymentRepository.findByUser_EmailAndStatusTrue(userService.getEmailUserContext());
+            List<Payment> payments = paymentRepository.paymentByUserAndStatus(userService.getEmailUserContext());
 
             List<CourseDto> courseDtos = payments.stream()
                     .map(payment -> convertToDto(payment.getCourse()))
@@ -315,6 +317,41 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public Response<List<CourseDto>> getCoursesByUserAndStatus(String status) {
+        Response<List<CourseDto>> response = new Response<>();
+        try {
+            String email = userService.getEmailUserContext();
+            List<Payment> payments = paymentRepository.paymentByUserAndStatus(email);
+            List<Payment> filteredPayments = payments.stream()
+                    .filter(payment -> isCourseInStatus(payment.getCourse(), CourseStatus.valueOf(status.toUpperCase()), email))
+                    .collect(Collectors.toList());
+            List<CourseDto> courseDtos = filteredPayments.stream()
+                    .map(payment -> convertToDto(payment.getCourse()))
+                    .collect(Collectors.toList());
+
+            response.setError(false);
+            response.setMessage("Success to get courses by user and status");
+            response.setData(courseDtos);
+        } catch (Exception e) {
+            response.setError(true);
+            response.setMessage("Failed to get courses by user and status");
+            response.setData(null);
+        }
+
+        return response;
+    }
+
+    private boolean isCourseInStatus(Course course, CourseStatus status, String userEmail) {
+        int countDetailChapterDone = courseRepository.getCountDetailChapterDone(course.getCode(), userEmail);
+        int countTotalDetailChapter = courseRepository.getCountDetailChapter(course.getCode());
+
+        if (status == CourseStatus.IN_PROGRESS) {
+            return countDetailChapterDone < countTotalDetailChapter;
+        } else if (status == CourseStatus.COMPLETED) {
+            return countDetailChapterDone == countTotalDetailChapter;
+        }
+        return false;
+    }
     public Response<String> setRating(String courseCode, Integer rating) {
         Response<String> response = new Response<>();
         try {
@@ -339,7 +376,7 @@ public class CourseServiceImpl implements CourseService {
         }
         return response;
     }
-
+  
     @Transactional(readOnly = true)
     @Override
     public Response<List<CourseDto>> filter(String type) {
