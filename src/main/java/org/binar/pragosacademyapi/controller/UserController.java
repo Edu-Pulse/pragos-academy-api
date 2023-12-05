@@ -30,14 +30,19 @@ public class UserController {
 
    @PreAuthorize("hasRole('USER')")
     @PostMapping(
-            value = "/update"
+            value = "/update",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<String>> updateUser(@ModelAttribute UpdateUserRequest request){
         return ResponseEntity.ok(userService.update(request));
     }
 
     @PreAuthorize("hasRole('USER')")
-    @PostMapping(value = "/detailchapter/setdone/{id}")
+    @PostMapping(
+            value = "/detailchapter/setdone/{id}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<String> setDoneDetailChapter(@PathVariable Long id){
         return ResponseEntity.ok(userService.setDoneChapter(id));
     }
