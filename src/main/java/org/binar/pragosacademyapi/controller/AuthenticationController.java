@@ -28,7 +28,7 @@ public class AuthenticationController {
     private UserService userService;
 
     @PostMapping(
-            value = "/login",
+            value = "/user/login",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
@@ -61,7 +61,7 @@ public class AuthenticationController {
     }
 
     @PostMapping(
-            value = "/register",
+            value = "/user/register",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
