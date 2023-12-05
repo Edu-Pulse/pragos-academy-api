@@ -97,3 +97,5 @@ CREATE TABLE payments(
 SELECT * FROM chapters;
 
 SELECT * FROM payments;
+
+select c.name, c.code from payments p inner join courses c on p.course_code = 'UIUX0123' where p.user_id = 1 and c.code = 'UIUX0123';

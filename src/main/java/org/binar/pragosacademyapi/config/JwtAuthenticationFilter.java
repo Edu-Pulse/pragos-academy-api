@@ -15,9 +15,11 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import javax.annotation.Resource;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -32,12 +34,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private TokenProvider tokenProvider;
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String header = request.getHeader(HEADER_STRING);
+        String header = request.getHeader("Cookie");
         String username = null;
         String authToken = null;
 
-        if (header != null && header.startsWith(TOKEN_PREFIX)){
-            authToken = header.replace(TOKEN_PREFIX, "");
+        if (header != null){
+            authToken = Arrays.stream(request.getCookies()).filter(cookie -> "COOKIE_AUTH".equals(cookie.getName())).findFirst().map(Cookie::getValue).get();
             try {
                 username = tokenProvider.getUsernameFromToken(authToken);
             }catch (IllegalArgumentException e) {
