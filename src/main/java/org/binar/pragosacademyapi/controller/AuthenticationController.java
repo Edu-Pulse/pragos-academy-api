@@ -94,7 +94,8 @@ public class AuthenticationController {
     }
 
     @PostMapping(
-            value = "/reset-password"
+            value = "/reset-password",
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<String>> resetPassword(@RequestParam String email, @RequestParam Integer verificationCode, @RequestParam String newPassword){
         return ResponseEntity.ok(userService.resetPassword(verificationCode, email, newPassword));

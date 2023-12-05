@@ -66,7 +66,8 @@ public class CourseController {
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping(
-            value = "/enroll/{code}"
+            value = "/enroll/{code}",
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<String>> enrollClass(@PathVariable String code){
         return ResponseEntity.ok(courseService.enrollCourse(code));
@@ -74,7 +75,9 @@ public class CourseController {
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping(
-            value = "/enroll-paid/{code}"
+            value = "/enroll-paid/{code}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<String>> enrollClassPaid(@PathVariable String code, @RequestBody PaymentRequest request){
         return ResponseEntity.ok(courseService.enrollPaidCourse(code, request));
@@ -82,21 +85,26 @@ public class CourseController {
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping(
-            value = "/rating/{courseCode}"
+            value = "/rating/{courseCode}",
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<String>> setRating(@PathVariable String courseCode, @RequestParam Integer rating){
         return ResponseEntity.ok(courseService.setRating(courseCode, rating));
     }
 
     @GetMapping(
-            value = "/search"
+            value = "/search",
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<List<CourseDto>>> searchCourse(@RequestParam String courseName){
         return ResponseEntity.ok(courseService.search(courseName));
     }
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping(value = "/user")
+    @GetMapping(
+            value = "/user",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<Response<List<CourseDto>>> getCoursesByUserAll() {
         Response<List<CourseDto>> response = courseService.getCoursesByUserAll();
 
@@ -105,7 +113,10 @@ public class CourseController {
         return new ResponseEntity<>(response, httpStatus);
     }
     @PreAuthorize("hasRole('USER')")
-    @GetMapping(value = "/user/status")
+    @GetMapping(
+            value = "/user/status",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<Response<List<CourseDto>>> getCoursesByUserAndStatus(@RequestParam String status) {
         return ResponseEntity.ok(courseService.getCoursesByUserAndStatus(status));
     }
@@ -113,7 +124,8 @@ public class CourseController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(
             value = "/{code}",
-            consumes = MediaType.APPLICATION_JSON_VALUE
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<String>> addChapter(@PathVariable String code, @RequestBody ChapterRequest request){
         return ResponseEntity.ok(chapterService.addChapter(code, request));
@@ -121,7 +133,8 @@ public class CourseController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(
-            consumes = MediaType.APPLICATION_JSON_VALUE
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<String>> createCourse(@RequestBody CourseRequest request){
         return ResponseEntity.ok(courseService.createCourse(request));
