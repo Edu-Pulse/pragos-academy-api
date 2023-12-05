@@ -3,13 +3,16 @@ package org.binar.pragosacademyapi.service.impl;
 import org.binar.pragosacademyapi.entity.Payment;
 import org.binar.pragosacademyapi.entity.dto.PaymentDto;
 import org.binar.pragosacademyapi.entity.response.Response;
+import org.binar.pragosacademyapi.enumeration.Type;
 import org.binar.pragosacademyapi.repository.PaymentRepository;
 import org.binar.pragosacademyapi.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class PaymentServiceImpl implements PaymentService {
     @Autowired
     private PaymentRepository paymentRepository;
@@ -18,7 +21,7 @@ public class PaymentServiceImpl implements PaymentService {
         Response<List<PaymentDto>> response = new Response<>();
 
         try {
-            List<Payment> payments = paymentRepository.findByType(type);
+            List<Payment> payments = paymentRepository.findByType(Type.valueOf(type.toUpperCase()));
             List<PaymentDto> paymentDtoList = new ArrayList<>();
 
             for (Payment payment : payments) {

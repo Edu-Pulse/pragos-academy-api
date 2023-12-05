@@ -2,6 +2,7 @@ package org.binar.pragosacademyapi.repository;
 
 import org.binar.pragosacademyapi.entity.Course;
 import org.binar.pragosacademyapi.entity.Payment;
+import org.binar.pragosacademyapi.enumeration.Type;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,5 +19,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
     List<Payment> findByUser_EmailAndStatusTrue(String userEmail);
 
-    List<Payment> findByType(String type);
+    @Query("select p from Payment p where p.course.type = :type")
+    List<Payment> findByType(@Param("type") Type type);
 }
