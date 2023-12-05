@@ -263,7 +263,7 @@ public class CourseServiceImpl implements CourseService {
     public Response<List<CourseDto>> getCoursesByUserAll() {
         Response<List<CourseDto>> response = new Response<>();
         try {
-            List<Payment> payments = paymentRepository.findByUser_EmailAndStatusTrue(userService.getEmailUserContext());
+            List<Payment> payments = paymentRepository.paymentByUserAndStatus(userService.getEmailUserContext());
 
             List<CourseDto> courseDtos = payments.stream()
                     .map(payment -> convertToDto(payment.getCourse()))
@@ -317,12 +317,13 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Response<List<CourseDto>> getCoursesByUserAndStatus(String userEmail, CourseStatus status) {
+    public Response<List<CourseDto>> getCoursesByUserAndStatus(String status) {
         Response<List<CourseDto>> response = new Response<>();
         try {
-            List<Payment> payments = paymentRepository.findByUser_EmailAndStatusTrue(userEmail);
+            String email = userService.getEmailUserContext();
+            List<Payment> payments = paymentRepository.paymentByUserAndStatus(email);
             List<Payment> filteredPayments = payments.stream()
-                    .filter(payment -> isCourseInStatus(payment.getCourse(), status, userEmail))
+                    .filter(payment -> isCourseInStatus(payment.getCourse(), CourseStatus.valueOf(status.toUpperCase()), email))
                     .collect(Collectors.toList());
             List<CourseDto> courseDtos = filteredPayments.stream()
                     .map(payment -> convertToDto(payment.getCourse()))
