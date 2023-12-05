@@ -5,6 +5,7 @@ import org.binar.pragosacademyapi.entity.dto.CourseDto;
 import org.binar.pragosacademyapi.entity.request.CourseRequest;
 import org.binar.pragosacademyapi.entity.request.PaymentRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
+import org.binar.pragosacademyapi.enumeration.CourseStatus;
 
 import java.util.List;
 
@@ -18,5 +19,6 @@ public interface CourseService {
     Response<List<CourseDto>> filterByCategory(Integer categoryId);
     Response<List<CourseDto>> getCoursesByUserAll();
     Response<String> createCourse(CourseRequest request);
+    Response<List<CourseDto>> getCoursesByUserAndStatus(String userEmail, CourseStatus status);
     Response<String> setRating(String courseCode, Integer rating);
 }

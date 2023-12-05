@@ -25,6 +25,7 @@ public class UserController {
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
     private final UserService userService;
+
     @Autowired
     public UserController(AuthenticationManager authenticationManager, TokenProvider tokenProvider, UserService userService){
         this.authenticationManager = authenticationManager;
@@ -94,7 +95,7 @@ public class UserController {
     )
     public ResponseEntity<Response<UserDto>>getDataUSer(){
         return ResponseEntity.ok(userService.getProfile());
-   }
+    }
 
    @PreAuthorize("hasRole('USER')")
     @PostMapping(
@@ -102,7 +103,7 @@ public class UserController {
     )
     public ResponseEntity<Response<String>> updateUser(@ModelAttribute UpdateUserRequest request){
         return ResponseEntity.ok(userService.update(request));
-   }
+    }
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping(value = "/detailchapter/setdone/{id}")

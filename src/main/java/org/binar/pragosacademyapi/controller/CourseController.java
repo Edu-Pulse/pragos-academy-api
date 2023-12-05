@@ -2,6 +2,8 @@ package org.binar.pragosacademyapi.controller;
 
 import org.binar.pragosacademyapi.entity.dto.CourseDetailDto;
 import org.binar.pragosacademyapi.entity.dto.CourseDto;
+import org.binar.pragosacademyapi.entity.response.Response;
+import org.binar.pragosacademyapi.enumeration.CourseStatus;
 import org.binar.pragosacademyapi.entity.request.ChapterRequest;
 import org.binar.pragosacademyapi.entity.request.CourseRequest;
 import org.binar.pragosacademyapi.entity.request.PaymentRequest;
@@ -96,9 +98,7 @@ public class CourseController {
     }
 
     @PreAuthorize("hasRole('USER')")
-    @GetMapping(
-            value = "/courses/user"
-    )
+    @GetMapping(value = "/courses/user")
     public ResponseEntity<Response<List<CourseDto>>> getCoursesByUserAll() {
         Response<List<CourseDto>> response = courseService.getCoursesByUserAll();
 
@@ -106,14 +106,11 @@ public class CourseController {
 
         return new ResponseEntity<>(response, httpStatus);
     }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping(
-            value = "/course",
-            consumes = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<Response<String>> createCourse(@RequestBody CourseRequest request){
-        return ResponseEntity.ok(courseService.createCourse(request));
+    @GetMapping(value = "/courses/user/{userEmail}/status")
+    public Response<List<CourseDto>> getCoursesByUserAndStatus(
+            @PathVariable String userEmail,
+            @RequestParam CourseStatus status) {
+        return courseService.getCoursesByUserAndStatus(userEmail, status);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
