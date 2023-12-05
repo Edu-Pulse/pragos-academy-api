@@ -16,9 +16,8 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query("select p.rating from Payment p where p.course.code =:courseCode and p.rating != null ")
     List<Integer> getListRating(@Param("courseCode") String courseCode);
     Payment findByUser_IdAndCourse_Code(Long userId, String courseCode);
-
-    List<Payment> findByUser_EmailAndStatusTrue(String userEmail);
-
+    @Query("select p from Payment p where p.user.email =:email and p.status = true ")
+    List<Payment> paymentByUserAndStatus(@Param("email") String email);
     @Query("select p from Payment p where p.course.type = :type")
     List<Payment> findByType(@Param("type") Type type);
 }

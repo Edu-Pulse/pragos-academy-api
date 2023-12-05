@@ -312,14 +312,16 @@ public class UserServiceImpl implements UserService {
             if (user != null){
                 UserVerification userVerification = userVerificationRepository.findByUser_Id(user.getId());
                 if (Objects.equals(verificationCode, userVerification.getVerificationCode()) && !LocalDateTime.now().isAfter(userVerification.getExpiredAt())){
+
                     user.setPassword(bCryptPasswordEncoder.encode(newPassword));
                     userRepository.save(user);
+
                     response.setError(false);
-                    response.setMessage("Kode verifikasi salah atau sudah expired");
+                    response.setMessage("Success");
                     response.setData("Password berhasil diubah. Silahkan login dengan password yang baru");
                     notificationService.sendNotification(user.getId(), "Password kamu baru saja diganti");
                 }else {
-                    response.setError(false);
+                    response.setError(true);
                     response.setMessage("Kode verifikasi salah atau sudah expired");
                     response.setData(null);
                 }

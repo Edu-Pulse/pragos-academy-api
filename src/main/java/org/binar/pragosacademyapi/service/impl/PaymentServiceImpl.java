@@ -17,11 +17,11 @@ public class PaymentServiceImpl implements PaymentService {
     @Autowired
     private PaymentRepository paymentRepository;
     @Override
-    public Response<List<PaymentDto>> getPaymentsByType(String type) {
+    public Response<List<PaymentDto>> getPaymentsByType() {
         Response<List<PaymentDto>> response = new Response<>();
 
         try {
-            List<Payment> payments = paymentRepository.findByType(Type.valueOf(type.toUpperCase()));
+            List<Payment> payments = paymentRepository.findByType(Type.PREMIUM);
             List<PaymentDto> paymentDtoList = new ArrayList<>();
 
             for (Payment payment : payments) {
