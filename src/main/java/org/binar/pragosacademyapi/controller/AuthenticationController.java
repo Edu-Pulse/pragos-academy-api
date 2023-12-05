@@ -78,7 +78,7 @@ public class AuthenticationController {
     }
 
     @PostMapping(
-            value = "/verification",
+            value = "/verification-email",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<String>> verification(@RequestParam String email, @RequestParam Integer code){
@@ -100,9 +100,17 @@ public class AuthenticationController {
         return ResponseEntity.ok(userService.resetPassword(verificationCode, email, newPassword));
     }
 
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
-    @PatchMapping(value = "/logout")
-    public ResponseEntity<String> logout(){
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @RequestMapping(value = "/logout")
+    public ResponseEntity<Void> logout(){
+
+        return ResponseEntity.noContent().build();
+    }
+    @RequestMapping(
+            value = "/logout-result",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<String> logoutResult(){
         return ResponseEntity.ok("Berhasil logout");
     }
 
