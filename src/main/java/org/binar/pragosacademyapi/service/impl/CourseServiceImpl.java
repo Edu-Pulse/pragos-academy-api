@@ -111,6 +111,7 @@ public class CourseServiceImpl implements CourseService {
             }
         }catch (Exception e){
             response.setError(true);
+            log.error(e.getMessage());
             response.setMessage("Failed to get data "+ courseCode);
             response.setData(null);
         }

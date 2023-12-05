@@ -16,8 +16,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import java.util.HashMap;
-import java.util.Map;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 public class UserController {
@@ -38,8 +38,8 @@ public class UserController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<Map<String, String>>> login(@RequestBody LoginRequest request){
-        Response<Map<String, String>> response = new Response<>();
+    public ResponseEntity<Response<String>> login(@RequestBody LoginRequest request, HttpServletResponse servletResponse){
+        Response<String> response = new Response<>();
         if (userService.checkIsEnable(request.getEmail())){
             final Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -49,12 +49,14 @@ public class UserController {
             );
             SecurityContextHolder.getContext().setAuthentication(authentication);
             final String token = tokenProvider.generateToken(authentication);
+
+            Cookie cookie = new Cookie("COOKIE_AUTH", token);
+            cookie.setPath("/");
+            servletResponse.addCookie(cookie);
+
             response.setError(false);
             response.setMessage("Login Berhasil");
-            Map<String, String> dataToken = new HashMap<>();
-            dataToken.put("token", token);
-            dataToken.put("role",authentication.getAuthorities().toString());
-            response.setData(dataToken);
+            response.setData(authentication.getAuthorities().toString());
             return ResponseEntity.ok(response);
         }else {
 
@@ -88,7 +90,7 @@ public class UserController {
     public ResponseEntity<Response<String>> verification(@RequestParam String email, @RequestParam Integer code){
         return ResponseEntity.ok(userService.verification(email, code));
     }
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @GetMapping(
            value = "/user",
            produces = MediaType.APPLICATION_JSON_VALUE
@@ -123,5 +125,11 @@ public class UserController {
     )
     public ResponseEntity<Response<String>> resetPassword(@RequestParam String email, @RequestParam Integer verificationCode, @RequestBody String newPassword){
         return ResponseEntity.ok(userService.resetPassword(verificationCode, email, newPassword));
+    }
+
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PatchMapping(value = "/user/logout")
+    public ResponseEntity<String> logout(){
+        return ResponseEntity.ok("Berhasil logout");
     }
 }
