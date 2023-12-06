@@ -31,7 +31,7 @@ public class ChapterServiceImpl implements ChapterService {
                 detailChapter.setVideo(request.getVideo());
                 detailChapter.setMaterial(request.getMaterial());
 
-                Chapter chapter = chapterRepository.chapterByCourseAndName(course.getCode(), request.getChapterName());
+                Chapter chapter = chapterRepository.chapterByCourseAndName(course.getCode(), request.getChapterName()).orElse(null);
                 if (chapter != null){
                     detailChapter.setChapter(chapter);
                     if (chapter.getDetailChapters().isEmpty()){
