@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -18,11 +19,8 @@ public class Chapter {
     @ManyToOne
     @JoinColumn(name = "course_code", referencedColumnName = "code")
     private Course course;
-    private String name;
-    private String video;
-    @Column(name = "material")
-    private String materi;
     @Column(name = "chapter")
     private String capther;
-
+    @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL)
+    private List<DetailChapter> detailChapters;
 }

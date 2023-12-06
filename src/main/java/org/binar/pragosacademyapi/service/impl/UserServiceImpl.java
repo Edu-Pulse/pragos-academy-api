@@ -1,15 +1,20 @@
 package org.binar.pragosacademyapi.service.impl;
 
-import org.binar.pragosacademyapi.entity.User;
-import org.binar.pragosacademyapi.entity.UserVerification;
+import lombok.extern.slf4j.Slf4j;
+import org.binar.pragosacademyapi.entity.*;
 import org.binar.pragosacademyapi.entity.dto.UserDto;
 import org.binar.pragosacademyapi.entity.request.RegisterRequest;
+import org.binar.pragosacademyapi.entity.request.UpdateUserRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.enumeration.Role;
+import org.binar.pragosacademyapi.repository.DetailChapterRepository;
+import org.binar.pragosacademyapi.repository.UserDetailChapterRepository;
 import org.binar.pragosacademyapi.repository.UserRepository;
 import org.binar.pragosacademyapi.repository.UserVerificationRepository;
+import org.binar.pragosacademyapi.service.NotificationService;
 import org.binar.pragosacademyapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -18,12 +23,22 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.PostConstruct;
+import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Random;
 
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -33,13 +48,59 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     @Autowired
     private JavaMailSender mailSender;
-    private Random random = new Random();
+    private final Random random = new Random();
     @Autowired
     private UserVerificationRepository userVerificationRepository;
+    @Autowired
+    private UserDetailChapterRepository userDetailChapterRepository;
+    @Autowired
+    private DetailChapterRepository detailChapterRepository;
+    @Value("${spring.mail.username}")
+    private String EMAIL;
+    @Value("${base.url.fe}")
+    private String BASE_URL_FE;
+    @Autowired
+    private NotificationService notificationService;
+    private final Path root = Paths.get("/app/uploads");
+
+    @PostConstruct
+    public void init(){
+        try {
+            if (!Files.exists(root)){
+                Files.createDirectories(root);
+                log.info("Created directory successfully on: "+ root.toAbsolutePath());
+            }else {
+                log.info("Directory 'uploads' already exist: "+ root.toAbsolutePath());
+            }
+        }catch (Exception e){
+            log.error("Terjadi kesalahan: "+ e.getMessage());
+        }
+    }
 
     @Override
     public Response<UserDto> getProfile() {
-        return null;
+        Response<UserDto> response = new Response<>();
+        try {
+            User user = userRepository.findByEmail(getEmailUserContext());
+            UserDto userDto = new UserDto();
+            if (user.getImageProfile() != null){
+                Path file = root.resolve(user.getImageProfile());
+                userDto.setImageProfile(Files.readAllBytes(file));
+            }
+            userDto.setName(user.getName());
+            userDto.setCity(user.getCity());
+            userDto.setPassword(null);
+            userDto.setEmail(user.getEmail());
+            userDto.setCountry(user.getCountry());
+            userDto.setPhone(user.getPhone());
+            response.setError(false);
+            response.setMessage("Berhasil");
+            response.setData(userDto);
+        }catch (Exception e){
+            response.setError(true);
+            response.setMessage("Terjadi kesalahan"+ e.getMessage());
+        }
+        return response;
     }
 
     @Override
@@ -55,32 +116,18 @@ public class UserServiceImpl implements UserService {
             newuser.setCountry(user.getCountry());
             newuser.setRole(Role.USER);
             newuser.setIsEnable(false);
+            Integer code = random.nextInt(9999 - 1000) + 1000;
+            UserVerification userVerification = new UserVerification();
+            userVerification.setUser(newuser);
+            userVerification.setVerificationCode(code);
+            userVerification.setExpiredAt(LocalDateTime.now().plusMinutes(5));
+            newuser.setUserVerification(userVerification);
 
             userRepository.save(newuser);
             response.setError(true);
             response.setMessage("Success");
-            Integer code = random.nextInt(9999 - 1000) + 1000;
 
-            UserVerification userVerification = new UserVerification();
-            userVerification.setUser(newuser);
-            userVerification.setVerificationCode(code);
-            userVerification.setExpiredAt(LocalDateTime.now().plusHours(1));
-            userVerificationRepository.save(userVerification);
-
-            String toAddress = user.getEmail();
-            String fromAddress = "gunawann.dev@gmail.com";
-            String senderName = "Pragos Academy";
-            String subject = "Code verifikasi Pragos Academy";
-            String content = "Kode verifikasi anda: "+ code + " kode verifikasi akan expired dalam 1 jam. <b>Jangan kirimkan kode ini kesiapapun jika tidak mendaftar di pragos academy</b>";
-
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message);
-
-            helper.setFrom(fromAddress, senderName);
-            helper.setTo(toAddress);
-            helper.setSubject(subject);
-            helper.setText(content);
-            mailSender.send(message);
+            sendEmail(user.getEmail(), code);
             response.setData("Berhasil register. Silahkan cek email untuk kode verifikasi");
 
         }catch (Exception e){
@@ -91,9 +138,66 @@ public class UserServiceImpl implements UserService {
         return response;
     }
 
+    @Transactional
     @Override
-    public Response<String> update(RegisterRequest updateUser) {
-        return null;
+    public Response<String> update(UpdateUserRequest updateUser) {
+        Response<String> response = new Response<>();
+        try {
+            User user = userRepository.findByEmail(getEmailUserContext());
+            MultipartFile file = updateUser.getFile();
+            if (!file.isEmpty()){
+                try(InputStream inputStream = file.getInputStream()) {
+                    Files.copy(inputStream, this.root.resolve(user.getId() + file.getOriginalFilename()), StandardCopyOption.REPLACE_EXISTING);
+                }
+                user.setImageProfile(user.getId()+file.getOriginalFilename());
+            }
+            user.setName(updateUser.getName());
+            user.setCity(updateUser.getCity());
+            user.setCountry(updateUser.getCountry());
+            if (Objects.equals(updateUser.getEmail(), user.getEmail())){
+                user.setEmail(updateUser.getEmail());
+                if (Objects.equals(updateUser.getPhone(), user.getPhone())){
+                    user.setPhone(updateUser.getPhone());
+                    userRepository.save(user);
+                    response.setError(false);
+                    response.setMessage("Success");
+                    response.setData("Success update data");
+                    notificationService.sendNotification(user.getId(), "Data kamu berhasil diupdate");
+                }else {
+                    try {
+                        user.setPhone(updateUser.getPhone());
+                        userRepository.save(user);
+                        response.setError(false);
+                        response.setMessage("Success");
+                        response.setData("Success update data");
+                        notificationService.sendNotification(user.getId(), "Data kamu berhasil diupdate");
+                    }catch (Exception e){
+                        response.setError(true);
+                        response.setMessage("Failed to update data");
+                        response.setData("No Telepon sudah didaftarkan. Silahkan gunakan no telepon yang lain");
+                    }
+                }
+            }else {
+                try {
+                    user.setEmail(updateUser.getEmail());
+                    userRepository.save(user);
+                    response.setError(false);
+                    response.setMessage("Success");
+                    response.setData("Success update data");
+                    notificationService.sendNotification(user.getId(), "Data kamu berhasil diupdate");
+                }catch (Exception e){
+                    response.setError(true);
+                    response.setMessage("Failed to update data");
+                    response.setData("Email sudah didaftarkan. Silahkan gunakan email yang lain");
+                }
+            }
+        }catch (Exception e){
+            log.error(e.getMessage());
+            response.setError(true);
+            response.setMessage("Failed to update data "+e.getMessage());
+            response.setData("Terjadi kesalahan");
+        }
+        return response;
     }
 
     @Override
@@ -108,24 +212,13 @@ public class UserServiceImpl implements UserService {
         try {
             User user = userRepository.findByEmail(email);
             if (user != null){
-                UserVerification userVerification = userVerificationRepository.findByUser_Id(user.getId());
-                userVerification.setUser(user);
+                UserVerification userVerification = user.getUserVerification();
                 userVerification.setVerificationCode(code);
-                userVerification.setExpiredAt(LocalDateTime.now().plusHours(1));
-                userVerificationRepository.save(userVerification);
-                String fromAddress = "gunawann.dev@gmail.com";
-                String senderName = "Pragos Academy";
-                String subject = "Code verifikasi Pragos Academy";
-                String content = "Kode verifikasi anda: "+ code + " kode verifikasi akan expired dalam 1 jam. Jangan kirimkan kode ini kesiapapun jika tidak mendaftar di pragos academy.";
+                userVerification.setExpiredAt(LocalDateTime.now().plusMinutes(5));
+                user.setUserVerification(userVerification);
+                userRepository.save(user);
 
-                MimeMessage message = mailSender.createMimeMessage();
-                MimeMessageHelper helper = new MimeMessageHelper(message);
-
-                helper.setFrom(fromAddress, senderName);
-                helper.setTo(email);
-                helper.setSubject(subject);
-                helper.setText(content);
-                mailSender.send(message);
+                sendEmail(email, code);
                 response.setError(false);
                 response.setMessage("Success");
                 response.setData("Kode verifikasi berhasil dikirim");
@@ -190,7 +283,123 @@ public class UserServiceImpl implements UserService {
         }
     }
 
-    private String getEmailUserContext(){
+    @Override
+    public String setDoneChapter(Long detailChapterId) {
+        try {
+            User user = userRepository.findByEmail(getEmailUserContext());
+            DetailChapter detailChapter = detailChapterRepository.findById(detailChapterId).orElse(null);
+            if (detailChapter != null){
+                UserDetailChapter userDetailChapter = new UserDetailChapter();
+                userDetailChapter.setUser(user);
+                userDetailChapter.setDetailChapter(detailChapter);
+                userDetailChapter.setIsDone(true);
+                userDetailChapterRepository.save(userDetailChapter);
+                return "Success";
+            }
+            return "Detail chapter dengan id: "+ detailChapterId+" Tidak ditemukan";
+
+        }catch (Exception e){
+            log.error(e.getMessage());
+            return "Terjadi kesalahan";
+        }
+    }
+
+    @Override
+    public Response<String> resetPassword(Integer verificationCode, String email, String newPassword) {
+        Response<String> response = new Response<>();
+        try {
+            User user = userRepository.findByEmail(email);
+            if (user != null){
+                UserVerification userVerification = userVerificationRepository.findByUser_Id(user.getId());
+                if (Objects.equals(verificationCode, userVerification.getVerificationCode()) && !LocalDateTime.now().isAfter(userVerification.getExpiredAt())){
+
+                    user.setPassword(bCryptPasswordEncoder.encode(newPassword));
+                    userRepository.save(user);
+
+                    response.setError(false);
+                    response.setMessage("Success");
+                    response.setData("Password berhasil diubah. Silahkan login dengan password yang baru");
+                    notificationService.sendNotification(user.getId(), "Password kamu baru saja diganti");
+                }else {
+                    response.setError(true);
+                    response.setMessage("Kode verifikasi salah atau sudah expired");
+                    response.setData(null);
+                }
+            }else {
+                response.setError(true);
+                response.setMessage("User tidak ditemukan");
+                response.setData(null);
+            }
+        }catch (Exception e){
+            response.setError(true);
+            response.setMessage("Terjadi kesalahan. Silahkan coba lagi");
+            response.setData(null);
+        }
+        return response;
+    }
+
+    @Override
+    public Response<String> forgotPassword(String email) {
+        Response<String> response = new Response<>();
+        Integer code = random.nextInt(9999 - 1000) + 1000;
+        try {
+            User user = userRepository.findByEmail(email);
+            if (user != null){
+                UserVerification userVerification = user.getUserVerification();
+                userVerification.setVerificationCode(code);
+                userVerification.setExpiredAt(LocalDateTime.now().plusMinutes(5));
+                user.setUserVerification(userVerification);
+                userRepository.save(user);
+
+                sendEmailForgotPassword(email, code);
+                response.setError(false);
+                response.setMessage("Success");
+                response.setData("Tautan ganti password sudah dikirim ke email kamu");
+            }else {
+                response.setError(true);
+                response.setMessage("User dengan email: "+ email + " tidak ditemukan");
+                response.setData(null);
+            }
+
+        }catch (Exception e){
+            response.setError(true);
+            response.setMessage("Terjadi kesalahan");
+            response.setData(null);
+        }
+
+        return response;
+    }
+
+    private void sendEmail(String email, Integer code) throws MessagingException, UnsupportedEncodingException {
+        String subject = "Kode verifikasi Pragos Academy";
+        String content = "Kode verifikasi anda: <b>"+ code + "</b> kode verifikasi akan expired dalam 5 menit. Jangan kirimkan kode ini kesiapapun jika tidak mendaftar di pragos academy.";
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+
+        helper.setFrom(EMAIL, "Pragos Academy");
+        helper.setTo(email);
+        helper.setSubject(subject);
+        helper.setText(content, true);
+        mailSender.send(message);
+    }
+
+    private void sendEmailForgotPassword(String email, Integer code) throws MessagingException, UnsupportedEncodingException {
+        String subject = "Tautan ganti password";
+        String content = "Klik tautan untuk ganti password anda <a href=\""+BASE_URL_FE+"reset-password?email="+email+"&verificationCode="+code+"\">Ganti password</a><br>" +
+                "<b>Tautan akan expired dalam 5 menit</b>";
+
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message);
+
+        helper.setFrom(EMAIL, "Pragos Academy");
+        helper.setTo(email);
+        helper.setSubject(subject);
+        helper.setText(content, true);
+        mailSender.send(message);
+    }
+
+    protected String getEmailUserContext(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!(authentication instanceof AnonymousAuthenticationToken)){
             return authentication.getName();

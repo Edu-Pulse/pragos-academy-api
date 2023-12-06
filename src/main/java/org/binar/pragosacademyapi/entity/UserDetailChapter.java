@@ -10,18 +10,18 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "user_chapters")
-public class UserChapter {
+@Table(name = "user_detail_chapters")
+public class UserDetailChapter {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
+   @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
     @ManyToOne
-    @JoinColumn(name = "chapter_id", referencedColumnName = "id")
-    private Chapter chapter;
+    @JoinColumn(name = "detail_chapter_id", referencedColumnName = "id")
+    private DetailChapter detailChapter;
     @Column(name = "is_done")
     private Boolean isDone;
 }
