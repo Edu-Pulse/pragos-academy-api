@@ -139,5 +139,24 @@ public class CourseController {
     public ResponseEntity<Response<String>> createCourse(@RequestBody CourseRequest request){
         return ResponseEntity.ok(courseService.createCourse(request));
     }
-  
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping(
+            value = "/edit/{code}",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Response<CourseDto>> editCourse(@PathVariable String code, @RequestBody CourseDto request) {
+        return ResponseEntity.ok(courseService.editCourse(code, request));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping(
+            value = "/delete/{code}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Response<String>>deleteCourse(@PathVariable String code){
+        return ResponseEntity.ok(courseService.deleteCourse(code));
+    }
+
 }
