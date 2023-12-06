@@ -139,5 +139,12 @@ public class CourseController {
     public ResponseEntity<Response<String>> createCourse(@RequestBody CourseRequest request){
         return ResponseEntity.ok(courseService.createCourse(request));
     }
-  
+    @DeleteMapping(
+            value = "/delleteCourse",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+  public ResponseEntity<Response<String>>delleteCourse(@PathVariable String code){
+        return ResponseEntity.ok(courseService.delleteCourse(code));
+    }
 }
