@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -378,6 +379,41 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public Response<CourseDto> editCourse(String courseId, CourseDto editedCourseDto) {
+        Response<CourseDto> response = new Response<>();
+        try {
+            // Step 1: Retrieve the existing course
+            Optional<Course> optionalCourse = courseRepository.findById(courseId);
+
+            if (optionalCourse.isPresent()) {
+                Course existingCourse = optionalCourse.get();
+
+                // Step 2: Update the existing course with the information from editedCourseDto
+                existingCourse.setName(editedCourseDto.getName());
+                existingCourse.setDescription(editedCourseDto.getDescription());
+                // ... (update other fields as needed)
+
+                // Step 3: Save the updated course to the repository
+                courseRepository.save(existingCourse);
+
+                // Step 4: Return a successful response
+                response.setError(false);
+                response.setMessage("Success");
+                response.setData(convertToDto(existingCourse));
+            } else {
+                // The course with the provided courseId was not found
+                response.setError(true);
+                response.setMessage("Failed");
+                response.setData(null);
+            }
+        } catch (Exception e) {
+            // Log the exception or handle it as needed
+            log.error("Error editing course with ID " + courseId, e);
+
+            response.setError(true);
+            response.setMessage("Failed");
+            response.setData(null);
+
     public Response<String> deleteCourse(String code) {
         Response<String>response = new Response<>();
         try {
@@ -391,7 +427,7 @@ public class CourseServiceImpl implements CourseService {
         }
         return response;
     }
-
+          
     @Transactional(readOnly = true)
     @Override
     public Response<List<CourseDto>> filter(String type) {
