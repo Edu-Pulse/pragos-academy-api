@@ -413,12 +413,21 @@ public class CourseServiceImpl implements CourseService {
             response.setError(true);
             response.setMessage("Failed");
             response.setData(null);
+
+    public Response<String> deleteCourse(String code) {
+        Response<String>response = new Response<>();
+        try {
+            courseRepository.deleteById(code);
+            response.setError(false);
+            response.setMessage("Course with code " + code + " deleted successfully");
+
+        }catch (Exception e){
+            response.setError(true);
+            response.setMessage("Failed to dellete course with code " + code);
         }
         return response;
     }
-
-
-
+          
     @Transactional(readOnly = true)
     @Override
     public Response<List<CourseDto>> filter(String type) {

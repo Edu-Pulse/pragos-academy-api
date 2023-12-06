@@ -22,4 +22,5 @@ public interface CourseService {
     Response<List<CourseDto>> getCoursesByUserAndStatus(String status);
     Response<String> setRating(String courseCode, Integer rating);
     Response<CourseDto> editCourse(String courseId, CourseDto editedCourseDto);
+    Response<String> deleteCourse(String code);
 }

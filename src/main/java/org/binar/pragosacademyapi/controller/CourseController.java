@@ -150,4 +150,13 @@ public class CourseController {
         return ResponseEntity.ok(courseService.editCourse(code, request));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping(
+            value = "/delete/{code}",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Response<String>>deleteCourse(@PathVariable String code){
+        return ResponseEntity.ok(courseService.deleteCourse(code));
+    }
+
 }
