@@ -1,5 +1,6 @@
 package org.binar.pragosacademyapi.controller;
 
+import org.binar.pragosacademyapi.entity.dto.PasswordDto;
 import org.binar.pragosacademyapi.entity.dto.UserDto;
 import org.binar.pragosacademyapi.entity.request.UpdateUserRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
@@ -52,13 +53,8 @@ public class UserController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<String> changePassword(@RequestParam String name, String oldPassword, String newPassword){
-        if (userService.changePassword(name,oldPassword,newPassword)){
-            return ResponseEntity.ok("Change Password Succsess");
-
-        }else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Username or Old Password");
-        }
+    public ResponseEntity<Response<PasswordDto>> changePassword(@RequestBody PasswordDto request){
+       return ResponseEntity.ok(userService.changePassword(request));
     }
 
 }

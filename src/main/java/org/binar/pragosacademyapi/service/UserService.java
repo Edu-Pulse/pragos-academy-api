@@ -1,5 +1,6 @@
 package org.binar.pragosacademyapi.service;
 
+import org.binar.pragosacademyapi.entity.dto.PasswordDto;
 import org.binar.pragosacademyapi.entity.dto.UserDto;
 import org.binar.pragosacademyapi.entity.request.RegisterRequest;
 import org.binar.pragosacademyapi.entity.request.UpdateUserRequest;
@@ -17,6 +18,6 @@ public interface UserService {
     String setDoneChapter(Long detailChapterId);
     Response<String> resetPassword(Integer verificationCode, String email, String newPassword);
     Response<String> forgotPassword(String email);
-    boolean changePassword(String name, String oldPassword, String newPassword);
+    Response <PasswordDto >changePassword(PasswordDto request);
 
 }

@@ -2,6 +2,7 @@ package org.binar.pragosacademyapi.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.binar.pragosacademyapi.entity.*;
+import org.binar.pragosacademyapi.entity.dto.PasswordDto;
 import org.binar.pragosacademyapi.entity.dto.UserDto;
 import org.binar.pragosacademyapi.entity.request.RegisterRequest;
 import org.binar.pragosacademyapi.entity.request.UpdateUserRequest;
@@ -371,27 +372,28 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean changePassword(String name, String oldPassword, String newPassword) {
-        Response<String> response = new Response<>();
-        User user = userRepository.findByUsername(name);
-        if (user != null && bCryptPasswordEncoder.matches(oldPassword,user.getPassword())){
+    public Response<PasswordDto> changePassword(PasswordDto request) {
+        Response<PasswordDto> response = new Response<>();
+        User user = userRepository.findByEmail(getEmailUserContext());
             try {
-                String encodedNewPassword = bCryptPasswordEncoder.encode(newPassword);
+                String encodedNewPassword = bCryptPasswordEncoder.encode(request.getNewPassword());
                 user.setPassword(encodedNewPassword);
                 userRepository.save(user);
+                PasswordDto passwordDto = new PasswordDto();
+                passwordDto.setEmail(request.getEmail());
+                passwordDto.setOldPassword(request.getOldPassword());
+                passwordDto.setNewPassword(request.getNewPassword());
+
                 response.setError(false);
+                response.setData(passwordDto);
                 response.setMessage("Change Password Succsess");
-                return true;
             }
             catch ( Exception e ){
                 response.setError(true);
                 response.setMessage("Failed to change Password");
             }
-        }else {
-            response.setError(true);
-            response.setMessage("Invalid Username or Old Password");
-        }
-        return false;
+
+        return response;
     }
 
     private void sendEmail(String email, Integer code) throws MessagingException, UnsupportedEncodingException {
