@@ -1,10 +1,12 @@
 package org.binar.pragosacademyapi.controller;
 
+import org.binar.pragosacademyapi.entity.dto.PasswordDto;
 import org.binar.pragosacademyapi.entity.dto.UserDto;
 import org.binar.pragosacademyapi.entity.request.UpdateUserRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,6 +47,14 @@ public class UserController {
     )
     public ResponseEntity<String> setDoneDetailChapter(@PathVariable Long id){
         return ResponseEntity.ok(userService.setDoneChapter(id));
+    }
+    @PutMapping(
+            value = "/change-password",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Response<PasswordDto>> changePassword(@RequestBody PasswordDto request){
+       return ResponseEntity.ok(userService.changePassword(request));
     }
 
 }
