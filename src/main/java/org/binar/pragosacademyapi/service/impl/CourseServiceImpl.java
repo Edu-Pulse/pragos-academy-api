@@ -32,7 +32,6 @@ public class CourseServiceImpl implements CourseService {
     private CourseRepository courseRepository;
     @Autowired
     private PaymentRepository paymentRepository;
-
     @Autowired
     private UserServiceImpl userService;
     @Autowired
@@ -69,51 +68,51 @@ public class CourseServiceImpl implements CourseService {
         Response<CourseDetailDto> response = new Response<>();
         User user = userRepository.findByEmail(userService.getEmailUserContext());
         try {
-            if (user != null){
+            if (user != null) {
                 Course course = paymentRepository.detailCourse(courseCode, user.getEmail());
-                if (course != null){
+                if (course != null) {
                     List<ChapterDto> chapters = course.getChapters().stream().map(chapter -> new ChapterDto(chapter.getCapther(), chapter.getDetailChapters().stream().map(detailChapter -> new DetailChapterDto(detailChapter.getId(), detailChapter.getName(), detailChapter.getVideo(), detailChapter.getMaterial(), userDetailChapterRepository.existsByUserIdAndDetailChapter_IdAndAndIsDone(user.getId(), detailChapter.getId(), true))).collect(Collectors.toList()))).collect(Collectors.toList());
                     response.setError(false);
-                    response.setMessage("Success to get data "+ courseCode);
+                    response.setMessage("Success to get data " + courseCode);
                     response.setData(
-                            new CourseDetailDto(course.getCode(), course.getCategory().getImage(),course.getCategory().getName(), course.getName(), course.getDescription(), course.getIntended().split(","), course.getLecturer(), course.getLevel().toString(), course.getType().toString(), course.getPrice(), course.getDiscount(), getRating(course.getCode()),courseRepository.getCountDetailChapter(courseCode), courseRepository.getCountDetailChapterDone(courseCode, user.getEmail()), chapters)
+                            new CourseDetailDto(course.getCode(), course.getCategory().getImage(), course.getCategory().getName(), course.getName(), course.getDescription(), course.getIntended().split(","), course.getLecturer(), course.getLevel().toString(), course.getType().toString(), course.getPrice(), course.getDiscount(), getRating(course.getCode()), courseRepository.getCountDetailChapter(courseCode), courseRepository.getCountDetailChapterDone(courseCode, user.getEmail()), chapters)
                     );
-                }else {
+                } else {
                     course = courseRepository.findByCode(courseCode);
-                    if (course != null){
+                    if (course != null) {
                         List<ChapterDto> chapters = course.getChapters().stream().map(chapter -> new ChapterDto(chapter.getCapther(), chapter.getDetailChapters().stream().map(detailChapter -> new DetailChapterDto(detailChapter.getId(), detailChapter.getName(), null, null, null)).collect(Collectors.toList()))).collect(Collectors.toList());
                         response.setError(false);
-                        response.setMessage("Success to get data "+ courseCode);
+                        response.setMessage("Success to get data " + courseCode);
                         response.setData(
-                                new CourseDetailDto(course.getCode(), course.getCategory().getImage(),course.getCategory().getName(), course.getName(), course.getDescription(), course.getIntended().split(","), course.getLecturer(), course.getLevel().toString(), course.getType().toString(), course.getPrice(), course.getDiscount(), getRating(course.getCode()),courseRepository.getCountDetailChapter(courseCode), null, chapters)
+                                new CourseDetailDto(course.getCode(), course.getCategory().getImage(), course.getCategory().getName(), course.getName(), course.getDescription(), course.getIntended().split(","), course.getLecturer(), course.getLevel().toString(), course.getType().toString(), course.getPrice(), course.getDiscount(), getRating(course.getCode()), courseRepository.getCountDetailChapter(courseCode), null, chapters)
                         );
-                    }else {
+                    } else {
                         response.setError(true);
                         log.error(userService.getEmailUserContext());
-                        response.setMessage("Failed to get data "+ courseCode+ " not found");
+                        response.setMessage("Failed to get data " + courseCode + " not found");
                         response.setData(null);
                     }
                 }
-            }else {
+            } else {
                 Course course = courseRepository.findByCode(courseCode);
-                if (course != null){
+                if (course != null) {
                     List<ChapterDto> chapters = course.getChapters().stream().map(chapter -> new ChapterDto(chapter.getCapther(), chapter.getDetailChapters().stream().map(detailChapter -> new DetailChapterDto(detailChapter.getId(), detailChapter.getName(), null, null, null)).collect(Collectors.toList()))).collect(Collectors.toList());
                     response.setError(false);
-                    response.setMessage("Success to get data "+ courseCode);
+                    response.setMessage("Success to get data " + courseCode);
                     response.setData(
-                            new CourseDetailDto(course.getCode(), course.getCategory().getImage(),course.getCategory().getName(), course.getName(), course.getDescription(), course.getIntended().split(","), course.getLecturer(), course.getLevel().toString(), course.getType().toString(), course.getPrice(), course.getDiscount(), getRating(course.getCode()), courseRepository.getCountDetailChapter(courseCode), null,chapters)
+                            new CourseDetailDto(course.getCode(), course.getCategory().getImage(), course.getCategory().getName(), course.getName(), course.getDescription(), course.getIntended().split(","), course.getLecturer(), course.getLevel().toString(), course.getType().toString(), course.getPrice(), course.getDiscount(), getRating(course.getCode()), courseRepository.getCountDetailChapter(courseCode), null, chapters)
                     );
-                }else {
+                } else {
                     response.setError(true);
                     log.error(userService.getEmailUserContext());
-                    response.setMessage("Failed to get data "+ courseCode+ " not found");
+                    response.setMessage("Failed to get data " + courseCode + " not found");
                     response.setData(null);
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             response.setError(true);
             log.error(e.getMessage());
-            response.setMessage("Failed to get data "+ courseCode);
+            response.setMessage("Failed to get data " + courseCode);
             response.setData(null);
         }
         return response;
@@ -125,10 +124,10 @@ public class CourseServiceImpl implements CourseService {
         try {
             Course course = courseRepository.findByCode(courseCode);
             User user = userRepository.findByEmail(userService.getEmailUserContext());
-            if (course != null){
+            if (course != null) {
                 Payment checkPayment = paymentRepository.findByUser_IdAndCourse_Code(user.getId(), courseCode);
-                if (checkPayment == null){
-                    if (course.getPrice() == 0){
+                if (checkPayment == null) {
+                    if (course.getPrice() == 0) {
                         Payment payment = new Payment();
                         payment.setUser(user);
                         payment.setCourse(course);
@@ -144,47 +143,47 @@ public class CourseServiceImpl implements CourseService {
 
                         response.setError(false);
                         response.setMessage("Success");
-                        response.setData("Berhasil enroll course : "+courseCode);
-                        notificationService.sendNotification(user.getId(), "Kamu telah terdaftar ke kelas "+ course.getName()+" Semoga ilmu yang akan dipelajari dapat bermanfaat didunia maupun akhirat");
-                    }else {
+                        response.setData("Berhasil enroll course : " + courseCode);
+                        notificationService.sendNotification(user.getId(), "Kamu telah terdaftar ke kelas " + course.getName() + " Semoga ilmu yang akan dipelajari dapat bermanfaat didunia maupun akhirat");
+                    } else {
                         response.setError(true);
                         response.setMessage("Failed");
                         response.setData("Course ini berbayar");
                     }
-                }else {
+                } else {
                     response.setError(true);
                     response.setMessage("Failed");
                     response.setData("Kamu sudah enroll kelas ini");
                 }
-            }else {
+            } else {
                 response.setError(true);
                 response.setMessage("Failed");
-                response.setData("Course dengan code "+courseCode+" tidak ditemukan");
+                response.setData("Course dengan code " + courseCode + " tidak ditemukan");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             response.setError(true);
             response.setMessage("Failed");
             response.setData("Terjadi kesalahan");
         }
         return response;
     }
-  
+
     @Override
     public Response<String> enrollPaidCourse(String courseCode, PaymentRequest paymentRequest) {
         Response<String> response = new Response<>();
         try {
             Course course = courseRepository.findByCode(courseCode);
             User user = userRepository.findByEmail(userService.getEmailUserContext());
-            if (course != null){
+            if (course != null) {
                 Payment checkPayment = paymentRepository.findByUser_IdAndCourse_Code(user.getId(), courseCode);
-                if (checkPayment == null){
+                if (checkPayment == null) {
                     log.info(paymentRequest.getCardNumber());
                     if (paymentRequest.getCardNumber().length() == 16) {
                         Payment payment = new Payment();
                         payment.setUser(user);
                         payment.setCourse(course);
                         double discount = (course.getPrice() * ((double) course.getDiscount() / 100));
-                        log.info("Diskon :"+ discount);
+                        log.info("Diskon :" + discount);
                         Long amount = (long) (course.getPrice() - discount);
                         payment.setAmount(amount);
                         payment.setPaymentMethod("CREDIT_CARD");
@@ -199,7 +198,7 @@ public class CourseServiceImpl implements CourseService {
                         response.setError(false);
                         response.setMessage("Sukses");
                         response.setData("Berhasil mendaftar kursus: " + courseCode);
-                        notificationService.sendNotification(user.getId(), "Kamu telah terdaftar ke kelas "+ course.getName()+" Semoga ilmu yang akan dipelajari dapat bermanfaat didunia maupun akhirat");
+                        notificationService.sendNotification(user.getId(), "Kamu telah terdaftar ke kelas " + course.getName() + " Semoga ilmu yang akan dipelajari dapat bermanfaat didunia maupun akhirat");
                     } else {
                         response.setError(true);
                         response.setMessage("Gagal");
@@ -223,18 +222,18 @@ public class CourseServiceImpl implements CourseService {
         }
         return response;
     }
-  
+
     @Transactional(readOnly = true)
     @Override
     public Response<List<CourseDto>> search(String courseName) {
         Response<List<CourseDto>> response = new Response<>();
         try {
-            List<CourseDto> courseDtoList = courseRepository.searchByCourseName("%"+courseName+"%");
+            List<CourseDto> courseDtoList = courseRepository.searchByCourseName("%" + courseName + "%");
             courseDtoList.forEach(courseDto -> courseDto.setRating(getRating(courseDto.getCode())));
             response.setError(false);
             response.setMessage("Success get data");
             response.setData(courseDtoList);
-        }catch (Exception e){
+        } catch (Exception e) {
             response.setError(true);
             response.setMessage("Failed get data");
             response.setData(null);
@@ -252,7 +251,7 @@ public class CourseServiceImpl implements CourseService {
             response.setError(false);
             response.setMessage("Success get data");
             response.setData(courseDtoList);
-        }catch (Exception e){
+        } catch (Exception e) {
             response.setError(true);
             response.setMessage("Failed get data");
             response.setData(null);
@@ -286,7 +285,7 @@ public class CourseServiceImpl implements CourseService {
         Response<String> response = new Response<>();
         try {
             Course course = courseRepository.findByCode(request.getCourseCode());
-            if (course == null){
+            if (course == null) {
                 Course newCourse = new Course();
                 newCourse.setCode(request.getCourseCode());
                 newCourse.setName(request.getCourseName());
@@ -305,12 +304,12 @@ public class CourseServiceImpl implements CourseService {
                 response.setError(false);
                 response.setMessage("Success");
                 response.setData("Success add course");
-            }else {
+            } else {
                 response.setError(true);
                 response.setMessage("Failed");
                 response.setData("Course code already exist");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             response.setError(true);
             response.setData(null);
         }
@@ -353,24 +352,25 @@ public class CourseServiceImpl implements CourseService {
         }
         return false;
     }
+
     public Response<String> setRating(String courseCode, Integer rating) {
         Response<String> response = new Response<>();
         try {
             User user = userRepository.findByEmail(userService.getEmailUserContext());
             Payment payment = paymentRepository.findByUser_IdAndCourse_Code(user.getId(), courseCode);
-            if (payment != null){
+            if (payment != null) {
                 payment.setRating(rating);
                 paymentRepository.save(payment);
                 response.setError(false);
                 response.setMessage("Success");
                 response.setData("Berhasil menambahkan rating");
-                notificationService.sendNotification(user.getId(), "Terimakasih telah memberikan rating ke course "+ payment.getCourse().getName());
-            }else {
+                notificationService.sendNotification(user.getId(), "Terimakasih telah memberikan rating ke course " + payment.getCourse().getName());
+            } else {
                 response.setError(true);
                 response.setMessage("Kamu belum enroll kelas ini");
                 response.setData(null);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             response.setError(true);
             response.setMessage("Terjadi kesalahan");
             response.setData(null);
@@ -413,24 +413,27 @@ public class CourseServiceImpl implements CourseService {
             response.setError(true);
             response.setMessage("Failed");
             response.setData(null);
+        }
+        return response;
+    }
 
-    public Response<String> deleteCourse(String code) {
-        Response<String>response = new Response<>();
+    public Response<String> deleteCourse (String code){
+        Response<String> response = new Response<>();
         try {
             courseRepository.deleteById(code);
             response.setError(false);
             response.setMessage("Course with code " + code + " deleted successfully");
 
-        }catch (Exception e){
+        } catch (Exception e) {
             response.setError(true);
             response.setMessage("Failed to dellete course with code " + code);
-        }
+                }
         return response;
     }
-          
+
     @Transactional(readOnly = true)
     @Override
-    public Response<List<CourseDto>> filter(String type) {
+    public Response<List<CourseDto>> filter (String type){
         List<CourseDto> filteredCourses = courseRepository.filterByType(Type.valueOf(type.toUpperCase()));
         filteredCourses.forEach(courseDto -> courseDto.setRating(getRating(courseDto.getCode())));
 
@@ -440,7 +443,7 @@ public class CourseServiceImpl implements CourseService {
         return responses;
     }
 
-    private CourseDto convertToDto(Course course) {
+    private CourseDto convertToDto (Course course){
         CourseDto dto = new CourseDto();
         BeanUtils.copyProperties(course, dto);
         dto.setCategory(course.getCategory().getName());
@@ -451,16 +454,16 @@ public class CourseServiceImpl implements CourseService {
         return dto;
     }
 
-    private Float getRating(String courseCode){
+    private Float getRating (String courseCode){
         List<Integer> ratings = paymentRepository.getListRating(courseCode);
-        if (ratings.isEmpty()){
+        if (ratings.isEmpty()) {
             return null;
-        }else {
+        } else {
             double sumRating = 0;
             for (Integer rating : ratings) {
                 sumRating += rating;
             }
-            return (float) (sumRating/ratings.size());
+            return (float) (sumRating / ratings.size());
         }
     }
 }
