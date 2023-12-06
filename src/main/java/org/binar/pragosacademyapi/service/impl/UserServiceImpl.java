@@ -370,6 +370,30 @@ public class UserServiceImpl implements UserService {
         return response;
     }
 
+    @Override
+    public boolean changePassword(String name, String oldPassword, String newPassword) {
+        Response<String> response = new Response<>();
+        User user = userRepository.findByUsername(name);
+        if (user != null && bCryptPasswordEncoder.matches(oldPassword,user.getPassword())){
+            try {
+                String encodedNewPassword = bCryptPasswordEncoder.encode(newPassword);
+                user.setPassword(encodedNewPassword);
+                userRepository.save(user);
+                response.setError(false);
+                response.setMessage("Change Password Succsess");
+                return true;
+            }
+            catch ( Exception e ){
+                response.setError(true);
+                response.setMessage("Failed to change Password");
+            }
+        }else {
+            response.setError(true);
+            response.setMessage("Invalid Username or Old Password");
+        }
+        return false;
+    }
+
     private void sendEmail(String email, Integer code) throws MessagingException, UnsupportedEncodingException {
         String subject = "Kode verifikasi Pragos Academy";
         String content = "Kode verifikasi anda: <b>"+ code + "</b> kode verifikasi akan expired dalam 5 menit. Jangan kirimkan kode ini kesiapapun jika tidak mendaftar di pragos academy.";

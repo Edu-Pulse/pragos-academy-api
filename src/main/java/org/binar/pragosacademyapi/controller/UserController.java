@@ -5,6 +5,7 @@ import org.binar.pragosacademyapi.entity.request.UpdateUserRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -45,6 +46,19 @@ public class UserController {
     )
     public ResponseEntity<String> setDoneDetailChapter(@PathVariable Long id){
         return ResponseEntity.ok(userService.setDoneChapter(id));
+    }
+    @PutMapping(
+            value = "/change-password",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<String> changePassword(@RequestParam String name, String oldPassword, String newPassword){
+        if (userService.changePassword(name,oldPassword,newPassword)){
+            return ResponseEntity.ok("Change Password Succsess");
+
+        }else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Username or Old Password");
+        }
     }
 
 }

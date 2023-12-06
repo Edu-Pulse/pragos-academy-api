@@ -17,4 +17,6 @@ public interface UserService {
     String setDoneChapter(Long detailChapterId);
     Response<String> resetPassword(Integer verificationCode, String email, String newPassword);
     Response<String> forgotPassword(String email);
+    boolean changePassword(String name, String oldPassword, String newPassword);
+
 }
