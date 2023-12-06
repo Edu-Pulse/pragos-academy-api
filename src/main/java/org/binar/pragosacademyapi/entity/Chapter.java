@@ -21,6 +21,6 @@ public class Chapter {
     private Course course;
     @Column(name = "chapter")
     private String capther;
-    @OneToMany(mappedBy = "chapter")
+    @OneToMany(mappedBy = "chapter", cascade = CascadeType.ALL)
     private List<DetailChapter> detailChapters;
 }

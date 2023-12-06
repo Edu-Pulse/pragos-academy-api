@@ -19,6 +19,6 @@ public interface CourseService {
     Response<List<CourseDto>> filterByCategory(Integer categoryId);
     Response<List<CourseDto>> getCoursesByUserAll();
     Response<String> createCourse(CourseRequest request);
+    Response<List<CourseDto>> getCoursesByUserAndStatus(String status);
     Response<String> setRating(String courseCode, Integer rating);
-
 }

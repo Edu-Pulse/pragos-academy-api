@@ -6,5 +6,5 @@ import org.binar.pragosacademyapi.entity.response.Response;
 import java.util.List;
 
 public interface PaymentService {
-    Response<List<PaymentDto>> getPaymentsByType(String type);
+    Response<List<PaymentDto>> getPaymentsByType();
 }
