@@ -13,7 +13,6 @@ import java.util.List;
 @Repository
 public interface CourseRepository extends JpaRepository<Course, String> {
     Course findByCode(String code);
-    Course delleteByCode(String code);
     @Query("select count(dc.id) " +
             "from Course c " +
             "left join Chapter ch on c.code = ch.course.code " +

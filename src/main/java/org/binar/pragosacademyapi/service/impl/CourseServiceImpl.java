@@ -378,10 +378,10 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Response<String> delleteCourse(String code) {
+    public Response<String> deleteCourse(String code) {
         Response<String>response = new Response<>();
         try {
-            courseRepository.delleteByCode(code);
+            courseRepository.deleteById(code);
             response.setError(false);
             response.setMessage("Course with code " + code + " deleted successfully");
 
