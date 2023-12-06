@@ -28,10 +28,10 @@ public class UserController {
         return ResponseEntity.ok(userService.getProfile());
     }
 
-   @PreAuthorize("hasRole('USER')")
+   @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping(
             value = "/update",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<String>> updateUser(@ModelAttribute UpdateUserRequest request){
