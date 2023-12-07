@@ -2,15 +2,13 @@ package org.binar.pragosacademyapi.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.binar.pragosacademyapi.entity.*;
-import org.binar.pragosacademyapi.entity.dto.ChapterDto;
-import org.binar.pragosacademyapi.entity.dto.CourseDetailDto;
-import org.binar.pragosacademyapi.entity.dto.CourseDto;
-import org.binar.pragosacademyapi.entity.dto.DetailChapterDto;
+import org.binar.pragosacademyapi.entity.dto.*;
 import org.binar.pragosacademyapi.entity.request.CourseRequest;
 import org.binar.pragosacademyapi.entity.request.PaymentRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.enumeration.CourseStatus;
 import org.binar.pragosacademyapi.enumeration.Level;
+import org.binar.pragosacademyapi.enumeration.Role;
 import org.binar.pragosacademyapi.enumeration.Type;
 import org.binar.pragosacademyapi.repository.*;
 import org.binar.pragosacademyapi.service.CourseService;
@@ -379,7 +377,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Response<CourseDto> editCourse(String courseId, CourseDto editedCourseDto) {
+    public Response<CourseDto> editCourse(String courseId, EditCourseDto editedCourseDto) {
         Response<CourseDto> response = new Response<>();
         try {
             // Step 1: Retrieve the existing course
@@ -391,10 +389,18 @@ public class CourseServiceImpl implements CourseService {
                 // Step 2: Update the existing course with the information from editedCourseDto
                 existingCourse.setName(editedCourseDto.getName());
                 existingCourse.setDescription(editedCourseDto.getDescription());
+                existingCourse.setLecturer(editedCourseDto.getLecturer());
+                existingCourse.setLevel(Level.valueOf(editedCourseDto.getLevel().toUpperCase()));
+                existingCourse.setType(Type.valueOf(editedCourseDto.getType().toUpperCase()));
+                existingCourse.setPrice(existingCourse.getPrice());
+                existingCourse.setDiscount(editedCourseDto.getDiscount());
                 // ... (update other fields as needed)
 
                 // Step 3: Save the updated course to the repository
                 courseRepository.save(existingCourse);
+                if (editedCourseDto.getDiscount() > 0){
+                    notificationService.sendNotification(userRepository.allUserId(Role.USER), "Diskon "+editedCourseDto.getDiscount()+"% untuk course "+editedCourseDto.getName()+ " Buruan beli sekarang");
+                }
 
                 // Step 4: Return a successful response
                 response.setError(false);

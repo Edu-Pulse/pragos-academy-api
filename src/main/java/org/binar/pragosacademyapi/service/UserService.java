@@ -18,6 +18,6 @@ public interface UserService {
     String setDoneChapter(Long detailChapterId);
     Response<String> resetPassword(Integer verificationCode, String email, String newPassword);
     Response<String> forgotPassword(String email);
-    Response <PasswordDto >changePassword(PasswordDto request);
+    Response <String>changePassword(PasswordDto request);
 
 }

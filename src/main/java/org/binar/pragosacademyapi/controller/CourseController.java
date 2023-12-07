@@ -2,6 +2,7 @@ package org.binar.pragosacademyapi.controller;
 
 import org.binar.pragosacademyapi.entity.dto.CourseDetailDto;
 import org.binar.pragosacademyapi.entity.dto.CourseDto;
+import org.binar.pragosacademyapi.entity.dto.EditCourseDto;
 import org.binar.pragosacademyapi.entity.request.CourseRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.entity.request.ChapterRequest;
@@ -146,7 +147,7 @@ public class CourseController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<CourseDto>> editCourse(@PathVariable String code, @RequestBody CourseDto request) {
+    public ResponseEntity<Response<CourseDto>> editCourse(@PathVariable String code, @RequestBody EditCourseDto request) {
         return ResponseEntity.ok(courseService.editCourse(code, request));
     }
 
