@@ -53,6 +53,9 @@ CREATE TABLE chapters(
      constraint fk_chapters_courses foreign key (course_code) references courses(code)
 );
 
+Alter table chapters drop column chapter;
+Alter table chapters add column chapter VARCHAR NOT NULL default 'Chapter 1 - Pendahuluan' ;
+
 SELECT * FROM chapters;
 
 CREATE TABLE detail_chapters(

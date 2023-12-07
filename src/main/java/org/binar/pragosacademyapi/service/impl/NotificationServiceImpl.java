@@ -52,7 +52,6 @@ public class NotificationServiceImpl implements NotificationService {
                        .dateTime(LocalDateTime.now())
                        .build();
                newNotification.setValueAsync(notification);
-               log.info("Success send notification to user with id "+ id);
            });
         });
     }

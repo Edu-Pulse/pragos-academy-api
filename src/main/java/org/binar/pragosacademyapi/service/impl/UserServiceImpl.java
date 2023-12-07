@@ -372,21 +372,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Response<PasswordDto> changePassword(PasswordDto request) {
-        Response<PasswordDto> response = new Response<>();
+    public Response<String> changePassword(PasswordDto request) {
+        Response<String> response = new Response<>();
         User user = userRepository.findByEmail(getEmailUserContext());
             try {
-                String encodedNewPassword = bCryptPasswordEncoder.encode(request.getNewPassword());
-                user.setPassword(encodedNewPassword);
-                userRepository.save(user);
-                PasswordDto passwordDto = new PasswordDto();
-                passwordDto.setEmail(request.getEmail());
-                passwordDto.setOldPassword(request.getOldPassword());
-                passwordDto.setNewPassword(request.getNewPassword());
-
-                response.setError(false);
-                response.setData(passwordDto);
-                response.setMessage("Change Password Succsess");
+                if (bCryptPasswordEncoder.matches(request.getOldPassword(), user.getPassword())){
+                    String encodedNewPassword = bCryptPasswordEncoder.encode(request.getNewPassword());
+                    user.setPassword(encodedNewPassword);
+                    userRepository.save(user);
+                    response.setError(false);
+                    response.setData("Change Password Succsess");
+                    response.setMessage("Success");
+                    notificationService.sendNotification(user.getId(), "Password telah diubah");
+                }else {
+                    response.setError(true);
+                    response.setMessage("Password lama anda salah");
+                }
             }
             catch ( Exception e ){
                 response.setError(true);

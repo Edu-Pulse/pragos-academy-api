@@ -48,12 +48,14 @@ public class UserController {
     public ResponseEntity<String> setDoneDetailChapter(@PathVariable Long id){
         return ResponseEntity.ok(userService.setDoneChapter(id));
     }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PutMapping(
             value = "/change-password",
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<PasswordDto>> changePassword(@RequestBody PasswordDto request){
+    public ResponseEntity<Response<String>> changePassword(@RequestBody PasswordDto request){
        return ResponseEntity.ok(userService.changePassword(request));
     }
 
