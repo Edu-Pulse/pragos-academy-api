@@ -47,13 +47,13 @@ public class AuthenticationController {
             final String token = tokenProvider.generateToken(authentication);
 
             ResponseCookie cookie = ResponseCookie.from("COOKIE_AUTH", token)
-                    .httpOnly(false)
+                    .httpOnly(true)
                     .secure(false)
                     .path("/")
+                    .domain("127.0.0.1")
                     .build();
 
             servletResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-            servletResponse.addCookie(new Cookie("COOKIE_AUTH", token));
 
             response.setError(false);
             response.setMessage("Login Berhasil");
