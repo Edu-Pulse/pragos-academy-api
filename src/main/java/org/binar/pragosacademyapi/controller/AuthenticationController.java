@@ -16,7 +16,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
@@ -50,7 +49,7 @@ public class AuthenticationController {
                     .httpOnly(true)
                     .secure(false)
                     .path("/")
-                    .domain("127.0.0.1")
+                    .sameSite("Strict")
                     .build();
 
             servletResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
