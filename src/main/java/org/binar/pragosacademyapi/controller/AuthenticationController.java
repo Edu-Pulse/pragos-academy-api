@@ -47,7 +47,7 @@ public class AuthenticationController {
             final String token = tokenProvider.generateToken(authentication);
 
             ResponseCookie cookie = ResponseCookie.from("COOKIE_AUTH", token)
-                    .httpOnly(true)
+                    .httpOnly(false)
                     .secure(false)
                     .path("/")
                     .build();
