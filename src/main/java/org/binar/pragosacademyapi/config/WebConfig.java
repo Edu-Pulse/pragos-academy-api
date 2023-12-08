@@ -26,6 +26,6 @@ public class WebConfig extends WebMvcConfigurerAdapter {
                         HttpMethod.PATCH.name(),
                         HttpMethod.DELETE.name()
                 )
-                .allowedOrigins("*");
+                .allowedOrigins("http://127.0.0.1:5173");
     }
 }
