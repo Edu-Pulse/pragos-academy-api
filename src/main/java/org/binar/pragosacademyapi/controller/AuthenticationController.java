@@ -49,6 +49,7 @@ public class AuthenticationController {
                     .httpOnly(true)
                     .secure(false)
                     .path("/")
+                    .sameSite("None")
                     .build();
 
             servletResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
