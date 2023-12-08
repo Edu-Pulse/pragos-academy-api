@@ -16,7 +16,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
@@ -47,13 +46,13 @@ public class AuthenticationController {
             final String token = tokenProvider.generateToken(authentication);
 
             ResponseCookie cookie = ResponseCookie.from("COOKIE_AUTH", token)
-                    .httpOnly(false)
+                    .httpOnly(true)
                     .secure(false)
                     .path("/")
+                    .sameSite("Strict")
                     .build();
 
             servletResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-            servletResponse.addCookie(new Cookie("COOKIE_AUTH", token));
 
             response.setError(false);
             response.setMessage("Login Berhasil");
