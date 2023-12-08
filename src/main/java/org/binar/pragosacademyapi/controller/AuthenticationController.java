@@ -53,6 +53,7 @@ public class AuthenticationController {
                     .build();
 
             servletResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+            servletResponse.addCookie(new Cookie("COOKIE_AUTH", token));
 
             response.setError(false);
             response.setMessage("Login Berhasil");
