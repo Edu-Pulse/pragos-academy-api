@@ -53,7 +53,6 @@ public class AuthenticationController {
                     .build();
 
             servletResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-            servletResponse.addHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_CREDENTIALS, "include");
 
             response.setError(false);
             response.setMessage("Login Berhasil");
