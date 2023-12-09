@@ -47,7 +47,7 @@ public class AuthenticationController {
 
             ResponseCookie cookie = ResponseCookie.from("COOKIE_AUTH", token)
                     .httpOnly(true)
-                    .secure(false)
+                    .secure(true)
                     .path("/")
                     .sameSite("None")
                     .build();
