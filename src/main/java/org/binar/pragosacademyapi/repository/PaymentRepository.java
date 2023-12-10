@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.Arrays;
 import java.util.List;
 
 @Repository
@@ -20,4 +22,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     List<Payment> paymentByUserAndStatus(@Param("email") String email);
     @Query("select p from Payment p where p.course.type = :type")
     List<Payment> findByType(@Param("type") Type type);
+
+    @Query("SELECT p FROM Payment p WHERE p.course.name LIKE %:courseName%")
+    List<Payment> findByCourseName(@Param("courseName") String courseName);
 }
