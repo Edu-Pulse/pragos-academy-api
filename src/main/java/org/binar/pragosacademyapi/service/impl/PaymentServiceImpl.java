@@ -46,7 +46,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public Response<List<PaymentSearchDto>> searchPaymentsByCourseName(String courseName) {
         try {
-            List<PaymentSearchDto> searchResults = paymentRepository.findByCourseName(courseName)
+            List<PaymentSearchDto> searchResults = paymentRepository.findByCourseName("%"+courseName+"%")
                     .stream()
                     .map(payment -> {
                         PaymentSearchDto result = new PaymentSearchDto();

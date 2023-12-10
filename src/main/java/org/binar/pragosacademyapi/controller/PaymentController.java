@@ -29,8 +29,11 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.getPaymentsByType());
     }
 
-
-    @GetMapping("/search")
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping(
+            value = "/search",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<Response<List<PaymentSearchDto>>> searchPaymentsByCourseName(
             @RequestParam String courseName) {
         Response<List<PaymentSearchDto>> response = paymentService.searchPaymentsByCourseName(courseName);
