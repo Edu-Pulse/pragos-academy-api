@@ -23,6 +23,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     @Query("select p from Payment p where p.course.type = :type")
     List<Payment> findByType(@Param("type") Type type);
 
-    @Query("SELECT p FROM Payment p WHERE p.course.name LIKE %:courseName%")
+    @Query("SELECT p FROM Payment p WHERE p.course.name like lower(:courseName) ")
     List<Payment> findByCourseName(@Param("courseName") String courseName);
 }
