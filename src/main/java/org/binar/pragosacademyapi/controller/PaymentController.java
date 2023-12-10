@@ -2,6 +2,7 @@ package org.binar.pragosacademyapi.controller;
 
 
 import org.binar.pragosacademyapi.entity.dto.PaymentDto;
+import org.binar.pragosacademyapi.entity.dto.PaymentSearchDto;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
@@ -25,5 +27,13 @@ public class PaymentController {
     )
     public ResponseEntity<Response<List<PaymentDto>>> getListPayment() {
         return ResponseEntity.ok(paymentService.getPaymentsByType());
+    }
+
+
+    @GetMapping("/search")
+    public ResponseEntity<Response<List<PaymentSearchDto>>> searchPaymentsByCourseName(
+            @RequestParam String courseName) {
+        Response<List<PaymentSearchDto>> response = paymentService.searchPaymentsByCourseName(courseName);
+        return ResponseEntity.ok(response);
     }
 }

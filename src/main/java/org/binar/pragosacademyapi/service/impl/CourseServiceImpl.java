@@ -313,7 +313,6 @@ public class CourseServiceImpl implements CourseService {
         }
         return response;
     }
-
     @Override
     public Response<List<CourseDto>> getCoursesByUserAndStatus(String status) {
         Response<List<CourseDto>> response = new Response<>();
