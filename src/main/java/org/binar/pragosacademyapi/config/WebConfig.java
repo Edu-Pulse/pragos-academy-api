@@ -26,6 +26,7 @@ public class WebConfig extends WebMvcConfigurerAdapter {
                         HttpMethod.PATCH.name(),
                         HttpMethod.DELETE.name()
                 )
-                .allowedOrigins("*");
+                .allowCredentials(true)
+                .allowedOrigins("https://test-fe-liard.vercel.app");
     }
 }

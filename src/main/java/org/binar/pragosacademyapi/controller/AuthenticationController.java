@@ -6,7 +6,9 @@ import org.binar.pragosacademyapi.entity.request.RegisterRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,7 +16,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
@@ -44,9 +45,14 @@ public class AuthenticationController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             final String token = tokenProvider.generateToken(authentication);
 
-            Cookie cookie = new Cookie("COOKIE_AUTH", token);
-            cookie.setPath("/");
-            servletResponse.addCookie(cookie);
+            ResponseCookie cookie = ResponseCookie.from("COOKIE_AUTH", token)
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .sameSite("None")
+                    .build();
+
+            servletResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
             response.setError(false);
             response.setMessage("Login Berhasil");

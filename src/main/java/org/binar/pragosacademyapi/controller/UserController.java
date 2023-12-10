@@ -1,10 +1,12 @@
 package org.binar.pragosacademyapi.controller;
 
+import org.binar.pragosacademyapi.entity.dto.PasswordDto;
 import org.binar.pragosacademyapi.entity.dto.UserDto;
 import org.binar.pragosacademyapi.entity.request.UpdateUserRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,10 +30,10 @@ public class UserController {
         return ResponseEntity.ok(userService.getProfile());
     }
 
-   @PreAuthorize("hasRole('USER')")
+   @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @PostMapping(
             value = "/update",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<String>> updateUser(@ModelAttribute UpdateUserRequest request){
@@ -45,6 +47,16 @@ public class UserController {
     )
     public ResponseEntity<String> setDoneDetailChapter(@PathVariable Long id){
         return ResponseEntity.ok(userService.setDoneChapter(id));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
+    @PutMapping(
+            value = "/change-password",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Response<String>> changePassword(@RequestBody PasswordDto request){
+       return ResponseEntity.ok(userService.changePassword(request));
     }
 
 }

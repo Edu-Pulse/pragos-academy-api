@@ -2,6 +2,7 @@ package org.binar.pragosacademyapi.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.binar.pragosacademyapi.entity.*;
+import org.binar.pragosacademyapi.entity.dto.PasswordDto;
 import org.binar.pragosacademyapi.entity.dto.UserDto;
 import org.binar.pragosacademyapi.entity.request.RegisterRequest;
 import org.binar.pragosacademyapi.entity.request.UpdateUserRequest;
@@ -366,6 +367,32 @@ public class UserServiceImpl implements UserService {
             response.setMessage("Terjadi kesalahan");
             response.setData(null);
         }
+
+        return response;
+    }
+
+    @Override
+    public Response<String> changePassword(PasswordDto request) {
+        Response<String> response = new Response<>();
+        User user = userRepository.findByEmail(getEmailUserContext());
+            try {
+                if (bCryptPasswordEncoder.matches(request.getOldPassword(), user.getPassword())){
+                    String encodedNewPassword = bCryptPasswordEncoder.encode(request.getNewPassword());
+                    user.setPassword(encodedNewPassword);
+                    userRepository.save(user);
+                    response.setError(false);
+                    response.setData("Change Password Succsess");
+                    response.setMessage("Success");
+                    notificationService.sendNotification(user.getId(), "Password telah diubah");
+                }else {
+                    response.setError(true);
+                    response.setMessage("Password lama anda salah");
+                }
+            }
+            catch ( Exception e ){
+                response.setError(true);
+                response.setMessage("Failed to change Password");
+            }
 
         return response;
     }

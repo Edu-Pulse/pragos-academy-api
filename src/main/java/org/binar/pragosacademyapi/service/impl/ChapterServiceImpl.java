@@ -31,7 +31,7 @@ public class ChapterServiceImpl implements ChapterService {
                 detailChapter.setVideo(request.getVideo());
                 detailChapter.setMaterial(request.getMaterial());
 
-                Chapter chapter = chapterRepository.chapterByCourseAndName(course.getCode(), request.getChapterName());
+                Chapter chapter = chapterRepository.chapterByCourseAndName(course.getCode(), request.getChapterName()).orElse(null);
                 if (chapter != null){
                     detailChapter.setChapter(chapter);
                     if (chapter.getDetailChapters().isEmpty()){
@@ -40,7 +40,7 @@ public class ChapterServiceImpl implements ChapterService {
                     }else {
                         chapter.getDetailChapters().add(detailChapter);
                     }
-                    course.getChapters().add(chapter);
+                    chapterRepository.save(chapter);
                 }else {
                     Chapter newChapter = new Chapter();
                     newChapter.setCourse(course);
@@ -49,8 +49,8 @@ public class ChapterServiceImpl implements ChapterService {
                     newChapter.setDetailChapters(new ArrayList<>());
                     newChapter.getDetailChapters().add(detailChapter);
                     course.getChapters().add(newChapter);
+                    courseRepository.save(course);
                 }
-                courseRepository.save(course);
                 response.setError(false);
                 response.setMessage("Success add chapter");
             }else {
