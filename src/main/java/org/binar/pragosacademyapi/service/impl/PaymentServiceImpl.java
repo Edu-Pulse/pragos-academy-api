@@ -2,6 +2,7 @@ package org.binar.pragosacademyapi.service.impl;
 
 import org.binar.pragosacademyapi.entity.Payment;
 import org.binar.pragosacademyapi.entity.dto.PaymentDto;
+import org.binar.pragosacademyapi.entity.dto.PaymentSearchDto;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.enumeration.Type;
 import org.binar.pragosacademyapi.repository.PaymentRepository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -39,6 +41,27 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         return response;
+    }
+
+    @Override
+    public Response<List<PaymentSearchDto>> searchPaymentsByCourseName(String courseName) {
+        try {
+            List<PaymentSearchDto> searchResults = paymentRepository.findByCourseName(courseName)
+                    .stream()
+                    .map(payment -> {
+                        PaymentSearchDto result = new PaymentSearchDto();
+                        result.setPaymentId(payment.getId());
+                        result.setCourseName(payment.getCourse().getName());
+                        result.setAmount(payment.getAmount());
+                        return result;
+                    })
+                    .collect(Collectors.toList());
+
+            return new Response<>(false, "Search successful", searchResults);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new Response<>(true, "Failed to search payments", null);
+        }
     }
 
     private PaymentDto createPaymentDto(Payment payment) {
