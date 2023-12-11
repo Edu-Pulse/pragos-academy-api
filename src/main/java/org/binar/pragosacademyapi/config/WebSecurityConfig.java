@@ -39,10 +39,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedEntryPoint).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().logout().logoutUrl("/logout").deleteCookies("COOKIE_AUTH").logoutSuccessHandler((request, response, authentication) -> {
-                    String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), "");
-                    response.sendRedirect(baseUrl + "/");
-                });
+                .and().logout().logoutUrl("/logout").deleteCookies("COOKIE_AUTH");
 
         http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
     }
@@ -58,7 +55,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public JwtAuthenticationFilter authenticationTokenFilterBean() throws Exception {
+    public JwtAuthenticationFilter authenticationTokenFilterBean() {
         return new JwtAuthenticationFilter();
     }
 

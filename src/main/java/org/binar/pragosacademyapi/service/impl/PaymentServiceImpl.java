@@ -7,17 +7,20 @@ import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.enumeration.Type;
 import org.binar.pragosacademyapi.repository.PaymentRepository;
 import org.binar.pragosacademyapi.service.PaymentService;
+import org.binar.pragosacademyapi.utils.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
+    private final PaymentRepository paymentRepository;
     @Autowired
-    private PaymentRepository paymentRepository;
+    public PaymentServiceImpl(PaymentRepository paymentRepository){
+        this.paymentRepository = paymentRepository;
+    }
     @Override
     public Response<List<PaymentDto>> getPaymentsByType() {
         Response<List<PaymentDto>> response = new Response<>();
@@ -32,11 +35,11 @@ public class PaymentServiceImpl implements PaymentService {
             }
 
             response.setError(false);
-            response.setMessage("Success to get payments by type");
+            response.setMessage(ResponseUtils.MESSAGE_SUCCESS_GET_DATA_PAYMENTS);
             response.setData(paymentDtoList);
         } catch (Exception e) {
             response.setError(true);
-            response.setMessage("Failed to get payments by type");
+            response.setMessage(ResponseUtils.MESSAGE_FAILED);
             response.setData(null);
         }
 
@@ -57,10 +60,9 @@ public class PaymentServiceImpl implements PaymentService {
                     })
                     .collect(Collectors.toList());
 
-            return new Response<>(false, "Search successful", searchResults);
+            return new Response<>(false, ResponseUtils.MESSAGE_SUCCESS_GET_DATA_PAYMENTS, searchResults);
         } catch (Exception e) {
-            e.printStackTrace();
-            return new Response<>(true, "Failed to search payments", null);
+            return new Response<>(true, ResponseUtils.MESSAGE_FAILED, null);
         }
     }
 
