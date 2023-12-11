@@ -17,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;import java.time.LocalDateTime;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -82,6 +81,7 @@ class UserServiceImplTest {
 
     @Test
     void setDoneChapter() {
+
     }
 
     @Test
@@ -94,9 +94,13 @@ class UserServiceImplTest {
 
     @Test
     void changePassword() {
+
     }
 
     @Test
     void getEmailUserContext() {
+        String email = userServiceImpl.getEmailUserContext();
+        assertNotNull(email);
+        assertEquals("Joko@email.com", email);
     }
 }
