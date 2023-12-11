@@ -93,6 +93,7 @@ public class UserServiceImpl implements UserService {
         Response<String> response = new Response<>();
 
         try{
+
             User existingUser = userRepository.findByEmail(user.getEmail()).orElse(null);
             if (existingUser == null){
                 User newuser = new User();
