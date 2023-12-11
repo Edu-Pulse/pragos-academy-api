@@ -109,7 +109,7 @@ public class UserServiceImpl implements UserService {
             newuser.setUserVerification(userVerification);
 
             userRepository.save(newuser);
-            response.setError(true);
+            response.setError(false);
             response.setMessage("Success");
 
             sendEmail(user.getEmail(), code);
