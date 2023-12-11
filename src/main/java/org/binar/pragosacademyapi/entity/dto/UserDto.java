@@ -10,5 +10,5 @@ public class UserDto {
     private String password;
     private String city;
     private String country;
-    private byte[] imageProfile;
+    private String imageProfile;
 }

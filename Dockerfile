@@ -11,8 +11,7 @@ FROM eclipse-temurin:20-jre
 
 WORKDIR /app
 COPY --from=builder /app/target/*.jar /app/app.jar
-RUN mkdir /app/uploads
-COPY src/main/resources/profile.jpg /app/uploads
+
 ARG PORT
 ENV PORT=${PORT}
 USER root
