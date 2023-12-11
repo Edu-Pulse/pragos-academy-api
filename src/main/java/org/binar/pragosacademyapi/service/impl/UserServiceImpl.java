@@ -25,8 +25,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.annotation.PostConstruct;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.io.InputStream;
@@ -49,7 +47,6 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     @Autowired
     private JavaMailSender mailSender;
-    private final Random random = new Random();
     @Autowired
     private UserVerificationRepository userVerificationRepository;
     @Autowired
@@ -63,20 +60,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private NotificationService notificationService;
     private final Path root = Paths.get("/app/uploads");
-
-    @PostConstruct
-    public void init(){
-        try {
-            if (!Files.exists(root)){
-                Files.createDirectories(root);
-                log.info("Created directory successfully on: "+ root.toAbsolutePath());
-            }else {
-                log.info("Directory 'uploads' already exist: "+ root.toAbsolutePath());
-            }
-        }catch (Exception e){
-            log.error("Terjadi kesalahan: "+ e.getMessage());
-        }
-    }
+    private final Random random = new Random();
 
     @Override
     public Response<UserDto> getProfile() {
@@ -199,11 +183,6 @@ public class UserServiceImpl implements UserService {
             response.setData("Terjadi kesalahan");
         }
         return response;
-    }
-
-    @Override
-    public Response<String> update(String password) {
-        return null;
     }
 
     @Override
