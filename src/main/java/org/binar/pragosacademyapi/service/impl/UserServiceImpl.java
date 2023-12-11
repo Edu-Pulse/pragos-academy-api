@@ -66,7 +66,7 @@ public class UserServiceImpl implements UserService {
     public Response<UserDto> getProfile() {
         Response<UserDto> response = new Response<>();
         try {
-            User user = userRepository.findByEmail(getEmailUserContext());
+            User user = userRepository.findByEmail(getEmailUserContext()).orElse(null);
             UserDto userDto = new UserDto();
             if (user.getImageProfile() != null){
                 Path file = root.resolve(user.getImageProfile());
@@ -91,29 +91,43 @@ public class UserServiceImpl implements UserService {
     @Override
     public Response<String> register(RegisterRequest user) {
         Response<String> response = new Response<>();
+
         try{
-            User newuser = new User();
-            newuser.setName(user.getName());
-            newuser.setEmail(user.getEmail());
-            newuser.setPhone(user.getPhone());
-            newuser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-            newuser.setCity(user.getCity());
-            newuser.setCountry(user.getCountry());
-            newuser.setRole(Role.USER);
-            newuser.setIsEnable(false);
-            Integer code = random.nextInt(9999 - 1000) + 1000;
-            UserVerification userVerification = new UserVerification();
-            userVerification.setUser(newuser);
-            userVerification.setVerificationCode(code);
-            userVerification.setExpiredAt(LocalDateTime.now().plusMinutes(5));
-            newuser.setUserVerification(userVerification);
+            User existingUser = userRepository.findByEmail(user.getEmail()).orElse(null);
+            if (existingUser == null){
+                User newuser = new User();
+                newuser.setName(user.getName());
+                newuser.setEmail(user.getEmail());
+                newuser.setPhone(user.getPhone());
+                newuser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+                newuser.setCity(user.getCity());
+                newuser.setCountry(user.getCountry());
+                newuser.setRole(Role.USER);
+                newuser.setIsEnable(false);
+                Integer code = random.nextInt(9999 - 1000) + 1000;
+                UserVerification userVerification = new UserVerification();
+                userVerification.setUser(newuser);
+                userVerification.setVerificationCode(code);
+                userVerification.setExpiredAt(LocalDateTime.now().plusMinutes(5));
+                newuser.setUserVerification(userVerification);
 
-            userRepository.save(newuser);
-            response.setError(false);
-            response.setMessage("Success");
+                userRepository.save(newuser);
+                response.setError(false);
+                response.setMessage("Success");
 
-            sendEmail(user.getEmail(), code);
-            response.setData("Berhasil register. Silahkan cek email untuk kode verifikasi");
+                sendEmail(user.getEmail(), code);
+                response.setData("Berhasil register. Silahkan cek email untuk kode verifikasi");
+            }else {
+                if (existingUser.getIsEnable()){
+                    response.setError(true);
+                    response.setMessage("failed");
+                    response.setData("Email sudah didaftarkan");
+                }else {
+                    response.setError(true);
+                    response.setMessage("Failed");
+                    response.setData("Email belum diverifikasi");
+                }
+            }
 
         }catch (Exception e){
             response.setError(true);
@@ -128,7 +142,7 @@ public class UserServiceImpl implements UserService {
     public Response<String> update(UpdateUserRequest updateUser) {
         Response<String> response = new Response<>();
         try {
-            User user = userRepository.findByEmail(getEmailUserContext());
+            User user = userRepository.findByEmail(getEmailUserContext()).orElse(null);
             MultipartFile file = updateUser.getFile();
             if (!file.isEmpty()){
                 try(InputStream inputStream = file.getInputStream()) {
@@ -190,7 +204,7 @@ public class UserServiceImpl implements UserService {
         Response<String> response = new Response<>();
         Integer code = random.nextInt(9999 - 1000) + 1000;
         try {
-            User user = userRepository.findByEmail(email);
+            User user = userRepository.findByEmail(email).orElse(null);
             if (user != null){
                 UserVerification userVerification = user.getUserVerification();
                 userVerification.setVerificationCode(code);
@@ -222,7 +236,7 @@ public class UserServiceImpl implements UserService {
     public Response<String> verification(String email, Integer code) {
         Response<String> response = new Response<>();
         try {
-            User user = userRepository.findByEmail(email);
+            User user = userRepository.findByEmail(email).orElse(null);
             if (user != null){
                 UserVerification userVerification = userVerificationRepository.findByUser_Id(user.getId());
                 if (Objects.equals(code, userVerification.getVerificationCode()) && !LocalDateTime.now().isAfter(userVerification.getExpiredAt())){
@@ -252,7 +266,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean checkIsEnable(String email) {
         try {
-            User checkUser = userRepository.findByEmail(email);
+            User checkUser = userRepository.findByEmail(email).orElse(null);
             if (checkUser != null){
                 return checkUser.getIsEnable();
             }else {
@@ -266,7 +280,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public String setDoneChapter(Long detailChapterId) {
         try {
-            User user = userRepository.findByEmail(getEmailUserContext());
+            User user = userRepository.findByEmail(getEmailUserContext()).orElse(null);
             DetailChapter detailChapter = detailChapterRepository.findById(detailChapterId).orElse(null);
             if (detailChapter != null){
                 UserDetailChapter userDetailChapter = new UserDetailChapter();
@@ -288,7 +302,7 @@ public class UserServiceImpl implements UserService {
     public Response<String> resetPassword(Integer verificationCode, String email, String newPassword) {
         Response<String> response = new Response<>();
         try {
-            User user = userRepository.findByEmail(email);
+            User user = userRepository.findByEmail(email).orElse(null);
             if (user != null){
                 UserVerification userVerification = userVerificationRepository.findByUser_Id(user.getId());
                 if (Objects.equals(verificationCode, userVerification.getVerificationCode()) && !LocalDateTime.now().isAfter(userVerification.getExpiredAt())){
@@ -323,7 +337,7 @@ public class UserServiceImpl implements UserService {
         Response<String> response = new Response<>();
         Integer code = random.nextInt(9999 - 1000) + 1000;
         try {
-            User user = userRepository.findByEmail(email);
+            User user = userRepository.findByEmail(email).orElse(null);
             if (user != null){
                 UserVerification userVerification = user.getUserVerification();
                 userVerification.setVerificationCode(code);
@@ -353,7 +367,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public Response<String> changePassword(PasswordDto request) {
         Response<String> response = new Response<>();
-        User user = userRepository.findByEmail(getEmailUserContext());
+        User user = userRepository.findByEmail(getEmailUserContext()).orElse(null);
             try {
                 if (bCryptPasswordEncoder.matches(request.getOldPassword(), user.getPassword())){
                     String encodedNewPassword = bCryptPasswordEncoder.encode(request.getNewPassword());

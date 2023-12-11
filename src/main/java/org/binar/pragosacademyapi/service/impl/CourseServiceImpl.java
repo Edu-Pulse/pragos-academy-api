@@ -64,7 +64,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Response<CourseDetailDto> courseDetail(String courseCode) {
         Response<CourseDetailDto> response = new Response<>();
-        User user = userRepository.findByEmail(userService.getEmailUserContext());
+        User user = userRepository.findByEmail(userService.getEmailUserContext()).orElse(null);
         try {
             if (user != null) {
                 Course course = paymentRepository.detailCourse(courseCode, user.getEmail());
@@ -121,7 +121,7 @@ public class CourseServiceImpl implements CourseService {
         Response<String> response = new Response<>();
         try {
             Course course = courseRepository.findByCode(courseCode);
-            User user = userRepository.findByEmail(userService.getEmailUserContext());
+            User user = userRepository.findByEmail(userService.getEmailUserContext()).orElse(null);
             if (course != null) {
                 Payment checkPayment = paymentRepository.findByUser_IdAndCourse_Code(user.getId(), courseCode);
                 if (checkPayment == null) {
@@ -171,7 +171,7 @@ public class CourseServiceImpl implements CourseService {
         Response<String> response = new Response<>();
         try {
             Course course = courseRepository.findByCode(courseCode);
-            User user = userRepository.findByEmail(userService.getEmailUserContext());
+            User user = userRepository.findByEmail(userService.getEmailUserContext()).orElse(null);
             if (course != null) {
                 Payment checkPayment = paymentRepository.findByUser_IdAndCourse_Code(user.getId(), courseCode);
                 if (checkPayment == null) {
@@ -353,7 +353,7 @@ public class CourseServiceImpl implements CourseService {
     public Response<String> setRating(String courseCode, Integer rating) {
         Response<String> response = new Response<>();
         try {
-            User user = userRepository.findByEmail(userService.getEmailUserContext());
+            User user = userRepository.findByEmail(userService.getEmailUserContext()).orElse(null);
             Payment payment = paymentRepository.findByUser_IdAndCourse_Code(user.getId(), courseCode);
             if (payment != null) {
                 payment.setRating(rating);
