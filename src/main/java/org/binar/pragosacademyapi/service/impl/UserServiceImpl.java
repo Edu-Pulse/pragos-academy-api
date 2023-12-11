@@ -14,6 +14,7 @@ import org.binar.pragosacademyapi.repository.UserRepository;
 import org.binar.pragosacademyapi.repository.UserVerificationRepository;
 import org.binar.pragosacademyapi.service.NotificationService;
 import org.binar.pragosacademyapi.service.UserService;
+import org.binar.pragosacademyapi.utils.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -41,22 +42,38 @@ import java.util.Random;
 @Service
 public class UserServiceImpl implements UserService {
 
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final UserRepository userRepository;
+    private final JavaMailSender mailSender;
+    private final UserVerificationRepository userVerificationRepository;
+    private final UserDetailChapterRepository userDetailChapterRepository;
+    private final DetailChapterRepository detailChapterRepository;
+    private static final String MESSAGE_SUCCESS = ResponseUtils.MESSAGE_SUCCESS;
+    private static final String MESSAGE_FAILED = ResponseUtils.MESSAGE_FAILED;
+    private static final String FAILED = ResponseUtils.FAILED;
+    private static final String MESSAGE_SUCCESS_UPDATE_USER = ResponseUtils.MESSAGE_SUCCESS_UPDATE_USER;
+    private static final String MESSAGE_FAILED_UPDATE_USER = ResponseUtils.MESSAGE_FAILED_UPDATE_USER;
+    @Value("${app.name}")
+    private String appName;
+
     @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private JavaMailSender mailSender;
-    @Autowired
-    private UserVerificationRepository userVerificationRepository;
-    @Autowired
-    private UserDetailChapterRepository userDetailChapterRepository;
-    @Autowired
-    private DetailChapterRepository detailChapterRepository;
+    public UserServiceImpl(BCryptPasswordEncoder bCryptPasswordEncoder,
+                           UserRepository userRepository,
+                           JavaMailSender mailSender,
+                           UserVerificationRepository userVerificationRepository,
+                           UserDetailChapterRepository userDetailChapterRepository,
+                           DetailChapterRepository detailChapterRepository){
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.userRepository = userRepository;
+        this.mailSender = mailSender;
+        this.userVerificationRepository = userVerificationRepository;
+        this.userDetailChapterRepository = userDetailChapterRepository;
+        this.detailChapterRepository = detailChapterRepository;
+    }
     @Value("${spring.mail.username}")
-    private String EMAIL;
+    private String emailSmtp;
     @Value("${base.url.fe}")
-    private String BASE_URL_FE;
+    private String baseUrlFe;
     @Autowired
     private NotificationService notificationService;
     private final Path root = Paths.get("/app/uploads");
@@ -67,23 +84,27 @@ public class UserServiceImpl implements UserService {
         Response<UserDto> response = new Response<>();
         try {
             User user = userRepository.findByEmail(getEmailUserContext()).orElse(null);
-            UserDto userDto = new UserDto();
-            if (user.getImageProfile() != null){
-                Path file = root.resolve(user.getImageProfile());
-                userDto.setImageProfile(Files.readAllBytes(file));
+            if (user != null){
+                UserDto userDto = new UserDto();
+                if (user.getImageProfile() != null){
+                    Path file = root.resolve(user.getImageProfile());
+                    userDto.setImageProfile(Files.readAllBytes(file));
+                }
+                userDto.setName(user.getName());
+                userDto.setCity(user.getCity());
+                userDto.setEmail(user.getEmail());
+                userDto.setCountry(user.getCountry());
+                userDto.setPhone(user.getPhone());
+                response.setError(false);
+                response.setMessage(MESSAGE_SUCCESS);
+                response.setData(userDto);
+            }else {
+                response.setError(true);
+                response.setMessage(MESSAGE_FAILED);
             }
-            userDto.setName(user.getName());
-            userDto.setCity(user.getCity());
-            userDto.setPassword(null);
-            userDto.setEmail(user.getEmail());
-            userDto.setCountry(user.getCountry());
-            userDto.setPhone(user.getPhone());
-            response.setError(false);
-            response.setMessage("Berhasil");
-            response.setData(userDto);
         }catch (Exception e){
             response.setError(true);
-            response.setMessage("Terjadi kesalahan"+ e.getMessage());
+            response.setMessage(MESSAGE_FAILED);
         }
         return response;
     }
@@ -114,25 +135,26 @@ public class UserServiceImpl implements UserService {
 
                 userRepository.save(newuser);
                 response.setError(false);
-                response.setMessage("Success");
+                response.setMessage(MESSAGE_SUCCESS);
 
                 sendEmail(user.getEmail(), code);
                 response.setData("Berhasil register. Silahkan cek email untuk kode verifikasi");
             }else {
-                if (existingUser.getIsEnable()){
+                boolean isUserEnabled = existingUser.getIsEnable();
+                if (isUserEnabled){
                     response.setError(true);
-                    response.setMessage("failed");
+                    response.setMessage(FAILED);
                     response.setData("Email sudah didaftarkan");
                 }else {
                     response.setError(true);
-                    response.setMessage("Failed");
+                    response.setMessage(FAILED);
                     response.setData("Email belum diverifikasi");
                 }
             }
 
         }catch (Exception e){
             response.setError(true);
-            response.setMessage("Failed");
+            response.setMessage(FAILED);
             response.setData("Terjadi kesalahan. Silahkan coba dengan email atau nomor telepon yang berbeda");
         }
         return response;
@@ -144,58 +166,73 @@ public class UserServiceImpl implements UserService {
         Response<String> response = new Response<>();
         try {
             User user = userRepository.findByEmail(getEmailUserContext()).orElse(null);
-            MultipartFile file = updateUser.getFile();
-            if (!file.isEmpty()){
-                try(InputStream inputStream = file.getInputStream()) {
-                    Files.copy(inputStream, this.root.resolve(user.getId() + file.getOriginalFilename()), StandardCopyOption.REPLACE_EXISTING);
+            if (user != null){
+                MultipartFile file = updateUser.getFile();
+                if (!file.isEmpty()){
+                    try(InputStream inputStream = file.getInputStream()) {
+                        Files.copy(inputStream, this.root.resolve(user.getId() + file.getOriginalFilename()), StandardCopyOption.REPLACE_EXISTING);
+                    }
+                    user.setImageProfile(user.getId()+file.getOriginalFilename());
                 }
-                user.setImageProfile(user.getId()+file.getOriginalFilename());
-            }
-            user.setName(updateUser.getName());
-            user.setCity(updateUser.getCity());
-            user.setCountry(updateUser.getCountry());
-            if (Objects.equals(updateUser.getEmail(), user.getEmail())){
-                user.setEmail(updateUser.getEmail());
-                if (Objects.equals(updateUser.getPhone(), user.getPhone())){
-                    user.setPhone(updateUser.getPhone());
-                    userRepository.save(user);
-                    response.setError(false);
-                    response.setMessage("Success");
-                    response.setData("Success update data");
-                    notificationService.sendNotification(user.getId(), "Data kamu berhasil diupdate");
-                }else {
-                    try {
+                user.setName(updateUser.getName());
+                user.setCity(updateUser.getCity());
+                user.setCountry(updateUser.getCountry());
+                if (Objects.equals(updateUser.getEmail(), user.getEmail())){
+                    user.setEmail(updateUser.getEmail());
+                    if (Objects.equals(updateUser.getPhone(), user.getPhone())){
                         user.setPhone(updateUser.getPhone());
                         userRepository.save(user);
                         response.setError(false);
-                        response.setMessage("Success");
-                        response.setData("Success update data");
-                        notificationService.sendNotification(user.getId(), "Data kamu berhasil diupdate");
-                    }catch (Exception e){
-                        response.setError(true);
-                        response.setMessage("Failed to update data");
-                        response.setData("No Telepon sudah didaftarkan. Silahkan gunakan no telepon yang lain");
+                        response.setMessage(MESSAGE_SUCCESS);
+                        response.setData(MESSAGE_SUCCESS_UPDATE_USER + user.getId());
+                        notificationService.sendNotification(user.getId(), ResponseUtils.MESSAGE_SUCCESS_UPDATE_USER_NOTIFICATION);
+                    }else {
+                        response = checkUserPhone(user, updateUser);
                     }
+                }else {
+                    response = checkUserEmail(user, updateUser);
                 }
             }else {
-                try {
-                    user.setEmail(updateUser.getEmail());
-                    userRepository.save(user);
-                    response.setError(false);
-                    response.setMessage("Success");
-                    response.setData("Success update data");
-                    notificationService.sendNotification(user.getId(), "Data kamu berhasil diupdate");
-                }catch (Exception e){
-                    response.setError(true);
-                    response.setMessage("Failed to update data");
-                    response.setData("Email sudah didaftarkan. Silahkan gunakan email yang lain");
-                }
+                response.setError(true);
+                response.setMessage(MESSAGE_FAILED);
             }
         }catch (Exception e){
             log.error(e.getMessage());
             response.setError(true);
-            response.setMessage("Failed to update data "+e.getMessage());
-            response.setData("Terjadi kesalahan");
+            response.setMessage(MESSAGE_FAILED);
+        }
+        return response;
+    }
+
+    private Response<String> checkUserPhone(User user, UpdateUserRequest updateUser){
+        Response<String> response = new Response<>();
+        try {
+            user.setPhone(updateUser.getPhone());
+            userRepository.save(user);
+            response.setError(false);
+            response.setMessage(MESSAGE_SUCCESS);
+            response.setData(MESSAGE_SUCCESS_UPDATE_USER + user.getId());
+            notificationService.sendNotification(user.getId(), ResponseUtils.MESSAGE_SUCCESS_UPDATE_USER_NOTIFICATION);
+        }catch (Exception e){
+            response.setError(true);
+            response.setMessage(MESSAGE_FAILED_UPDATE_USER + user.getId());
+            response.setData("No Telepon sudah didaftarkan. Silahkan gunakan no telepon yang lain");
+        }
+        return response;
+    }
+    private Response<String> checkUserEmail(User user, UpdateUserRequest updateUser){
+        Response<String> response = new Response<>();
+        try {
+            user.setEmail(updateUser.getEmail());
+            userRepository.save(user);
+            response.setError(false);
+            response.setMessage(MESSAGE_SUCCESS);
+            response.setData(MESSAGE_SUCCESS_UPDATE_USER + user.getId());
+            notificationService.sendNotification(user.getId(), "Data kamu berhasil diupdate");
+        }catch (Exception e){
+            response.setError(true);
+            response.setMessage(MESSAGE_FAILED_UPDATE_USER + user.getId());
+            response.setData("Email sudah didaftarkan. Silahkan gunakan email yang lain");
         }
         return response;
     }
@@ -215,7 +252,7 @@ public class UserServiceImpl implements UserService {
 
                 sendEmail(email, code);
                 response.setError(false);
-                response.setMessage("Success");
+                response.setMessage(MESSAGE_SUCCESS);
                 response.setData("Kode verifikasi berhasil dikirim");
         }else {
                 response.setError(true);
@@ -225,7 +262,7 @@ public class UserServiceImpl implements UserService {
 
         }catch (Exception e){
             response.setError(true);
-            response.setMessage("Terjadi kesalahan");
+            response.setMessage(MESSAGE_FAILED);
             response.setData(null);
         }
 
@@ -244,7 +281,7 @@ public class UserServiceImpl implements UserService {
                     user.setIsEnable(true);
                     userRepository.save(user);
                     response.setError(false);
-                    response.setMessage("Success");
+                    response.setMessage(MESSAGE_SUCCESS);
                     response.setData("Email berhasil diverifikasi");
                 }else {
                     response.setError(false);
@@ -258,7 +295,7 @@ public class UserServiceImpl implements UserService {
             }
         }catch (Exception e){
             response.setError(true);
-            response.setMessage("Terjadi kesalahan. Silahkan coba lagi");
+            response.setMessage(MESSAGE_FAILED);
             response.setData(null);
         }
         return response;
@@ -289,13 +326,13 @@ public class UserServiceImpl implements UserService {
                 userDetailChapter.setDetailChapter(detailChapter);
                 userDetailChapter.setIsDone(true);
                 userDetailChapterRepository.save(userDetailChapter);
-                return "Success";
+                return MESSAGE_SUCCESS;
             }
             return "Detail chapter dengan id: "+ detailChapterId+" Tidak ditemukan";
 
         }catch (Exception e){
             log.error(e.getMessage());
-            return "Terjadi kesalahan";
+            return MESSAGE_FAILED;
         }
     }
 
@@ -312,7 +349,7 @@ public class UserServiceImpl implements UserService {
                     userRepository.save(user);
 
                     response.setError(false);
-                    response.setMessage("Success");
+                    response.setMessage(MESSAGE_SUCCESS);
                     response.setData("Password berhasil diubah. Silahkan login dengan password yang baru");
                     notificationService.sendNotification(user.getId(), "Password kamu baru saja diganti");
                 }else {
@@ -327,7 +364,7 @@ public class UserServiceImpl implements UserService {
             }
         }catch (Exception e){
             response.setError(true);
-            response.setMessage("Terjadi kesalahan. Silahkan coba lagi");
+            response.setMessage(MESSAGE_FAILED);
             response.setData(null);
         }
         return response;
@@ -348,7 +385,7 @@ public class UserServiceImpl implements UserService {
 
                 sendEmailForgotPassword(email, code);
                 response.setError(false);
-                response.setMessage("Success");
+                response.setMessage(MESSAGE_SUCCESS);
                 response.setData("Tautan ganti password sudah dikirim ke email kamu");
             }else {
                 response.setError(true);
@@ -358,7 +395,7 @@ public class UserServiceImpl implements UserService {
 
         }catch (Exception e){
             response.setError(true);
-            response.setMessage("Terjadi kesalahan");
+            response.setMessage(MESSAGE_FAILED);
             response.setData(null);
         }
 
@@ -368,24 +405,29 @@ public class UserServiceImpl implements UserService {
     @Override
     public Response<String> changePassword(PasswordDto request) {
         Response<String> response = new Response<>();
-        User user = userRepository.findByEmail(getEmailUserContext()).orElse(null);
             try {
-                if (bCryptPasswordEncoder.matches(request.getOldPassword(), user.getPassword())){
-                    String encodedNewPassword = bCryptPasswordEncoder.encode(request.getNewPassword());
-                    user.setPassword(encodedNewPassword);
-                    userRepository.save(user);
-                    response.setError(false);
-                    response.setData("Change Password Succsess");
-                    response.setMessage("Success");
-                    notificationService.sendNotification(user.getId(), "Password telah diubah");
+                User user = userRepository.findByEmail(getEmailUserContext()).orElse(null);
+                if (user != null){
+                    if (bCryptPasswordEncoder.matches(request.getOldPassword(), user.getPassword())){
+                        String encodedNewPassword = bCryptPasswordEncoder.encode(request.getNewPassword());
+                        user.setPassword(encodedNewPassword);
+                        userRepository.save(user);
+                        response.setError(false);
+                        response.setData("Change Password Successfully");
+                        response.setMessage(MESSAGE_SUCCESS);
+                        notificationService.sendNotification(user.getId(), "Password telah diubah");
+                    }else {
+                        response.setError(true);
+                        response.setMessage("Password lama anda salah");
+                    }
                 }else {
                     response.setError(true);
-                    response.setMessage("Password lama anda salah");
+                    response.setMessage(MESSAGE_FAILED);
                 }
             }
             catch ( Exception e ){
                 response.setError(true);
-                response.setMessage("Failed to change Password");
+                response.setMessage(MESSAGE_FAILED);
             }
 
         return response;
@@ -395,25 +437,23 @@ public class UserServiceImpl implements UserService {
         String subject = "Kode verifikasi Pragos Academy";
         String content = "Kode verifikasi anda: <b>"+ code + "</b> kode verifikasi akan expired dalam 5 menit. Jangan kirimkan kode ini kesiapapun jika tidak mendaftar di pragos academy.";
 
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message);
-
-        helper.setFrom(EMAIL, "Pragos Academy");
-        helper.setTo(email);
-        helper.setSubject(subject);
-        helper.setText(content, true);
-        mailSender.send(message);
+        sendMail(email, subject, content);
     }
 
     private void sendEmailForgotPassword(String email, Integer code) throws MessagingException, UnsupportedEncodingException {
         String subject = "Tautan ganti password";
-        String content = "Klik tautan untuk ganti password anda <a href=\""+BASE_URL_FE+"reset-password?email="+email+"&verificationCode="+code+"\">Ganti password</a><br>" +
-                "<b>Tautan akan expired dalam 5 menit</b>";
+        String content = "Berikut kode verifikasi untuk reset password: "+code+" <br>" +
+                "Klik tautan untuk ganti password anda <a href=\""+baseUrlFe+"/auth/reset"+"\">Ganti password</a><br>" +
+                "<b>Kode verifikasi akan expired dalam 5 menit</b>";
 
+        sendMail(email, subject, content);
+    }
+
+    private void sendMail(String email, String subject, String content) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message);
 
-        helper.setFrom(EMAIL, "Pragos Academy");
+        helper.setFrom(emailSmtp, appName);
         helper.setTo(email);
         helper.setSubject(subject);
         helper.setText(content, true);
