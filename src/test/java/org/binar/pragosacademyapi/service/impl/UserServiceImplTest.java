@@ -17,6 +17,8 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;import java.time.LocalDateTime;
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,7 +39,7 @@ class UserServiceImplTest {
         User user = new User(1L, "Joko WIdodo", "Joko@email.com", "08987876767", "joko12345", "Cilacap", "Indonesia", null, Role.USER, true, null);
         user.setUserVerification(new UserVerification(1L, user, 123, LocalDateTime.now()));
 
-        Mockito.when(userRepository.findByEmail("Joko@email.com")).thenReturn(user);
+        Mockito.when(userRepository.findByEmail("Joko@email.com")).thenReturn(Optional.of(user));
     }
 
     @Test
