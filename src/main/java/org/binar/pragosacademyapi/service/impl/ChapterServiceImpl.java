@@ -8,23 +8,27 @@ import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.repository.ChapterRepository;
 import org.binar.pragosacademyapi.repository.CourseRepository;
 import org.binar.pragosacademyapi.service.ChapterService;
+import org.binar.pragosacademyapi.utils.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 
 @Service
 public class ChapterServiceImpl implements ChapterService {
+    private final ChapterRepository chapterRepository;
+    private final CourseRepository courseRepository;
+
     @Autowired
-    private ChapterRepository chapterRepository;
-    @Autowired
-    private CourseRepository courseRepository;
+    public ChapterServiceImpl(ChapterRepository chapterRepository, CourseRepository courseRepository){
+        this.chapterRepository = chapterRepository;
+        this.courseRepository = courseRepository;
+    }
 
     @Override
     public Response<String> addChapter(String courseCode, ChapterRequest request) {
         Response<String> response = new Response<>();
         try {
-            Course course = courseRepository.findByCode(courseCode);
+            Course course = courseRepository.findById(courseCode).orElse(null);
             if (course != null){
                 DetailChapter detailChapter = new DetailChapter();
                 detailChapter.setName(request.getTitle());
@@ -58,8 +62,8 @@ public class ChapterServiceImpl implements ChapterService {
                 response.setMessage("Course not found");
             }
         }catch (Exception e){
-            response.setError(true);
-            response.setMessage("Terjadi kesalahan");
+            response.setError(false);
+            response.setMessage(ResponseUtils.MESSAGE_FAILED);
         }
         return response;
     }

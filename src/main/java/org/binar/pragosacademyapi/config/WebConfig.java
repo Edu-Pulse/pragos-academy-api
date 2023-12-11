@@ -2,6 +2,7 @@ package org.binar.pragosacademyapi.config;
 
 import io.netty.handler.codec.http.HttpMethod;
 import org.apache.http.HttpHeaders;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -10,6 +11,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @Configuration
 @EnableWebMvc
 public class WebConfig extends WebMvcConfigurerAdapter {
+
+    @Value("${base.url.fe}")
+    private String baseUrl;
     @Override
     public void addCorsMappings(CorsRegistry registry) {
 
@@ -27,6 +31,6 @@ public class WebConfig extends WebMvcConfigurerAdapter {
                         HttpMethod.DELETE.name()
                 )
                 .allowCredentials(true)
-                .allowedOrigins("https://localhost:5173");
+                .allowedOrigins(baseUrl);
     }
 }
