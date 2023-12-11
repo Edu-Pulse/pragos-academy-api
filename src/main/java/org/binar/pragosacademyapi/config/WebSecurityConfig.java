@@ -39,7 +39,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedEntryPoint).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and().logout().logoutUrl("/logout").deleteCookies("COOKIE_AUTH").logoutSuccessUrl("/logout-result");
+                .and().logout().logoutUrl("/logout").deleteCookies("COOKIE_AUTH").logoutSuccessHandler((request, response, authentication) -> {
+                    String baseUrl = request.getRequestURL().toString().replace(request.getRequestURI(), "");
+                    response.sendRedirect(baseUrl + "/");
+                });
 
         http.addFilterBefore(authenticationTokenFilterBean(), UsernamePasswordAuthenticationFilter.class);
     }

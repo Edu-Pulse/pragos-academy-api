@@ -22,7 +22,7 @@ public class UserDetailServiceImpl implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("mencari data user by email");
-        User user = userRepository.findByEmail(username);
+        User user = userRepository.findByEmail(username).orElse(null);
         if (user == null){
             log.warn("data user dengan username: "+ username +" tidak ditemukan");
             throw new UsernameNotFoundException("invalid username or password");
