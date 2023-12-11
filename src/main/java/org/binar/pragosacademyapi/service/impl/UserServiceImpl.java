@@ -1,5 +1,6 @@
 package org.binar.pragosacademyapi.service.impl;
 
+import com.cloudinary.Cloudinary;
 import lombok.extern.slf4j.Slf4j;
 import org.binar.pragosacademyapi.entity.*;
 import org.binar.pragosacademyapi.entity.dto.PasswordDto;
@@ -12,6 +13,7 @@ import org.binar.pragosacademyapi.repository.DetailChapterRepository;
 import org.binar.pragosacademyapi.repository.UserDetailChapterRepository;
 import org.binar.pragosacademyapi.repository.UserRepository;
 import org.binar.pragosacademyapi.repository.UserVerificationRepository;
+import org.binar.pragosacademyapi.service.CloudinaryService;
 import org.binar.pragosacademyapi.service.NotificationService;
 import org.binar.pragosacademyapi.service.UserService;
 import org.binar.pragosacademyapi.utils.ResponseUtils;
@@ -49,6 +51,7 @@ public class UserServiceImpl implements UserService {
     private final UserDetailChapterRepository userDetailChapterRepository;
     private final DetailChapterRepository detailChapterRepository;
     private final NotificationService notificationService;
+    private final CloudinaryService cloudinaryService;
     private static final String MESSAGE_SUCCESS = ResponseUtils.MESSAGE_SUCCESS;
     private static final String MESSAGE_FAILED = ResponseUtils.MESSAGE_FAILED;
     private static final String FAILED = ResponseUtils.FAILED;
@@ -62,7 +65,8 @@ public class UserServiceImpl implements UserService {
                            UserVerificationRepository userVerificationRepository,
                            UserDetailChapterRepository userDetailChapterRepository,
                            DetailChapterRepository detailChapterRepository,
-                           NotificationService notificationService){
+                           NotificationService notificationService,
+                           CloudinaryService cloudinaryService){
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userRepository = userRepository;
         this.mailSender = mailSender;
@@ -70,6 +74,7 @@ public class UserServiceImpl implements UserService {
         this.userDetailChapterRepository = userDetailChapterRepository;
         this.detailChapterRepository = detailChapterRepository;
         this.notificationService = notificationService;
+        this.cloudinaryService = cloudinaryService;
     }
 
     @Value("${app.name}")
@@ -78,7 +83,6 @@ public class UserServiceImpl implements UserService {
     private String emailSmtp;
     @Value("${base.url.fe}")
     private String baseUrlFe;
-    private final Path root = Paths.get("/app/uploads");
     private final Random random = new Random();
 
     @Override
@@ -88,10 +92,7 @@ public class UserServiceImpl implements UserService {
             User user = userRepository.findByEmail(getEmailUserContext()).orElse(null);
             if (user != null){
                 UserDto userDto = new UserDto();
-                if (user.getImageProfile() != null){
-                    Path file = root.resolve(user.getImageProfile());
-                    userDto.setImageProfile(Files.readAllBytes(file));
-                }
+                userDto.setImageProfile(user.getImageProfile());
                 userDto.setName(user.getName());
                 userDto.setCity(user.getCity());
                 userDto.setEmail(user.getEmail());
@@ -171,10 +172,7 @@ public class UserServiceImpl implements UserService {
             if (user != null){
                 MultipartFile file = updateUser.getFile();
                 if (!file.isEmpty()){
-                    try(InputStream inputStream = file.getInputStream()) {
-                        Files.copy(inputStream, this.root.resolve(user.getId()+user.getName()), StandardCopyOption.REPLACE_EXISTING);
-                    }
-                    user.setImageProfile(user.getId()+user.getName());
+                    user.setImageProfile(cloudinaryService.uploadImage(file));
                 }
                 user.setName(updateUser.getName());
                 user.setCity(updateUser.getCity());
