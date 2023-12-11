@@ -48,13 +48,12 @@ public class UserServiceImpl implements UserService {
     private final UserVerificationRepository userVerificationRepository;
     private final UserDetailChapterRepository userDetailChapterRepository;
     private final DetailChapterRepository detailChapterRepository;
+    private final NotificationService notificationService;
     private static final String MESSAGE_SUCCESS = ResponseUtils.MESSAGE_SUCCESS;
     private static final String MESSAGE_FAILED = ResponseUtils.MESSAGE_FAILED;
     private static final String FAILED = ResponseUtils.FAILED;
     private static final String MESSAGE_SUCCESS_UPDATE_USER = ResponseUtils.MESSAGE_SUCCESS_UPDATE_USER;
     private static final String MESSAGE_FAILED_UPDATE_USER = ResponseUtils.MESSAGE_FAILED_UPDATE_USER;
-    @Value("${app.name}")
-    private String appName;
 
     @Autowired
     public UserServiceImpl(BCryptPasswordEncoder bCryptPasswordEncoder,
@@ -62,20 +61,23 @@ public class UserServiceImpl implements UserService {
                            JavaMailSender mailSender,
                            UserVerificationRepository userVerificationRepository,
                            UserDetailChapterRepository userDetailChapterRepository,
-                           DetailChapterRepository detailChapterRepository){
+                           DetailChapterRepository detailChapterRepository,
+                           NotificationService notificationService){
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userRepository = userRepository;
         this.mailSender = mailSender;
         this.userVerificationRepository = userVerificationRepository;
         this.userDetailChapterRepository = userDetailChapterRepository;
         this.detailChapterRepository = detailChapterRepository;
+        this.notificationService = notificationService;
     }
+
+    @Value("${app.name}")
+    private String appName;
     @Value("${spring.mail.username}")
     private String emailSmtp;
     @Value("${base.url.fe}")
     private String baseUrlFe;
-    @Autowired
-    private NotificationService notificationService;
     private final Path root = Paths.get("/app/uploads");
     private final Random random = new Random();
 
@@ -170,9 +172,9 @@ public class UserServiceImpl implements UserService {
                 MultipartFile file = updateUser.getFile();
                 if (!file.isEmpty()){
                     try(InputStream inputStream = file.getInputStream()) {
-                        Files.copy(inputStream, this.root.resolve(user.getId() + file.getOriginalFilename()), StandardCopyOption.REPLACE_EXISTING);
+                        Files.copy(inputStream, this.root.resolve(user.getId()+user.getName()), StandardCopyOption.REPLACE_EXISTING);
                     }
-                    user.setImageProfile(user.getId()+file.getOriginalFilename());
+                    user.setImageProfile(user.getId()+user.getName());
                 }
                 user.setName(updateUser.getName());
                 user.setCity(updateUser.getCity());
