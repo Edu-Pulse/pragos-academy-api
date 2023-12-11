@@ -1,18 +1,16 @@
 package org.binar.pragosacademyapi.service.impl;
 
-import org.binar.pragosacademyapi.entity.Payment;
 import org.binar.pragosacademyapi.entity.dto.PaymentDto;
-import org.binar.pragosacademyapi.entity.dto.PaymentSearchDto;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.enumeration.Type;
 import org.binar.pragosacademyapi.repository.PaymentRepository;
 import org.binar.pragosacademyapi.service.PaymentService;
 import org.binar.pragosacademyapi.utils.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -22,21 +20,16 @@ public class PaymentServiceImpl implements PaymentService {
         this.paymentRepository = paymentRepository;
     }
     @Override
-    public Response<List<PaymentDto>> getPaymentsByType() {
-        Response<List<PaymentDto>> response = new Response<>();
+    public Response<Page<PaymentDto>> getPaymentsByType(int page) {
+        Response<Page<PaymentDto>> response = new Response<>();
+        Pageable pageable = PageRequest.of(page, 10);
 
         try {
-            List<Payment> payments = paymentRepository.findByType(Type.PREMIUM);
-            List<PaymentDto> paymentDtoList = new ArrayList<>();
-
-            for (Payment payment : payments) {
-                PaymentDto paymentDto = createPaymentDto(payment);
-                paymentDtoList.add(paymentDto);
-            }
+            Page<PaymentDto> payments = paymentRepository.findByType(Type.PREMIUM, pageable);
 
             response.setError(false);
             response.setMessage(ResponseUtils.MESSAGE_SUCCESS_GET_DATA_PAYMENTS);
-            response.setData(paymentDtoList);
+            response.setData(payments);
         } catch (Exception e) {
             response.setError(true);
             response.setMessage(ResponseUtils.MESSAGE_FAILED);
@@ -47,18 +40,10 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public Response<List<PaymentSearchDto>> searchPaymentsByCourseName(String courseName) {
+    public Response<Page<PaymentDto>> searchPaymentsByCourseName(String courseName, int page) {
+        Pageable pageable = PageRequest.of(page, 10);
         try {
-            List<PaymentSearchDto> searchResults = paymentRepository.findByCourseName("%"+courseName+"%")
-                    .stream()
-                    .map(payment -> {
-                        PaymentSearchDto result = new PaymentSearchDto();
-                        result.setPaymentId(payment.getId());
-                        result.setCourseName(payment.getCourse().getName());
-                        result.setAmount(payment.getAmount());
-                        return result;
-                    })
-                    .collect(Collectors.toList());
+            Page<PaymentDto> searchResults = paymentRepository.findByCourseName("%"+courseName+"%", pageable);
 
             return new Response<>(false, ResponseUtils.MESSAGE_SUCCESS_GET_DATA_PAYMENTS, searchResults);
         } catch (Exception e) {
@@ -66,15 +51,4 @@ public class PaymentServiceImpl implements PaymentService {
         }
     }
 
-    private PaymentDto createPaymentDto(Payment payment) {
-        PaymentDto paymentDto = new PaymentDto();
-        paymentDto.setUserId(payment.getUser().getId());
-        paymentDto.setCategoryName(payment.getCourse().getCategory().getName());
-        paymentDto.setCourseName(payment.getCourse().getName());
-        paymentDto.setStatus(payment.getStatus());
-        paymentDto.setPaymentMethod(payment.getPaymentMethod());
-        paymentDto.setPaymentDate(payment.getPaymentDate());
-
-        return paymentDto;
-    }
 }

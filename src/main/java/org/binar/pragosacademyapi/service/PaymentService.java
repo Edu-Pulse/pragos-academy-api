@@ -1,12 +1,10 @@
 package org.binar.pragosacademyapi.service;
 
 import org.binar.pragosacademyapi.entity.dto.PaymentDto;
-import org.binar.pragosacademyapi.entity.dto.PaymentSearchDto;
 import org.binar.pragosacademyapi.entity.response.Response;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
 
 public interface PaymentService {
-    Response<List<PaymentDto>> getPaymentsByType();
-    Response<List<PaymentSearchDto>> searchPaymentsByCourseName(String courseName);
+    Response<Page<PaymentDto>> getPaymentsByType(int page);
+    Response<Page<PaymentDto>> searchPaymentsByCourseName(String courseName, int page);
 }
