@@ -10,6 +10,7 @@ import org.binar.pragosacademyapi.entity.request.PaymentRequest;
 import org.binar.pragosacademyapi.service.ChapterService;
 import org.binar.pragosacademyapi.service.CourseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -40,16 +41,19 @@ public class CourseController {
             value = "/all",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<List<CourseDto>>> listAllCourses() {
+    public ResponseEntity<Response<Page<CourseDto>>> listAllCourses(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
         try {
-            Response<List<CourseDto>> response = courseService.listAllCourse();
+            Response<Page<CourseDto>> response = courseService.listAllCourse(page, size);
             if (response.getError()) {
                 return ResponseEntity.status(500).body(response); // 500 Internal Server Error
             } else {
                 return ResponseEntity.ok(response);
             }
         } catch (Exception e) {
-            Response<List<CourseDto>> response = new Response<>();
+            Response<Page<CourseDto>> response = new Response<>();
             response.setError(true);
             response.setMessage("Internal Server Error");
             response.setData(null);
