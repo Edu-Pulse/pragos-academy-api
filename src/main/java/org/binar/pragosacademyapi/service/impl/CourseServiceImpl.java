@@ -388,6 +388,7 @@ public class CourseServiceImpl implements CourseService {
                 // Step 2: Update the existing course with the information from editedCourseDto
                 existingCourse.setName(editedCourseDto.getName());
                 existingCourse.setDescription(editedCourseDto.getDescription());
+                existingCourse.setIntended(editedCourseDto.getIntended());
                 existingCourse.setLecturer(editedCourseDto.getLecturer());
                 existingCourse.setLevel(Level.valueOf(editedCourseDto.getLevel().toUpperCase()));
                 existingCourse.setType(Type.valueOf(editedCourseDto.getType().toUpperCase()));
