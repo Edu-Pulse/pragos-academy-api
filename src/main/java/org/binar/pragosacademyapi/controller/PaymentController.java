@@ -2,6 +2,7 @@ package org.binar.pragosacademyapi.controller;
 
 
 import org.binar.pragosacademyapi.entity.dto.PaymentDto;
+import org.binar.pragosacademyapi.entity.dto.PaymentUserDto;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,5 +38,13 @@ public class PaymentController {
             @RequestParam String courseName, @RequestParam int page) {
         Response<Page<PaymentDto>> response = paymentService.searchPaymentsByCourseName(courseName, page);
         return ResponseEntity.ok(response);
+    }
+    @PreAuthorize("hasRole('USER')")
+    @GetMapping(
+            value = "/user",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Response<Page<PaymentUserDto>>> historyPaymentUser(@RequestParam int page){
+        return ResponseEntity.ok(paymentService.getPaymentByUser(page));
     }
 }
