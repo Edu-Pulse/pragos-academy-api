@@ -3,6 +3,7 @@ package org.binar.pragosacademyapi.repository;
 import org.binar.pragosacademyapi.entity.Course;
 import org.binar.pragosacademyapi.entity.Payment;
 import org.binar.pragosacademyapi.entity.dto.PaymentDto;
+import org.binar.pragosacademyapi.entity.dto.PaymentUserDto;
 import org.binar.pragosacademyapi.enumeration.Type;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,4 +26,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Page<PaymentDto> findByType(@Param("type") Type type, Pageable pageable);
     @Query("SELECT new org.binar.pragosacademyapi.entity.dto.PaymentDto(p.user.id, p.course.category.name, p.course.name, p.status, p.paymentMethod, p.paymentDate) FROM Payment p WHERE lower(p.course.name) like lower(:courseName) ")
     Page<PaymentDto> findByCourseName(@Param("courseName") String courseName, Pageable pageable);
+    @Query("select new org.binar.pragosacademyapi.entity.dto.PaymentUserDto(p.course.category.name, p.course.name, p.status, p.paymentMethod, p.amount, p.paymentDate) from Payment p where p.user.email = :email")
+    Page<PaymentUserDto> paymentByUser(@Param("email") String email, Pageable pageable);
 }
