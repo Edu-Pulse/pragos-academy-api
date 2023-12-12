@@ -283,18 +283,20 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Response<List<CourseDto>> getCoursesByUserAll() {
-        Response<List<CourseDto>> response = new Response<>();
+    public Response<Page<CourseDto>> getCoursesByUserAll(int page, int size) {
+        Response<Page<CourseDto>> response = new Response<>();
         try {
+            Pageable pageable = PageRequest.of(page, size);
             List<Payment> payments = paymentRepository.paymentByUserAndStatus(userService.getEmailUserContext());
 
             List<CourseDto> courseDtos = payments.stream()
                     .map(payment -> convertToDto(payment.getCourse()))
                     .collect(Collectors.toList());
+            Page<CourseDto> courseDtoPage = new PageImpl<>(courseDtos, pageable, courseDtos.size());
 
             response.setError(false);
             response.setMessage("Success to get courses by user");
-            response.setData(courseDtos);
+            response.setData(courseDtoPage);
         } catch (Exception e) {
             response.setError(true);
             response.setMessage(FAILED);

@@ -110,11 +110,13 @@ public class CourseController {
             value = "/user",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<List<CourseDto>>> getCoursesByUserAll() {
-        Response<List<CourseDto>> response = courseService.getCoursesByUserAll();
+    public ResponseEntity<Response<Page<CourseDto>>> getCoursesByUserAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Response<Page<CourseDto>> response = courseService.getCoursesByUserAll(page, size);
 
         HttpStatus httpStatus = response.getError() ? HttpStatus.INTERNAL_SERVER_ERROR : HttpStatus.OK;
-
         return new ResponseEntity<>(response, httpStatus);
     }
     @PreAuthorize("hasRole('USER')")
