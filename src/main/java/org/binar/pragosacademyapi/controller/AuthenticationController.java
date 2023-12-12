@@ -109,16 +109,9 @@ public class AuthenticationController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @RequestMapping(value = "/logout")
-    public ResponseEntity<Void> logout(){
+    public ResponseEntity<Response<String>> logout(){
 
-        return ResponseEntity.noContent().build();
-    }
-    @RequestMapping(
-            value = "/logout-result",
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<String> logoutResult(){
-        return ResponseEntity.ok("Berhasil logout");
+        return ResponseEntity.ok(new Response<>(false, "Success", "Success Logout"));
     }
 
 }
