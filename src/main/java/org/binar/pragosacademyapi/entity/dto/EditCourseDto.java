@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 public class EditCourseDto {
     private String name;
     private String description;
+    private String intended;
     private String lecturer;
     private String level;
     private String type;
