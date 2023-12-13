@@ -108,9 +108,17 @@ public class AuthenticationController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    @RequestMapping(value = "/logout")
-    public ResponseEntity<Response<String>> logout(){
+    @RequestMapping(value = "/user/logout")
+    public ResponseEntity<Response<String>> logout(HttpServletResponse response){
+        ResponseCookie cookie = ResponseCookie.from("COOKIE_AUTH", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .sameSite("None")
+                .maxAge(0)
+                .build();
 
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseEntity.ok(new Response<>(false, "Success", "Success Logout"));
     }
 
