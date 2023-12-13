@@ -108,7 +108,10 @@ public class AuthenticationController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    @RequestMapping(value = "/user/logout")
+    @RequestMapping(
+            value = "/user/logout",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<Response<String>> logout(HttpServletResponse response){
         ResponseCookie cookie = ResponseCookie.from("COOKIE_AUTH", "")
                 .httpOnly(true)
