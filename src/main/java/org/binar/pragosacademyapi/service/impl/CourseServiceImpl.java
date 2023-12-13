@@ -461,10 +461,11 @@ public class CourseServiceImpl implements CourseService {
 
     @Transactional(readOnly = true)
     @Override
-    public Response<List<CourseDto>> filter (String type){
-        Response<List<CourseDto>> responses = new Response<>();
+    public Response<Page<CourseDto>> filter (String type, int page){
+        Response<Page<CourseDto>> responses = new Response<>();
+        Pageable pageable = PageRequest.of(page, 10);
         try{
-            List<CourseDto> filteredCourses = courseRepository.filterByType(Type.valueOf(type.toUpperCase()));
+            Page<CourseDto> filteredCourses = courseRepository.filterByType(Type.valueOf(type.toUpperCase()), pageable);
 
             filteredCourses.forEach(courseDto -> courseDto.setRating(getRating(courseDto.getCode())));
             responses.setError(false);

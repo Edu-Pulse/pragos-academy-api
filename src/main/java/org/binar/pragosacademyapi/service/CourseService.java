@@ -13,7 +13,7 @@ import java.util.List;
 public interface CourseService {
     Response<Page<CourseDto>> listAllCourse(int page, int size);
     Response<CourseDetailDto> courseDetail(String courseCode);
-    Response<List<CourseDto>>filter(String type);
+    Response<Page<CourseDto>>filter(String type, int page);
     Response<String> enrollCourse(String courseCode);
     Response<String> enrollPaidCourse(String courseCode, PaymentRequest paymentRequest);
     Response<List<CourseDto>> search(String courseName);

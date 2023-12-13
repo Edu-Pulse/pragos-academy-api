@@ -25,7 +25,7 @@ public class PaymentController {
     @GetMapping(
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<Page<PaymentDto>>> getListPayment(@RequestParam int page) {
+    public ResponseEntity<Response<Page<PaymentDto>>> getListPayment(@RequestParam(defaultValue = "0") int page) {
         return ResponseEntity.ok(paymentService.getPaymentsByType(page));
     }
 
@@ -35,7 +35,7 @@ public class PaymentController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<Response<Page<PaymentDto>>> searchPaymentsByCourseName(
-            @RequestParam String courseName, @RequestParam int page) {
+            @RequestParam String courseName, @RequestParam(defaultValue = "0") int page) {
         Response<Page<PaymentDto>> response = paymentService.searchPaymentsByCourseName(courseName, page);
         return ResponseEntity.ok(response);
     }
@@ -44,7 +44,7 @@ public class PaymentController {
             value = "/user",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<Page<PaymentUserDto>>> historyPaymentUser(@RequestParam int page){
+    public ResponseEntity<Response<Page<PaymentUserDto>>> historyPaymentUser(@RequestParam(defaultValue = "0") int page){
         return ResponseEntity.ok(paymentService.getPaymentByUser(page));
     }
 }
