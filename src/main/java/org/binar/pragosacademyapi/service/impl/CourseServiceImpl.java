@@ -419,7 +419,7 @@ public class CourseServiceImpl implements CourseService {
                 existingCourse.setLecturer(editedCourseDto.getLecturer());
                 existingCourse.setLevel(Level.valueOf(editedCourseDto.getLevel().toUpperCase()));
                 existingCourse.setType(Type.valueOf(editedCourseDto.getType().toUpperCase()));
-                existingCourse.setPrice(existingCourse.getPrice());
+                existingCourse.setPrice(editedCourseDto.getPrice());
                 existingCourse.setDiscount(editedCourseDto.getDiscount());
                 // ... (update other fields as needed)
 
