@@ -1,7 +1,27 @@
-runtime: java11
+#runtime: java11
+#manual_scaling:
+#  instances: 1
+#  instance_class: B1
+#env_variables:
+#  CD_API_KEY:  178384237121878
+#  CD_API_SECRET: 2V_nbuy9WmH6i5zT8KTKrSC0y1Q
+#  CD_NAME: dtcfgbg75
+#  DB_PASSWORD: 3gSKleqzcqD-XoE8Vm4vG_4GBleLRXkV
+#  DB_URL: jdbc:postgresql://rain.db.elephantsql.com:5432/
+#  DB_USERNAME: ffbxkgtj
+#  SMTP_EMAIL: gunawann.dev@gmail.com
+#  SMTP_PASSWORD: fypx jxxq xtwn wesc
+runtime: java17
+instance_class: B1
+handlers:
+  - url: .*
+    script: auto
 manual_scaling:
   instances: 1
-  instance_class: B1
+
+env: standard
+service_account: pragosacademy@appspot.gserviceaccount.com
+
 env_variables:
   CD_API_KEY:  178384237121878
   CD_API_SECRET: 2V_nbuy9WmH6i5zT8KTKrSC0y1Q
