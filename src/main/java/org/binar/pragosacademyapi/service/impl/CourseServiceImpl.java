@@ -15,6 +15,10 @@ import org.binar.pragosacademyapi.service.CourseService;
 import org.binar.pragosacademyapi.service.NotificationService;
 import org.binar.pragosacademyapi.utils.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.BeanUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,16 +63,20 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Response<List<CourseDto>> listAllCourse() {
-        Response<List<CourseDto>> response = new Response<>();
+    public Response<Page<CourseDto>> listAllCourse(int page, int size) {
+        Response<Page<CourseDto>> response = new Response<>();
         try {
-            List<CourseDto> courseDto = courseRepository.findAll().stream()
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Course> coursePage = courseRepository.findAll(pageable);
+            List<CourseDto> courseDtoList = coursePage.getContent().stream()
                     .map(this::convertToDto)
                     .collect(Collectors.toList());
 
+            Page<CourseDto> courseDtoPage = new PageImpl<>(courseDtoList, pageable,coursePage.getTotalElements());
+
             response.setError(false);
-            response.setMessage(SUCCESS_GET_DATA_COURSE +"courses");
-            response.setData(courseDto);
+            response.setMessage(String.format(SUCCESS_GET_DATA_COURSE + "courses - Page %d of %d", courseDtoPage.getNumber(), courseDtoPage.getTotalPages()));
+            response.setData(courseDtoPage);
         } catch (Exception e) {
             response.setError(true);
             response.setMessage(FAILED);
@@ -275,18 +283,20 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public Response<List<CourseDto>> getCoursesByUserAll() {
-        Response<List<CourseDto>> response = new Response<>();
+    public Response<Page<CourseDto>> getCoursesByUserAll(int page, int size) {
+        Response<Page<CourseDto>> response = new Response<>();
         try {
+            Pageable pageable = PageRequest.of(page, size);
             List<Payment> payments = paymentRepository.paymentByUserAndStatus(userService.getEmailUserContext());
 
             List<CourseDto> courseDtos = payments.stream()
                     .map(payment -> convertToDto(payment.getCourse()))
                     .collect(Collectors.toList());
+            Page<CourseDto> courseDtoPage = new PageImpl<>(courseDtos, pageable, courseDtos.size());
 
             response.setError(false);
             response.setMessage("Success to get courses by user");
-            response.setData(courseDtos);
+            response.setData(courseDtoPage);
         } catch (Exception e) {
             response.setError(true);
             response.setMessage(FAILED);
@@ -405,6 +415,7 @@ public class CourseServiceImpl implements CourseService {
                 // Step 2: Update the existing course with the information from editedCourseDto
                 existingCourse.setName(editedCourseDto.getName());
                 existingCourse.setDescription(editedCourseDto.getDescription());
+                existingCourse.setIntended(editedCourseDto.getIntended());
                 existingCourse.setLecturer(editedCourseDto.getLecturer());
                 existingCourse.setLevel(Level.valueOf(editedCourseDto.getLevel().toUpperCase()));
                 existingCourse.setType(Type.valueOf(editedCourseDto.getType().toUpperCase()));

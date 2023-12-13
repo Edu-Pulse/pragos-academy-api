@@ -1,0 +1,261 @@
+[33mcommit a12bad9e989d1be362e6b85042f63d83190c0907[m[33m ([m[1;36mHEAD -> [m[1;32mchange-edit-course[m[33m, [m[1;32msearch-payment[m[33m)[m
+Merge: 558ce93 24c87c6
+Author: Ohwdyaa <widyaayunindyapoge@gmail.com>
+Date:   Tue Dec 12 13:38:49 2023 +0800
+
+    Merge branch 'development' of https://github.com/Gunawann20/pragos-academy-api into search-payment
+
+[33mcommit 558ce93b7bdb954dde0558332e7b3c149eecaa27[m
+Author: Ohwdyaa <widyaayunindyapoge@gmail.com>
+Date:   Tue Dec 12 13:38:34 2023 +0800
+
+    commit editcourse
+
+[33mcommit 24c87c6fc443346476ead5750f971a9852088a5b[m[33m ([m[1;31morigin/development[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Merge: 8902b03 2d6605e
+Author: Gunawan <92556282+Gunawann20@users.noreply.github.com>
+Date:   Tue Dec 12 06:17:44 2023 +0700
+
+    Merge pull request #103 from Gunawann20/cloudinary
+    
+    Fix: Upload Image
+
+[33mcommit 2d6605ed6f82b30521aac6be72eaea2e85480029[m
+Author: Gunawan <gunawanatmoko75@students.unnes.ac.id>
+Date:   Tue Dec 12 06:16:28 2023 +0700
+
+    Fix: Upload Image
+
+[33mcommit 8902b030358e76d51c7eae29198e62c7965e1db5[m
+Merge: 5ddfe13 85ecfc8
+Author: Gunawan <92556282+Gunawann20@users.noreply.github.com>
+Date:   Tue Dec 12 05:32:57 2023 +0700
+
+    Merge pull request #101 from Gunawann20/Pagination
+    
+    Pagination on payments Admin
+
+[33mcommit 85ecfc8b905ccda08c020d651ca9b12cf0c78573[m
+Author: Gunawan <gunawanatmoko75@students.unnes.ac.id>
+Date:   Tue Dec 12 05:32:05 2023 +0700
+
+    Pagination on payments Admin
+
+[33mcommit 5ddfe13cd021fcabfa0ac5ccd7724f3608695192[m
+Author: Gunawan <gunawanatmoko75@students.unnes.ac.id>
+Date:   Tue Dec 12 04:24:52 2023 +0700
+
+    fix: logout
+
+[33mcommit 72f56e6f69b169d0f04d2b4b3bc4cc754d1839c4[m
+Author: Gunawan <92556282+Gunawann20@users.noreply.github.com>
+Date:   Tue Dec 12 04:16:07 2023 +0700
+
+    Update Dockerfile
+
+[33mcommit 06467ace0a08ca55e64f09201d00705d72f186ce[m
+Merge: c187943 4c5ea83
+Author: Gunawan <92556282+Gunawann20@users.noreply.github.com>
+Date:   Tue Dec 12 04:08:46 2023 +0700
+
+    Merge pull request #98 from Gunawann20/fix-delete-and-forgot-password
+    
+    Fix delete and forgot password
+
+[33mcommit 4c5ea83a1340a940c759294685112fd0ab4fd0ad[m
+Author: Gunawan <gunawanatmoko75@students.unnes.ac.id>
+Date:   Tue Dec 12 04:07:54 2023 +0700
+
+    change Dockerfile
+
+[33mcommit 7367502ac625afad7de2840f7f76512ba947dbc5[m
+Author: Gunawan <gunawanatmoko75@students.unnes.ac.id>
+Date:   Tue Dec 12 03:29:43 2023 +0700
+
+    fix: logout, forgot password, and update response
+
+[33mcommit c1879431ec063153869aa8c771ce1e4f3c525abe[m
+Author: Gunawan <gunawanatmoko75@students.unnes.ac.id>
+Date:   Tue Dec 12 00:31:32 2023 +0700
+
+    fix:
+
+[33mcommit c16ab3728c148a336e09e955ac9d2382eaf7a9af[m
+Author: Gunawan <gunawanatmoko75@students.unnes.ac.id>
+Date:   Mon Dec 11 19:58:35 2023 +0700
+
+    fix: UserTesting
+
+[33mcommit 43289dc3065a42472b196fa095caeda233270466[m
+Merge: 7d85e6f e3c9dd8
+Author: Gunawan <92556282+Gunawann20@users.noreply.github.com>
+Date:   Mon Dec 11 19:56:50 2023 +0700
+
+    Merge branch 'production' into development
+
+[33mcommit 7d85e6f2bcc83b9c93ee9b052e4b04b561eecac2[m
+Merge: 8b3124d 7a29a20
+Author: Gunawan <92556282+Gunawann20@users.noreply.github.com>
+Date:   Mon Dec 11 19:43:14 2023 +0700
+
+    Merge pull request #95 from Gunawann20/Testing-UserService
+    
+    Testing user service
+
+[33mcommit 7a29a20c1c46b01bec5c9a6dc4362c7420cc1210[m
+Merge: b9bbaee 8b3124d
+Author: Gunawan <92556282+Gunawann20@users.noreply.github.com>
+Date:   Mon Dec 11 19:42:41 2023 +0700
+
+    Merge branch 'development' into Testing-UserService
+
+[33mcommit b9bbaee53538321f6f304d71a2a2592c6ace3957[m
+Author: Gunawan <gunawanatmoko75@students.unnes.ac.id>
+Date:   Mon Dec 11 19:37:59 2023 +0700
+
+    fix: Register Response
+
+[33mcommit 2f052e66d35cd49753c3ce4b9f3d783e215f7ea4[m
+Author: Gunawan <gunawanatmoko75@students.unnes.ac.id>
+Date:   Mon Dec 11 19:16:08 2023 +0700
+
+    fix: Logout result
+
+[33mcommit 63f8c26ffc73ceca6d431273b658a3aec0906c85[m
+Author: Gunawan <gunawanatmoko75@students.unnes.ac.id>
+Date:   Mon Dec 11 19:05:40 2023 +0700
+
+    Testing getEmailUserContext
+
+[33mcommit 8b3124d74e9a99a9eabc06e3d1db3264a78086a3[m
+Author: Gunawan <92556282+Gunawann20@users.noreply.github.com>
+Date:   Mon Dec 11 16:35:51 2023 +0700
+
+    Update UserServiceImpl.java
+
+[33mcommit e3c9dd81bc6a99463959cc8b48f0e25b9c273edd[m
+Author: Gunawan <92556282+Gunawann20@users.noreply.github.com>
+Date:   Mon Dec 11 16:34:10 2023 +0700
+
+    Update UserServiceImpl.java
+
+[33mcommit f49516d18b7a595ccb96069e1cf5f486883135d0[m
+Author: Gunawan <92556282+Gunawann20@users.noreply.github.com>
+Date:   Mon Dec 11 11:56:49 2023 +0700
+
+    Update WebConfig.java
+
+[33mcommit 95460e59913122f0c8450f351bbff5f2a1ac8e00[m
+Merge: 599ee09 ab0d5d8
+Author: Gunawan <92556282+Gunawann20@users.noreply.github.com>
+Date:   Mon Dec 11 11:51:33 2023 +0700
+
+    Merge pull request #94 from Gunawann20/Testing-UserService
+    
+    Testing getUserProfile
+
+[33mcommit ab0d5d82914638a739b8551d618f74bc5e3429cd[m
+Author: Gunawan <gunawanatmoko75@students.unnes.ac.id>
+Date:   Mon Dec 11 11:50:23 2023 +0700
+
+    Testing getUserProfile
+
+[33mcommit 083c0e61565f747ffe57fa3bcae3f88a5d23d350[m
+Author: Gunawan <92556282+Gunawann20@users.noreply.github.com>
+Date:   Mon Dec 11 11:15:15 2023 +0700
+
+    Update WebConfig.java
+
+[33mcommit 3a8c9339c3d9f5aa05b6a442d7cafc1ceee1732f[m
+Author: Gunawan <92556282+Gunawann20@users.noreply.github.com>
+Date:   Mon Dec 11 11:08:49 2023 +0700
+
+    Update WebConfig.java
+
+[33mcommit 1d571abbaa7d22f04240fc3bb67be4b3b9c9543e[m
+Merge: c180777 599ee09
+Author: Gunawan <92556282+Gunawann20@users.noreply.github.com>
+Date:   Sun Dec 10 21:03:37 2023 +0700
+
+    Merge pull request #93 from Gunawann20/development
+    
+    Development
+
+[33mcommit 599ee091f03f3ae759d59cc0a36f1e1f488cc581[m
+Author: Gunawan <gunawanatmoko75@students.unnes.ac.id>
+Date:   Sun Dec 10 21:02:13 2023 +0700
+
+    fix search payment
+
+[33mcommit d9deeeb662dc65e6612c7da61c64e92c45e9e7f8[m
+Merge: 2527230 c180777
+Author: Gunawan <92556282+Gunawann20@users.noreply.github.com>
+Date:   Sun Dec 10 20:51:04 2023 +0700
+
+    Merge pull request #92 from Gunawann20/production
+    
+    production
+
+[33mcommit c18077789af15d44e9cf57704f8c13c1855b1ebb[m
+Merge: b128f27 36c2716
+Author: Gunawan <92556282+Gunawann20@users.noreply.github.com>
+Date:   Sun Dec 10 20:44:06 2023 +0700
+
+    Merge pull request #91 from Gunawann20/search-payment
+    
+    Search payment
+
+[33mcommit 36c2716a50f4cad504d17d99592f31de8d7406bc[m[33m ([m[1;31morigin/search-payment[m[33m)[m
+Author: Ohwdyaa <widyaayunindyapoge@gmail.com>
+Date:   Sun Dec 10 18:07:01 2023 +0800
+
+    Search Payment by Name Course
+
+[33mcommit 28f18f78ad77ee32777c4a0801a1c8db4366f99c[m[33m ([m[1;32mList-course-by-user-and-inprogres-or-completed[m[33m)[m
+Merge: 02c1c74 2527230
+Author: Ohwdyaa <widyaayunindyapoge@gmail.com>
+Date:   Sun Dec 10 17:56:26 2023 +0800
+
+    conflict selesai
+
+[33mcommit b128f27ddfa7c235037b5ec9ad6bc2de4ac6f30d[m
+Merge: 8e56331 2527230
+Author: Gunawan <92556282+Gunawann20@users.noreply.github.com>
+Date:   Sat Dec 9 08:23:12 2023 +0700
+
+    Merge pull request #90 from Gunawann20/development
+    
+    fix cookie
+
+[33mcommit 2527230316a1a2e46810298a803b454f2b549348[m
+Author: Gunawan <gunawanatmoko75@students.unnes.ac.id>
+Date:   Sat Dec 9 08:22:25 2023 +0700
+
+    fix cookie
+
+[33mcommit 8e56331b123919e26fedfe78d16a195605a723ce[m
+Merge: 5eb913a 6e4e261
+Author: Gunawan <92556282+Gunawann20@users.noreply.github.com>
+Date:   Sat Dec 9 08:17:02 2023 +0700
+
+    Merge pull request #89 from Gunawann20/development
+    
+    fix cookie
+
+[33mcommit 6e4e2618acf7e3f0aae8ace587eedf8bec664fea[m
+Author: Gunawan <gunawanatmoko75@students.unnes.ac.id>
+Date:   Sat Dec 9 08:15:49 2023 +0700
+
+    fix cookie
+
+[33mcommit 5eb913a50f908878bcf59a872b61ac3f05886a94[m
+Merge: a7fb4af 991f401
+Author: Gunawan <92556282+Gunawann20@users.noreply.github.com>
+Date:   Sat Dec 9 07:52:57 2023 +0700
+
+    Merge pull request #88 from Gunawann20/development
+    
+    Development
+
+[33mcommit 991f40107cd4634ff87aef617051297425eeccd0[m
+Author: Gunawan <gunawanatmok
