@@ -6,7 +6,6 @@ import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.enumeration.Type;
 import org.binar.pragosacademyapi.repository.PaymentRepository;
 import org.binar.pragosacademyapi.service.PaymentService;
-import org.binar.pragosacademyapi.service.UserService;
 import org.binar.pragosacademyapi.utils.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
