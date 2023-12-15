@@ -13,7 +13,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 public class WebConfig extends WebMvcConfigurerAdapter {
 
     @Value("${base.url.fe}")
-    private String baseUrl;
+    private String baseUrlLocal;
+    @Value("${base.url.fe.production}")
+    private String baseUrlProduction;
     @Override
     public void addCorsMappings(CorsRegistry registry) {
 
@@ -31,6 +33,6 @@ public class WebConfig extends WebMvcConfigurerAdapter {
                         HttpMethod.DELETE.name()
                 )
                 .allowCredentials(true)
-                .allowedOrigins(baseUrl);
+                .allowedOrigins(baseUrlLocal, baseUrlProduction);
     }
 }
