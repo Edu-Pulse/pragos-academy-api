@@ -41,11 +41,11 @@ public class UserController {
 
     @PreAuthorize("hasRole('USER')")
     @PostMapping(
-            value = "/detailchapter/setdone/{id}",
+            value = "/detailchapter/setdone/{courseCode}/{id}",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<String> setDoneDetailChapter(@PathVariable Long id){
-        return ResponseEntity.ok(userService.setDoneChapter(id));
+    public ResponseEntity<String> setDoneDetailChapter(@PathVariable String courseCode, @PathVariable Long id){
+        return ResponseEntity.ok(userService.setDoneChapter(courseCode, id));
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")

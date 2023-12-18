@@ -124,8 +124,8 @@ public class CourseController {
             value = "/user/status",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<List<CourseDto>>> getCoursesByUserAndStatus(@RequestParam String status) {
-        return ResponseEntity.ok(courseService.getCoursesByUserAndStatus(status));
+    public ResponseEntity<Response<Page<CourseDto>>> getCoursesByUserAndStatus(@RequestParam String status, @RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok(courseService.getCoursesByUserAndStatus(status, page));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

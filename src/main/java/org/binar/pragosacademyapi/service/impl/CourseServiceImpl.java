@@ -319,6 +319,7 @@ public class CourseServiceImpl implements CourseService {
                 newCourse.setPrice(request.getPrice());
                 newCourse.setDiscount(request.getDiscount());
                 newCourse.setChapters(new ArrayList<>());
+                newCourse.setCreatedAt(LocalDateTime.now());
 
                 courseRepository.save(newCourse);
                 response.setError(false);
@@ -334,21 +335,26 @@ public class CourseServiceImpl implements CourseService {
         return response;
     }
     @Override
-    public Response<List<CourseDto>> getCoursesByUserAndStatus(String status) {
-        Response<List<CourseDto>> response = new Response<>();
+    public Response<Page<CourseDto>> getCoursesByUserAndStatus(String status, int page) {
+        Response<Page<CourseDto>> response = new Response<>();
+        Pageable pageable = PageRequest.of(page, 10);
         try {
             String email = userService.getEmailUserContext();
-            List<Payment> payments = paymentRepository.paymentByUserAndStatus(email);
-            List<Payment> filteredPayments = payments.stream()
-                    .filter(payment -> isCourseInStatus(payment.getCourse(), CourseStatus.valueOf(status.toUpperCase()), email))
-                    .collect(Collectors.toList());
-            List<CourseDto> courseDtos = filteredPayments.stream()
-                    .map(payment -> convertToDto(payment.getCourse()))
-                    .collect(Collectors.toList());
+            Page<CourseDto> courseDtos = paymentRepository.paymentByUserAndStatusTrue(email, pageable);
+            List<CourseDto> filterCourseDto = courseDtos.stream().filter(courseDto -> {
+                int countDetailChapterDone = courseRepository.getCountDetailChapterDone(courseDto.getCode(), email);
+                int countTotalDetailChapter = courseRepository.getCountDetailChapter(courseDto.getCode());
+                if (status.equals("in_progress")){
+                    return countDetailChapterDone != countTotalDetailChapter || countDetailChapterDone == 0;
+                }else {
+                    return countDetailChapterDone == countTotalDetailChapter && countTotalDetailChapter != 0;
+                }
+            }).collect(Collectors.toList());
+            Page<CourseDto> result = new PageImpl<>(filterCourseDto);
 
             response.setError(false);
             response.setMessage(SUCCESS);
-            response.setData(courseDtos);
+            response.setData(result);
         } catch (Exception e) {
             response.setError(true);
             response.setMessage(FAILED);
@@ -356,18 +362,6 @@ public class CourseServiceImpl implements CourseService {
         }
 
         return response;
-    }
-
-    private boolean isCourseInStatus(Course course, CourseStatus status, String userEmail) {
-        int countDetailChapterDone = courseRepository.getCountDetailChapterDone(course.getCode(), userEmail);
-        int countTotalDetailChapter = courseRepository.getCountDetailChapter(course.getCode());
-
-        if (status == CourseStatus.IN_PROGRESS) {
-            return countDetailChapterDone < countTotalDetailChapter;
-        } else if (status == CourseStatus.COMPLETED) {
-            return countDetailChapterDone == countTotalDetailChapter;
-        }
-        return false;
     }
 
     public Response<String> setRating(String courseCode, Integer rating) {
@@ -487,6 +481,7 @@ public class CourseServiceImpl implements CourseService {
         dto.setType(course.getType());
         dto.setRating(getRating(course.getCode()));
         dto.setImage(course.getCategory().getImage());
+        dto.setCreatedAt(course.getCreatedAt());
         return dto;
     }
 
