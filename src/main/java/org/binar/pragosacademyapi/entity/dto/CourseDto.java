@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import org.binar.pragosacademyapi.enumeration.Level;
 import org.binar.pragosacademyapi.enumeration.Type;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,6 +23,7 @@ public class CourseDto {
     private Integer price;
     private Integer discount;
     private Float rating = 0f;
+    private LocalDateTime createdAt;
 
     public CourseDto(String code, String image, String category, String name, String description, String lecturer, Level level, Type type, Integer price, Integer discount){
         this.code = code;

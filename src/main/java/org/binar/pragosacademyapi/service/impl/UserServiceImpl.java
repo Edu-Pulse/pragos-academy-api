@@ -9,10 +9,7 @@ import org.binar.pragosacademyapi.entity.request.RegisterRequest;
 import org.binar.pragosacademyapi.entity.request.UpdateUserRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.enumeration.Role;
-import org.binar.pragosacademyapi.repository.DetailChapterRepository;
-import org.binar.pragosacademyapi.repository.UserDetailChapterRepository;
-import org.binar.pragosacademyapi.repository.UserRepository;
-import org.binar.pragosacademyapi.repository.UserVerificationRepository;
+import org.binar.pragosacademyapi.repository.*;
 import org.binar.pragosacademyapi.service.CloudinaryService;
 import org.binar.pragosacademyapi.service.NotificationService;
 import org.binar.pragosacademyapi.service.UserService;
@@ -52,6 +49,7 @@ public class UserServiceImpl implements UserService {
     private final DetailChapterRepository detailChapterRepository;
     private final NotificationService notificationService;
     private final CloudinaryService cloudinaryService;
+    private final CourseRepository courseRepository;
     private static final String MESSAGE_SUCCESS = ResponseUtils.MESSAGE_SUCCESS;
     private static final String MESSAGE_FAILED = ResponseUtils.MESSAGE_FAILED;
     private static final String FAILED = ResponseUtils.FAILED;
@@ -66,7 +64,8 @@ public class UserServiceImpl implements UserService {
                            UserDetailChapterRepository userDetailChapterRepository,
                            DetailChapterRepository detailChapterRepository,
                            NotificationService notificationService,
-                           CloudinaryService cloudinaryService){
+                           CloudinaryService cloudinaryService,
+                           CourseRepository courseRepository){
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userRepository = userRepository;
         this.mailSender = mailSender;
@@ -75,6 +74,7 @@ public class UserServiceImpl implements UserService {
         this.detailChapterRepository = detailChapterRepository;
         this.notificationService = notificationService;
         this.cloudinaryService = cloudinaryService;
+        this.courseRepository = courseRepository;
     }
 
     @Value("${app.name}")
@@ -316,7 +316,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String setDoneChapter(Long detailChapterId) {
+    public String setDoneChapter(String courseCode, Long detailChapterId) {
         try {
             User user = userRepository.findByEmail(getEmailUserContext()).orElse(null);
             DetailChapter detailChapter = detailChapterRepository.findById(detailChapterId).orElse(null);
@@ -326,6 +326,10 @@ public class UserServiceImpl implements UserService {
                 userDetailChapter.setDetailChapter(detailChapter);
                 userDetailChapter.setIsDone(true);
                 userDetailChapterRepository.save(userDetailChapter);
+                if (courseRepository.getCountDetailChapter(courseCode) == courseRepository.getCountDetailChapterDone(courseCode, user.getEmail())){
+                    Course course = courseRepository.findByCode(courseCode);
+                    notificationService.sendNotification(user.getId(), "Selamat kamu telah berhasil menyelesaikan Course"+ course.getName());
+                }
                 return MESSAGE_SUCCESS;
             }
             return "Detail chapter dengan id: "+ detailChapterId+" Tidak ditemukan";
