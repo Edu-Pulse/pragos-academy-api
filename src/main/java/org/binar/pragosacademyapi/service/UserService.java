@@ -14,7 +14,7 @@ public interface UserService {
     Response<String> generateCodeVerification(String email);
     Response<String> verification(String email, Integer code);
     boolean checkIsEnable(String email);
-    String setDoneChapter(Long detailChapterId);
+    String setDoneChapter(String courseCode, Long detailChapterId);
     Response<String> resetPassword(Integer verificationCode, String email, String newPassword);
     Response<String> forgotPassword(String email);
     Response <String>changePassword(PasswordDto request);

@@ -36,7 +36,7 @@ CREATE TABLE courses(
     discount INT,
     constraint fk_courses_category foreign key (category_id) references categories(id)
 );
-
+alter table courses add column created_at timestamp;
 SELECT * FROM courses;
 CREATE TABLE categories(
        id INT PRIMARY KEY ,

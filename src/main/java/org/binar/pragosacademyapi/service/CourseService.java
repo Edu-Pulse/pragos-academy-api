@@ -20,7 +20,7 @@ public interface CourseService {
     Response<List<CourseDto>> filterByCategory(Integer categoryId);
     Response<Page<CourseDto>> getCoursesByUserAll(int page, int size);
     Response<String> createCourse(CourseRequest request);
-    Response<List<CourseDto>> getCoursesByUserAndStatus(String status);
+    Response<Page<CourseDto>> getCoursesByUserAndStatus(String status, int page);
     Response<String> setRating(String courseCode, Integer rating);
     Response<CourseDto> editCourse(String courseId, EditCourseDto editedCourseDto);
     Response<String> deleteCourse(String code);
