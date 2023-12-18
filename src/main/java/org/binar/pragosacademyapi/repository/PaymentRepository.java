@@ -23,7 +23,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Payment findByUser_IdAndCourse_Code(Long userId, String courseCode);
     @Query("select p from Payment p where p.user.email =:email and p.status = true ")
     List<Payment> paymentByUserAndStatus(@Param("email") String email);
-    @Query("select new org.binar.pragosacademyapi.entity.dto.CourseDto(p.course.code, p.course.category.image, p.course.category.name, p.course.name, p.course.description, p.course.lecturer, p.course.level, p.course.type, p.course.price, p.course.discount) from Payment p where p.user.email = :email and p.status = true ")
+    @Query("select new org.binar.pragosacademyapi.entity.dto.CourseDto(p.course.code, p.course.category.image, p.course.category.name, p.course.name, p.course.description, p.course.lecturer, p.course.level, p.course.type, p.course.price, p.course.discount, p.course.createdAt) from Payment p where p.user.email = :email and p.status = true ")
     Page<CourseDto> paymentByUserAndStatusTrue(@Param("email") String email, Pageable pageable);
     @Query("select new org.binar.pragosacademyapi.entity.dto.PaymentDto(p.user.id, p.course.category.name, p.course.name, p.status, p.paymentMethod, p.paymentDate) from Payment p where p.course.type = :type")
     Page<PaymentDto> findByType(@Param("type") Type type, Pageable pageable);

@@ -37,4 +37,18 @@ public class CourseDto {
         this.price = price;
         this.discount = discount;
     }
+
+    public CourseDto(String code, String image, String category, String name, String description, String lecturer, Level level, Type type, Integer price, Integer discount, LocalDateTime createdAt){
+        this.code = code;
+        this.image = image;
+        this.category = category;
+        this.name = name;
+        this.description = description;
+        this.lecturer = lecturer;
+        this.level = level;
+        this.type = type;
+        this.price = price;
+        this.discount = discount;
+        this.createdAt = createdAt;
+    }
 }
