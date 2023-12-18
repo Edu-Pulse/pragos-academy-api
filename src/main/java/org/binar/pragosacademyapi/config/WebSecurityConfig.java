@@ -1,7 +1,6 @@
 package org.binar.pragosacademyapi.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,9 +25,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private UnauthorizedEntryPoint unauthorizedEntryPoint;
-
-    @Value("${base.url.fe}")
-    private String baseUrlFe;
 
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {

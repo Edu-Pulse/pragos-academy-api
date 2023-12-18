@@ -48,4 +48,8 @@ public interface CourseRepository extends JpaRepository<Course, String> {
             "from Course c " +
             "where c.category.id = :category")
     List<CourseDto> searchByCategory(@Param("category") Integer category);
+    @Query("select count(c.code) from Course c")
+    Integer getTotalCourse();
+    @Query("select count(c.code) from Course c where c.type = :type")
+    Integer getTotalCoursePremium(@Param("type") Type type);
 }
