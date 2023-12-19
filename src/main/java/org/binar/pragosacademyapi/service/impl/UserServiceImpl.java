@@ -321,14 +321,17 @@ public class UserServiceImpl implements UserService {
             User user = userRepository.findByEmail(getEmailUserContext()).orElse(null);
             DetailChapter detailChapter = detailChapterRepository.findById(detailChapterId).orElse(null);
             if (detailChapter != null){
-                UserDetailChapter userDetailChapter = new UserDetailChapter();
-                userDetailChapter.setUser(user);
-                userDetailChapter.setDetailChapter(detailChapter);
-                userDetailChapter.setIsDone(true);
-                userDetailChapterRepository.save(userDetailChapter);
-                if (courseRepository.getCountDetailChapter(courseCode) == courseRepository.getCountDetailChapterDone(courseCode, user.getEmail())){
-                    Course course = courseRepository.findByCode(courseCode);
-                    notificationService.sendNotification(user.getId(), "Selamat kamu telah berhasil menyelesaikan Course"+ course.getName());
+                boolean checkIsPresent = userDetailChapterRepository.existsByUserIdAndDetailChapter_IdAndAndIsDone(user.getId(), detailChapterId, true);
+                if (!checkIsPresent){
+                    UserDetailChapter userDetailChapter = new UserDetailChapter();
+                    userDetailChapter.setUser(user);
+                    userDetailChapter.setDetailChapter(detailChapter);
+                    userDetailChapter.setIsDone(true);
+                    userDetailChapterRepository.save(userDetailChapter);
+                    if (courseRepository.getCountDetailChapter(courseCode) == courseRepository.getCountDetailChapterDone(courseCode, user.getEmail())){
+                        Course course = courseRepository.findByCode(courseCode);
+                        notificationService.sendNotification(user.getId(), "Selamat kamu telah berhasil menyelesaikan Course"+ course.getName());
+                    }
                 }
                 return MESSAGE_SUCCESS;
             }
