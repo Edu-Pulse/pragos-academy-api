@@ -324,6 +324,7 @@ public class CourseServiceImpl implements CourseService {
                 courseRepository.save(newCourse);
                 response.setError(false);
                 response.setMessage(ResponseUtils.MESSAGE_SUCCESS_ADD_COURSE);
+                notificationService.sendNotification(userRepository.allUserId(Role.USER), "Kursus "+ newCourse.getName()+ " telah tersedia. Silahkan daftar dan pelajari kursusnya");
             } else {
                 response.setError(true);
                 response.setMessage(ResponseUtils.MESSAGE_FAILED_ADD_COURSE + "Course code already exist");
