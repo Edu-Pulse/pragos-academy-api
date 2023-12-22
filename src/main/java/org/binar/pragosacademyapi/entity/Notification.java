@@ -10,5 +10,5 @@ public class Notification {
     private String sender;
     private Long receiver;
     private String text;
-    private ZonedDateTime dateTime;
+    private String dateTime;
 }

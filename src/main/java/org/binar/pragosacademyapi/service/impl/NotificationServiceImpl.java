@@ -9,7 +9,7 @@ import org.binar.pragosacademyapi.utils.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
@@ -38,7 +38,7 @@ public class NotificationServiceImpl implements NotificationService {
                         .sender(appName)
                         .receiver(userId)
                         .text(message)
-                        .dateTime(ZonedDateTime.now())
+                        .dateTime(LocalDateTime.now().toString())
                         .build();
                 newNotification.setValueAsync(notification);
                 log.info(ResponseUtils.MESSAGE_SUCCESS_SEND_NOTIFICATION  + userId);
@@ -59,7 +59,7 @@ public class NotificationServiceImpl implements NotificationService {
                        .sender(appName)
                        .receiver(id)
                        .text(message)
-                       .dateTime(ZonedDateTime.now())
+                       .dateTime(LocalDateTime.now().toString())
                        .build();
                newNotification.setValueAsync(notification);
            });
