@@ -50,19 +50,24 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendNotification(List<Long> users, String message) {
         executorService.submit(() -> {
-           FirebaseDatabase database = FirebaseDatabase.getInstance();
-           DatabaseReference reference = database.getReference(collectionName);
+           try {
+               FirebaseDatabase database = FirebaseDatabase.getInstance();
+               DatabaseReference reference = database.getReference(collectionName);
 
-           users.forEach(id -> {
-               DatabaseReference newNotification = reference.push();
-               Notification notification = Notification.builder()
-                       .sender(appName)
-                       .receiver(id)
-                       .text(message)
-                       .dateTime(LocalDateTime.now().toString())
-                       .build();
-               newNotification.setValueAsync(notification);
-           });
+               users.forEach(id -> {
+                   DatabaseReference newNotification = reference.push();
+                   Notification notification = Notification.builder()
+                           .sender(appName)
+                           .receiver(id)
+                           .text(message)
+                           .dateTime(LocalDateTime.now().toString())
+                           .build();
+                   newNotification.setValueAsync(notification);
+                   log.info("Success send notification to user with id "+ id);
+               });
+           }catch (Exception e){
+               log.error(e.getMessage());
+           }
         });
     }
 }
