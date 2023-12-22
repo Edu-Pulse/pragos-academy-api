@@ -288,6 +288,7 @@ public class CourseServiceImpl implements CourseService {
         try {
             Pageable pageable = PageRequest.of(page, size);
             Page<CourseDto> courseDtoPage = paymentRepository.paymentByUserAndStatusTrue(userService.getEmailUserContext(), pageable);
+            courseDtoPage.forEach(courseDto -> courseDto.setRating(getRating(courseDto.getCode())));
 
             response.setError(false);
             response.setMessage("Success to get courses by user");
@@ -351,6 +352,7 @@ public class CourseServiceImpl implements CourseService {
                 }
             }).collect(Collectors.toList());
             Page<CourseDto> result = new PageImpl<>(filterCourseDto);
+            result.forEach(courseDto -> courseDto.setRating(getRating(courseDto.getCode())));
 
             response.setError(false);
             response.setMessage(SUCCESS);
