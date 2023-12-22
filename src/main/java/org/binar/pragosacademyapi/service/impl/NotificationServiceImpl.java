@@ -9,7 +9,7 @@ import org.binar.pragosacademyapi.utils.ResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
@@ -29,18 +29,22 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void sendNotification(Long userId, String message) {
         executorService.submit(() -> {
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference reference = database.getReference(collectionName);
+            try {
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                DatabaseReference reference = database.getReference(collectionName);
 
-            DatabaseReference newNotification = reference.push();
-            Notification notification = Notification.builder()
-                    .sender(appName)
-                    .receiver(userId)
-                    .text(message)
-                    .dateTime(LocalDateTime.now())
-                    .build();
-            newNotification.setValueAsync(notification);
-            log.info(ResponseUtils.MESSAGE_SUCCESS_SEND_NOTIFICATION  + userId);
+                DatabaseReference newNotification = reference.push();
+                Notification notification = Notification.builder()
+                        .sender(appName)
+                        .receiver(userId)
+                        .text(message)
+                        .dateTime(ZonedDateTime.now())
+                        .build();
+                newNotification.setValueAsync(notification);
+                log.info(ResponseUtils.MESSAGE_SUCCESS_SEND_NOTIFICATION  + userId);
+            }catch (Exception e){
+                log.error(e.getMessage());
+            }
         });
     }
     @Override
@@ -55,7 +59,7 @@ public class NotificationServiceImpl implements NotificationService {
                        .sender(appName)
                        .receiver(id)
                        .text(message)
-                       .dateTime(LocalDateTime.now())
+                       .dateTime(ZonedDateTime.now())
                        .build();
                newNotification.setValueAsync(notification);
            });

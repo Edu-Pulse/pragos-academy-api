@@ -6,7 +6,6 @@ import org.binar.pragosacademyapi.entity.dto.*;
 import org.binar.pragosacademyapi.entity.request.CourseRequest;
 import org.binar.pragosacademyapi.entity.request.PaymentRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
-import org.binar.pragosacademyapi.enumeration.CourseStatus;
 import org.binar.pragosacademyapi.enumeration.Level;
 import org.binar.pragosacademyapi.enumeration.Role;
 import org.binar.pragosacademyapi.enumeration.Type;
