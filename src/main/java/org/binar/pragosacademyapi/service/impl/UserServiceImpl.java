@@ -283,6 +283,7 @@ public class UserServiceImpl implements UserService {
                     response.setError(false);
                     response.setMessage(MESSAGE_SUCCESS);
                     response.setData("Email berhasil diverifikasi");
+                    notificationService.sendNotification(user.getId(), "Selamat datang di EduPulse "+ user.getName()+"! mari belajar bersama course kami");
                 }else {
                     response.setError(false);
                     response.setMessage("Kode verifikasi salah atau sudah expired");
