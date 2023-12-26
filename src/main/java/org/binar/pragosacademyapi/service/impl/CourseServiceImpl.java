@@ -165,7 +165,7 @@ public class CourseServiceImpl implements CourseService {
 
                             response.setError(false);
                             response.setMessage(SUCCESS_ENROLL_COURSE + courseCode);
-                            notificationService.sendNotification(user.getId(), "Kamu telah terdaftar ke course " + course.getName() + " Semoga ilmu yang akan dipelajari dapat bermanfaat didunia maupun akhirat");
+                            notificationService.sendNotification(user.getEmail(), "Kamu telah terdaftar ke course " + course.getName() + " Semoga ilmu yang akan dipelajari dapat bermanfaat didunia maupun akhirat");
                         } else {
                             response.setError(true);
                             response.setMessage(FAILED_ENROLL_COURSE + courseCode);
@@ -220,7 +220,7 @@ public class CourseServiceImpl implements CourseService {
                             response.setError(false);
                             response.setMessage(SUCCESS_ENROLL_COURSE + courseCode);
 
-                            notificationService.sendNotification(user.getId(), "Kamu telah terdaftar ke course " + course.getName() + " Semoga ilmu yang akan dipelajari dapat bermanfaat didunia maupun akhirat");
+                            notificationService.sendNotification(user.getEmail(), "Kamu telah terdaftar ke course " + course.getName() + " Semoga ilmu yang akan dipelajari dapat bermanfaat didunia maupun akhirat");
                         } else {
                             response.setError(true);
                             response.setMessage(FAILED_ENROLL_COURSE + courseCode + ". Invalid card details");
@@ -324,7 +324,7 @@ public class CourseServiceImpl implements CourseService {
                 courseRepository.save(newCourse);
                 response.setError(false);
                 response.setMessage(ResponseUtils.MESSAGE_SUCCESS_ADD_COURSE);
-                notificationService.sendNotification(userRepository.allUserId(Role.USER), "Course "+ newCourse.getName()+ " telah tersedia. Silahkan daftar dan pelajari course");
+                notificationService.sendNotification(userRepository.allUserEmail(Role.USER), "Course "+ newCourse.getName()+ " telah tersedia. Silahkan daftar dan pelajari course");
             } else {
                 response.setError(true);
                 response.setMessage(ResponseUtils.MESSAGE_FAILED_ADD_COURSE + "Course code already exist");
@@ -377,7 +377,7 @@ public class CourseServiceImpl implements CourseService {
                     paymentRepository.save(payment);
                     response.setError(false);
                     response.setMessage(SUCCESS + " set rating to this Course");
-                    notificationService.sendNotification(user.getId(), "Terimakasih telah memberikan rating ke course " + payment.getCourse().getName());
+                    notificationService.sendNotification(user.getEmail(), "Terimakasih telah memberikan rating ke course " + payment.getCourse().getName());
                 } else {
                     response.setError(true);
                     response.setMessage("Failed set rating to this Course");
@@ -417,7 +417,7 @@ public class CourseServiceImpl implements CourseService {
                 // Step 3: Save the updated course to the repository
                 courseRepository.save(existingCourse);
                 if (editedCourseDto.getDiscount() > 0){
-                    notificationService.sendNotification(userRepository.allUserId(Role.USER), "Diskon "+editedCourseDto.getDiscount()+"% untuk course "+editedCourseDto.getName()+ " Buruan beli sekarang");
+                    notificationService.sendNotification(userRepository.allUserEmail(Role.USER), "Diskon "+editedCourseDto.getDiscount()+"% untuk course "+editedCourseDto.getName()+ " Buruan beli sekarang");
                 }
 
                 // Step 4: Return a successful response
