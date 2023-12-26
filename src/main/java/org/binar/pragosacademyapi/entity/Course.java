@@ -36,4 +36,6 @@ public class Course {
     List<Chapter> chapters;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    private List<Payment> payments;
 }
