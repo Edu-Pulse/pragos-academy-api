@@ -33,12 +33,15 @@ public class NotificationServiceImpl implements NotificationService {
                 FirebaseDatabase database = FirebaseDatabase.getInstance();
                 DatabaseReference reference = database.getReference(collectionName);
 
+                String[] localDateTime = LocalDateTime.now().toString().split("T");
+                String[] time = localDateTime[1].split("\\.");
+
                 DatabaseReference newNotification = reference.push();
                 Notification notification = Notification.builder()
                         .sender(appName)
                         .receiver(userId)
                         .text(message)
-                        .dateTime(LocalDateTime.now().toString())
+                        .dateTime(localDateTime[0]+" "+ time[0])
                         .build();
                 newNotification.setValueAsync(notification);
                 log.info(ResponseUtils.MESSAGE_SUCCESS_SEND_NOTIFICATION  + userId);
@@ -53,14 +56,15 @@ public class NotificationServiceImpl implements NotificationService {
            try {
                FirebaseDatabase database = FirebaseDatabase.getInstance();
                DatabaseReference reference = database.getReference(collectionName);
-
+               String[] localDateTime = LocalDateTime.now().toString().split("T");
+               String[] time = localDateTime[1].split("\\.");
                users.forEach(id -> {
                    DatabaseReference newNotification = reference.push();
                    Notification notification = Notification.builder()
                            .sender(appName)
                            .receiver(id)
                            .text(message)
-                           .dateTime(LocalDateTime.now().toString())
+                           .dateTime(localDateTime[0]+" "+ time[0])
                            .build();
                    newNotification.setValueAsync(notification);
                    log.info("Success send notification to user with id "+ id);

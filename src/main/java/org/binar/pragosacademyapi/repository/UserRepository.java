@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
-    @Query("select u.id from User u where u.role != :role")
+    @Query("select u.id from User u where u.role = :role")
     List<Long> allUserId(Role role);
     @Query("select count(u.id) from User u")
     Integer getTotalUser();

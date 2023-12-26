@@ -165,7 +165,7 @@ public class CourseServiceImpl implements CourseService {
 
                             response.setError(false);
                             response.setMessage(SUCCESS_ENROLL_COURSE + courseCode);
-                            notificationService.sendNotification(user.getId(), "Kamu telah terdaftar ke kelas " + course.getName() + " Semoga ilmu yang akan dipelajari dapat bermanfaat didunia maupun akhirat");
+                            notificationService.sendNotification(user.getId(), "Kamu telah terdaftar ke course " + course.getName() + " Semoga ilmu yang akan dipelajari dapat bermanfaat didunia maupun akhirat");
                         } else {
                             response.setError(true);
                             response.setMessage(FAILED_ENROLL_COURSE + courseCode);
@@ -220,7 +220,7 @@ public class CourseServiceImpl implements CourseService {
                             response.setError(false);
                             response.setMessage(SUCCESS_ENROLL_COURSE + courseCode);
 
-                            notificationService.sendNotification(user.getId(), "Kamu telah terdaftar ke kelas " + course.getName() + " Semoga ilmu yang akan dipelajari dapat bermanfaat didunia maupun akhirat");
+                            notificationService.sendNotification(user.getId(), "Kamu telah terdaftar ke course " + course.getName() + " Semoga ilmu yang akan dipelajari dapat bermanfaat didunia maupun akhirat");
                         } else {
                             response.setError(true);
                             response.setMessage(FAILED_ENROLL_COURSE + courseCode + ". Invalid card details");
@@ -324,7 +324,7 @@ public class CourseServiceImpl implements CourseService {
                 courseRepository.save(newCourse);
                 response.setError(false);
                 response.setMessage(ResponseUtils.MESSAGE_SUCCESS_ADD_COURSE);
-                notificationService.sendNotification(userRepository.allUserId(Role.USER), "Kursus "+ newCourse.getName()+ " telah tersedia. Silahkan daftar dan pelajari kursusnya");
+                notificationService.sendNotification(userRepository.allUserId(Role.USER), "Course "+ newCourse.getName()+ " telah tersedia. Silahkan daftar dan pelajari course");
             } else {
                 response.setError(true);
                 response.setMessage(ResponseUtils.MESSAGE_FAILED_ADD_COURSE + "Course code already exist");
