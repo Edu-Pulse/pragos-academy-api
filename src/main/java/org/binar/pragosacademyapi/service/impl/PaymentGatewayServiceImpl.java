@@ -4,6 +4,7 @@ import org.binar.pragosacademyapi.entity.Payment;
 import org.binar.pragosacademyapi.enumeration.PaymentMethod;
 import org.binar.pragosacademyapi.service.PaymentGatewayService;
 
+
 public class PaymentGatewayServiceImpl implements PaymentGatewayService {
 
     @Override
@@ -24,17 +25,19 @@ public class PaymentGatewayServiceImpl implements PaymentGatewayService {
     }
 
     private String initiatePayPalPayment(Payment payment) {
-
+        return "PayPal Payment initiated for transaction ID: " + payment.getTransactionId();
     }
 
     private String initiateBankTransferPayment(Payment payment) {
+        return "Bank Transfer initiated for transaction ID: " + payment.getTransactionId();
     }
 
     private String initiateDebitCardPayment(Payment payment) {
+        return "Debit Card Payment initiated for transaction ID: " + payment.getTransactionId();
     }
 
     private String initiateCreditCardPayment(Payment payment) {
-        String creditCardToken = creditCardPaymentApi.initiatePayment(payment);
+        return "Credit Card Payment initiated for transaction ID: " + payment.getTransactionId();
     }
 
 }
