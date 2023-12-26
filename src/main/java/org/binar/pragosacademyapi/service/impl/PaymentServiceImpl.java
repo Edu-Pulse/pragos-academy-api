@@ -1,12 +1,16 @@
 package org.binar.pragosacademyapi.service.impl;
 
+import org.binar.pragosacademyapi.entity.Payment;
 import org.binar.pragosacademyapi.entity.dto.PaymentDto;
 import org.binar.pragosacademyapi.entity.dto.PaymentUserDto;
+import org.binar.pragosacademyapi.entity.request.PaymentRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.enumeration.Type;
 import org.binar.pragosacademyapi.repository.PaymentRepository;
+import org.binar.pragosacademyapi.service.PaymentGatewayService;
 import org.binar.pragosacademyapi.service.PaymentService;
 import org.binar.pragosacademyapi.utils.ResponseUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,10 +19,15 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
+    private String transactionId;
+    @Autowired
     private final PaymentRepository paymentRepository;
+    @Autowired
     private final UserServiceImpl userService;
     @Autowired
-    public PaymentServiceImpl(PaymentRepository paymentRepository, UserServiceImpl userService){
+    private PaymentGatewayService paymentGatewayService;
+    @Autowired
+    public PaymentServiceImpl(PaymentRequest atmPaymentGateway, PaymentRepository paymentRepository, UserServiceImpl userService){
         this.paymentRepository = paymentRepository;
         this.userService = userService;
     }
@@ -70,4 +79,74 @@ public class PaymentServiceImpl implements PaymentService {
         return response;
     }
 
+    @Override
+    public Response<PaymentDto> processPayment(PaymentRequest paymentRequest) {
+        try {
+            validatePaymentRequest(paymentRequest);
+            Payment payment = convertToPaymentEntity(paymentRequest);
+            transactionId = paymentGatewayService.initiatePayment(payment);
+            payment.setTransactionId(transactionId);
+            Payment savedPayment = paymentRepository.save(payment);
+            PaymentDto responseDto = convertToPaymentDto(savedPayment);
+            return new Response<>(false, "Payment processed successfully", responseDto);
+        } catch (Exception e) {
+            return new Response<>(true, "Payment processing failed: " + e.getMessage(), null);
+        }
+    }
+
+    @Override
+    public Response<String> initiatePaymentGateaway(PaymentRequest paymentRequest) {
+        try {
+            validatePaymentRequest(paymentRequest);
+            Payment payment = convertToPaymentEntity(paymentRequest);
+            transactionId = paymentGatewayService.initiatePayment(payment);
+            payment.setTransactionId(transactionId);
+            paymentRepository.save(payment);
+            return new Response<>(false, "Payment initiation successful", transactionId);
+        } catch (Exception e) {
+            return new Response<>(true, "Payment initiation failed: " + e.getMessage(), null);
+        }
+    }
+
+    @Override
+    public Response<String> handlePaymentCallback(String transactionId, String status) {
+        try {
+            updatePaymentStatus(transactionId, status);
+            return new Response<>(false, "Payment callback processed successfully", "Callback processed");
+        } catch (Exception e) {
+            return new Response<>(true, "Payment callback processing failed: " + e.getMessage(), null);
+        }
+    }
+
+    private void updatePaymentStatus(String transactionId, String status) {
+        Payment payment = paymentRepository.findByTransactionId(transactionId);
+        if (payment != null){
+            payment.setStatus(Boolean.valueOf(status));
+            paymentRepository.save(payment);
+        }else {
+            throw new RuntimeException("Payment with transactionId" + transactionId + "not found.");
+        }
+    }
+
+    private PaymentDto convertToPaymentDto(Payment savedPayment) {
+        PaymentDto paymentDto = new PaymentDto();
+        BeanUtils.copyProperties(savedPayment, paymentDto);
+        return paymentDto;
+    }
+
+    private Payment convertToPaymentEntity(PaymentRequest paymentRequest) {
+        Payment payment = new Payment();
+        BeanUtils.copyProperties(paymentRequest, payment);
+        return payment;
+    }
+
+    private void validatePaymentRequest(PaymentRequest paymentRequest) {
+        if (paymentRequest.getAmount() == null || paymentRequest.getAmount() <= 0) {
+            throw new IllegalArgumentException("Amount must be a positive value.");
+        }
+
+        if (paymentRequest.getCardNumber() == null || paymentRequest.getCardNumber().isEmpty()) {
+            throw new IllegalArgumentException("Card number is required.");
+        }
+    }
 }

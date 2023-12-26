@@ -31,4 +31,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Page<PaymentDto> findByCourseName(@Param("courseName") String courseName, Pageable pageable);
     @Query("select new org.binar.pragosacademyapi.entity.dto.PaymentUserDto(p.course.category.image,p.course.category.name, p.course.name, p.course.lecturer, p.course.level, p.status, p.paymentMethod, p.amount, p.paymentDate) from Payment p where p.user.email = :email")
     Page<PaymentUserDto> paymentByUser(@Param("email") String email, Pageable pageable);
+
+    Payment findByTransactionId(String transactionId);
 }

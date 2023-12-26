@@ -3,6 +3,7 @@ package org.binar.pragosacademyapi.entity.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.binar.pragosacademyapi.enumeration.PaymentMethod;
 
 import java.time.LocalDateTime;
 
@@ -14,6 +15,6 @@ public class PaymentDto {
     private String categoryName;
     private String courseName;
     private Boolean status;
-    private String paymentMethod;
+    private PaymentMethod paymentMethod;
     private LocalDateTime paymentDate;
 }

@@ -3,6 +3,7 @@ package org.binar.pragosacademyapi.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.binar.pragosacademyapi.enumeration.PaymentMethod;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -23,8 +24,9 @@ public class Payment {
     @JoinColumn(name = "course_code", referencedColumnName = "code")
     private Course course;
     private Long amount;
+    @Enumerated(EnumType.STRING)
     @Column(name = "payment_method")
-    private String paymentMethod;
+    private PaymentMethod paymentMethod;
     @Column(name = "card_number")
     private String cardNumber;
     @Column(name = "card_holder_name")
@@ -37,5 +39,6 @@ public class Payment {
     @Column(name = "payment_date")
     private LocalDateTime paymentDate;
     private Integer rating;
+    private String transactionId;
 
 }
