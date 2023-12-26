@@ -81,7 +81,7 @@ public class UserServiceImpl implements UserService {
     private String appName;
     @Value("${spring.mail.username}")
     private String emailSmtp;
-    @Value("${base.url.fe}")
+    @Value("${base.url.fe.production}")
     private String baseUrlFe;
     private final Random random = new Random();
 
@@ -442,7 +442,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private void sendEmail(String email, Integer code) throws MessagingException, UnsupportedEncodingException {
-        String subject = "Kode verifikasi Pragos Academy";
+        String subject = "Kode verifikasi EduPulse";
         String content = "Kode verifikasi anda: <b>"+ code + "</b> kode verifikasi akan expired dalam 5 menit. Jangan kirimkan kode ini kesiapapun jika tidak mendaftar di pragos academy.";
 
         sendMail(email, subject, content);
@@ -451,7 +451,7 @@ public class UserServiceImpl implements UserService {
     private void sendEmailForgotPassword(String email, Integer code) throws MessagingException, UnsupportedEncodingException {
         String subject = "Tautan ganti password";
         String content = "Berikut kode verifikasi untuk reset password: "+code+" <br>" +
-                "Klik tautan untuk ganti password anda <a href=\""+baseUrlFe+"/auth/reset"+"\">Ganti password</a><br>" +
+                "Klik tautan untuk ganti password anda <a href=\""+baseUrlFe+"/auth/reset/"+email+"\">Ganti password</a><br>" +
                 "<b>Kode verifikasi akan expired dalam 5 menit</b>";
 
         sendMail(email, subject, content);
