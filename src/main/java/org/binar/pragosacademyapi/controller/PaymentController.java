@@ -3,6 +3,7 @@ package org.binar.pragosacademyapi.controller;
 
 import org.binar.pragosacademyapi.entity.dto.PaymentDto;
 import org.binar.pragosacademyapi.entity.dto.PaymentUserDto;
+import org.binar.pragosacademyapi.entity.request.PaymentRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
 import org.binar.pragosacademyapi.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/payment")
@@ -47,4 +45,16 @@ public class PaymentController {
     public ResponseEntity<Response<Page<PaymentUserDto>>> historyPaymentUser(@RequestParam(defaultValue = "0") int page){
         return ResponseEntity.ok(paymentService.getPaymentByUser(page));
     }
+
+    @PreAuthorize("hasRole('USER')")
+    @PostMapping(
+            value = "/process",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<Response<PaymentDto>> processPayment(@RequestBody PaymentRequest paymentRequest) {
+        Response<PaymentDto> response = paymentService.processPayment(paymentRequest);
+        return ResponseEntity.ok(response);
+    }
+
 }
