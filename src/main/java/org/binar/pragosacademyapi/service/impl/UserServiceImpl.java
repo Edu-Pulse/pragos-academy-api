@@ -81,7 +81,7 @@ public class UserServiceImpl implements UserService {
     private String appName;
     @Value("${spring.mail.username}")
     private String emailSmtp;
-    @Value("${base.url.fe}")
+    @Value("${base.url.fe.production}")
     private String baseUrlFe;
     private final Random random = new Random();
 
@@ -185,7 +185,7 @@ public class UserServiceImpl implements UserService {
                         response.setError(false);
                         response.setMessage(MESSAGE_SUCCESS);
                         response.setData(MESSAGE_SUCCESS_UPDATE_USER + user.getId());
-                        notificationService.sendNotification(user.getId(), ResponseUtils.MESSAGE_SUCCESS_UPDATE_USER_NOTIFICATION);
+                        notificationService.sendNotification(user.getEmail(), ResponseUtils.MESSAGE_SUCCESS_UPDATE_USER_NOTIFICATION);
                     }else {
                         response = checkUserPhone(user, updateUser);
                     }
@@ -212,7 +212,7 @@ public class UserServiceImpl implements UserService {
             response.setError(false);
             response.setMessage(MESSAGE_SUCCESS);
             response.setData(MESSAGE_SUCCESS_UPDATE_USER + user.getId());
-            notificationService.sendNotification(user.getId(), ResponseUtils.MESSAGE_SUCCESS_UPDATE_USER_NOTIFICATION);
+            notificationService.sendNotification(user.getEmail(), ResponseUtils.MESSAGE_SUCCESS_UPDATE_USER_NOTIFICATION);
         }catch (Exception e){
             response.setError(true);
             response.setMessage(MESSAGE_FAILED_UPDATE_USER + user.getId());
@@ -228,7 +228,7 @@ public class UserServiceImpl implements UserService {
             response.setError(false);
             response.setMessage(MESSAGE_SUCCESS);
             response.setData(MESSAGE_SUCCESS_UPDATE_USER + user.getId());
-            notificationService.sendNotification(user.getId(), "Data kamu berhasil diupdate");
+            notificationService.sendNotification(user.getEmail(), "Data kamu berhasil diupdate");
         }catch (Exception e){
             response.setError(true);
             response.setMessage(MESSAGE_FAILED_UPDATE_USER + user.getId());
@@ -283,7 +283,7 @@ public class UserServiceImpl implements UserService {
                     response.setError(false);
                     response.setMessage(MESSAGE_SUCCESS);
                     response.setData("Email berhasil diverifikasi");
-                    notificationService.sendNotification(user.getId(), "Selamat datang di EduPulse "+ user.getName()+"! mari belajar bersama course kami");
+                    notificationService.sendNotification(user.getEmail(), "Selamat datang di EduPulse "+ user.getName()+"! mari belajar bersama course kami");
                 }else {
                     response.setError(false);
                     response.setMessage("Kode verifikasi salah atau sudah expired");
@@ -331,7 +331,7 @@ public class UserServiceImpl implements UserService {
                     userDetailChapterRepository.save(userDetailChapter);
                     if (courseRepository.getCountDetailChapter(courseCode) == courseRepository.getCountDetailChapterDone(courseCode, user.getEmail())){
                         Course course = courseRepository.findByCode(courseCode);
-                        notificationService.sendNotification(user.getId(), "Selamat kamu telah berhasil menyelesaikan Course"+ course.getName());
+                        notificationService.sendNotification(user.getEmail(), "Selamat kamu telah berhasil menyelesaikan Course"+ course.getName());
                     }
                 }
                 return MESSAGE_SUCCESS;
@@ -359,7 +359,7 @@ public class UserServiceImpl implements UserService {
                     response.setError(false);
                     response.setMessage(MESSAGE_SUCCESS);
                     response.setData("Password berhasil diubah. Silahkan login dengan password yang baru");
-                    notificationService.sendNotification(user.getId(), "Password kamu baru saja diganti");
+                    notificationService.sendNotification(user.getEmail(), "Password kamu baru saja diganti");
                 }else {
                     response.setError(true);
                     response.setMessage("Kode verifikasi salah atau sudah expired");
@@ -423,7 +423,7 @@ public class UserServiceImpl implements UserService {
                         response.setError(false);
                         response.setData("Change Password Successfully");
                         response.setMessage(MESSAGE_SUCCESS);
-                        notificationService.sendNotification(user.getId(), "Password telah diubah");
+                        notificationService.sendNotification(user.getEmail(), "Password telah diubah");
                     }else {
                         response.setError(true);
                         response.setMessage("Password lama anda salah");
@@ -442,7 +442,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private void sendEmail(String email, Integer code) throws MessagingException, UnsupportedEncodingException {
-        String subject = "Kode verifikasi Pragos Academy";
+        String subject = "Kode verifikasi EduPulse";
         String content = "Kode verifikasi anda: <b>"+ code + "</b> kode verifikasi akan expired dalam 5 menit. Jangan kirimkan kode ini kesiapapun jika tidak mendaftar di pragos academy.";
 
         sendMail(email, subject, content);
@@ -451,7 +451,7 @@ public class UserServiceImpl implements UserService {
     private void sendEmailForgotPassword(String email, Integer code) throws MessagingException, UnsupportedEncodingException {
         String subject = "Tautan ganti password";
         String content = "Berikut kode verifikasi untuk reset password: "+code+" <br>" +
-                "Klik tautan untuk ganti password anda <a href=\""+baseUrlFe+"/auth/reset"+"\">Ganti password</a><br>" +
+                "Klik tautan untuk ganti password anda <a href=\""+baseUrlFe+"/auth/reset/"+email+"\">Ganti password</a><br>" +
                 "<b>Kode verifikasi akan expired dalam 5 menit</b>";
 
         sendMail(email, subject, content);

@@ -66,7 +66,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public Response<Page<PaymentUserDto>> getPaymentByUser(int page) {
         Response<Page<PaymentUserDto>> response = new Response<>();
-        Pageable pageable = PageRequest.of(page, 10);
+        Pageable pageable = PageRequest.of(page, 2);
         try {
             Page<PaymentUserDto> paymentUserDto = paymentRepository.paymentByUser(userService.getEmailUserContext(), pageable);
             response.setError(false);
