@@ -46,15 +46,13 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.getPaymentByUser(page));
     }
 
-    @PreAuthorize("hasRole('USER')")
-    @PostMapping(
-            value = "/process",
-            consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE
-    )
-    public ResponseEntity<Response<PaymentDto>> processPayment(@RequestBody PaymentRequest paymentRequest) {
-        Response<PaymentDto> response = paymentService.processPayment(paymentRequest);
-        return ResponseEntity.ok(response);
+    @PostMapping("/transfer-bank")
+    public Response<PaymentDto> createTransferBankPayment(@RequestBody PaymentRequest paymentRequest) {
+        return paymentService.createTransferBank(paymentRequest);
     }
 
+    @PostMapping("/credit-card")
+    public Response<PaymentDto> createCreditCardPayment(@RequestBody PaymentRequest paymentRequest) {
+        return paymentService.createCreditCard(paymentRequest);
+    }
 }

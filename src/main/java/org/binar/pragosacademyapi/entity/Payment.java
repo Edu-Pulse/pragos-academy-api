@@ -39,6 +39,4 @@ public class Payment {
     @Column(name = "payment_date")
     private LocalDateTime paymentDate;
     private Integer rating;
-    private String transactionId;
-
 }
