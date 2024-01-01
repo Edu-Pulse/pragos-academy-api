@@ -22,7 +22,7 @@ public class FirebaseConfig {
 
         FirebaseOptions options = new FirebaseOptions.Builder()
                 .setCredentials(GoogleCredentials.fromStream(inputStream))
-                .setDatabaseUrl("https://pragos-academy-default-rtdb.asia-southeast1.firebasedatabase.app/")
+                .setDatabaseUrl("https://pragosacademyapi-default-rtdb.asia-southeast1.firebasedatabase.app/")
                 .build();
 
         FirebaseApp.initializeApp(options);

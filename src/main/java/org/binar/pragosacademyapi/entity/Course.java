@@ -7,6 +7,7 @@ import org.binar.pragosacademyapi.enumeration.Level;
 import org.binar.pragosacademyapi.enumeration.Type;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -33,4 +34,8 @@ public class Course {
     private Integer discount;
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     List<Chapter> chapters;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    private List<Payment> payments;
 }

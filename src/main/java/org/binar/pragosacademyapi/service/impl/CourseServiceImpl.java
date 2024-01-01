@@ -6,7 +6,6 @@ import org.binar.pragosacademyapi.entity.dto.*;
 import org.binar.pragosacademyapi.entity.request.CourseRequest;
 import org.binar.pragosacademyapi.entity.request.PaymentRequest;
 import org.binar.pragosacademyapi.entity.response.Response;
-import org.binar.pragosacademyapi.enumeration.CourseStatus;
 import org.binar.pragosacademyapi.enumeration.Level;
 import org.binar.pragosacademyapi.enumeration.Role;
 import org.binar.pragosacademyapi.enumeration.Type;
@@ -166,7 +165,7 @@ public class CourseServiceImpl implements CourseService {
 
                             response.setError(false);
                             response.setMessage(SUCCESS_ENROLL_COURSE + courseCode);
-                            notificationService.sendNotification(user.getId(), "Kamu telah terdaftar ke kelas " + course.getName() + " Semoga ilmu yang akan dipelajari dapat bermanfaat didunia maupun akhirat");
+                            notificationService.sendNotification(user.getEmail(), "Kamu telah terdaftar ke course " + course.getName() + " Semoga ilmu yang akan dipelajari dapat bermanfaat didunia maupun akhirat");
                         } else {
                             response.setError(true);
                             response.setMessage(FAILED_ENROLL_COURSE + courseCode);
@@ -221,7 +220,7 @@ public class CourseServiceImpl implements CourseService {
                             response.setError(false);
                             response.setMessage(SUCCESS_ENROLL_COURSE + courseCode);
 
-                            notificationService.sendNotification(user.getId(), "Kamu telah terdaftar ke kelas " + course.getName() + " Semoga ilmu yang akan dipelajari dapat bermanfaat didunia maupun akhirat");
+                            notificationService.sendNotification(user.getEmail(), "Kamu telah terdaftar ke course " + course.getName() + " Semoga ilmu yang akan dipelajari dapat bermanfaat didunia maupun akhirat");
                         } else {
                             response.setError(true);
                             response.setMessage(FAILED_ENROLL_COURSE + courseCode + ". Invalid card details");
@@ -288,6 +287,7 @@ public class CourseServiceImpl implements CourseService {
         try {
             Pageable pageable = PageRequest.of(page, size);
             Page<CourseDto> courseDtoPage = paymentRepository.paymentByUserAndStatusTrue(userService.getEmailUserContext(), pageable);
+            courseDtoPage.forEach(courseDto -> courseDto.setRating(getRating(courseDto.getCode())));
 
             response.setError(false);
             response.setMessage("Success to get courses by user");
@@ -319,10 +319,12 @@ public class CourseServiceImpl implements CourseService {
                 newCourse.setPrice(request.getPrice());
                 newCourse.setDiscount(request.getDiscount());
                 newCourse.setChapters(new ArrayList<>());
+                newCourse.setCreatedAt(LocalDateTime.now());
 
                 courseRepository.save(newCourse);
                 response.setError(false);
                 response.setMessage(ResponseUtils.MESSAGE_SUCCESS_ADD_COURSE);
+                notificationService.sendNotification(userRepository.allUserEmail(Role.USER), "Course "+ newCourse.getName()+ " telah tersedia. Silahkan daftar dan pelajari course");
             } else {
                 response.setError(true);
                 response.setMessage(ResponseUtils.MESSAGE_FAILED_ADD_COURSE + "Course code already exist");
@@ -334,21 +336,27 @@ public class CourseServiceImpl implements CourseService {
         return response;
     }
     @Override
-    public Response<List<CourseDto>> getCoursesByUserAndStatus(String status) {
-        Response<List<CourseDto>> response = new Response<>();
+    public Response<Page<CourseDto>> getCoursesByUserAndStatus(String status, int page) {
+        Response<Page<CourseDto>> response = new Response<>();
+        Pageable pageable = PageRequest.of(page, 10);
         try {
             String email = userService.getEmailUserContext();
-            List<Payment> payments = paymentRepository.paymentByUserAndStatus(email);
-            List<Payment> filteredPayments = payments.stream()
-                    .filter(payment -> isCourseInStatus(payment.getCourse(), CourseStatus.valueOf(status.toUpperCase()), email))
-                    .collect(Collectors.toList());
-            List<CourseDto> courseDtos = filteredPayments.stream()
-                    .map(payment -> convertToDto(payment.getCourse()))
-                    .collect(Collectors.toList());
+            Page<CourseDto> courseDtos = paymentRepository.paymentByUserAndStatusTrue(email, pageable);
+            List<CourseDto> filterCourseDto = courseDtos.stream().filter(courseDto -> {
+                int countDetailChapterDone = courseRepository.getCountDetailChapterDone(courseDto.getCode(), email);
+                int countTotalDetailChapter = courseRepository.getCountDetailChapter(courseDto.getCode());
+                if (status.equals("in_progress")){
+                    return countDetailChapterDone != countTotalDetailChapter || countDetailChapterDone == 0;
+                }else {
+                    return countDetailChapterDone == countTotalDetailChapter && countTotalDetailChapter != 0;
+                }
+            }).collect(Collectors.toList());
+            Page<CourseDto> result = new PageImpl<>(filterCourseDto);
+            result.forEach(courseDto -> courseDto.setRating(getRating(courseDto.getCode())));
 
             response.setError(false);
             response.setMessage(SUCCESS);
-            response.setData(courseDtos);
+            response.setData(result);
         } catch (Exception e) {
             response.setError(true);
             response.setMessage(FAILED);
@@ -356,18 +364,6 @@ public class CourseServiceImpl implements CourseService {
         }
 
         return response;
-    }
-
-    private boolean isCourseInStatus(Course course, CourseStatus status, String userEmail) {
-        int countDetailChapterDone = courseRepository.getCountDetailChapterDone(course.getCode(), userEmail);
-        int countTotalDetailChapter = courseRepository.getCountDetailChapter(course.getCode());
-
-        if (status == CourseStatus.IN_PROGRESS) {
-            return countDetailChapterDone < countTotalDetailChapter;
-        } else if (status == CourseStatus.COMPLETED) {
-            return countDetailChapterDone == countTotalDetailChapter;
-        }
-        return false;
     }
 
     public Response<String> setRating(String courseCode, Integer rating) {
@@ -381,7 +377,7 @@ public class CourseServiceImpl implements CourseService {
                     paymentRepository.save(payment);
                     response.setError(false);
                     response.setMessage(SUCCESS + " set rating to this Course");
-                    notificationService.sendNotification(user.getId(), "Terimakasih telah memberikan rating ke course " + payment.getCourse().getName());
+                    notificationService.sendNotification(user.getEmail(), "Terimakasih telah memberikan rating ke course " + payment.getCourse().getName());
                 } else {
                     response.setError(true);
                     response.setMessage("Failed set rating to this Course");
@@ -421,7 +417,7 @@ public class CourseServiceImpl implements CourseService {
                 // Step 3: Save the updated course to the repository
                 courseRepository.save(existingCourse);
                 if (editedCourseDto.getDiscount() > 0){
-                    notificationService.sendNotification(userRepository.allUserId(Role.USER), "Diskon "+editedCourseDto.getDiscount()+"% untuk course "+editedCourseDto.getName()+ " Buruan beli sekarang");
+                    notificationService.sendNotification(userRepository.allUserEmail(Role.USER), "Diskon "+editedCourseDto.getDiscount()+"% untuk course "+editedCourseDto.getName()+ " Buruan beli sekarang");
                 }
 
                 // Step 4: Return a successful response
@@ -487,6 +483,7 @@ public class CourseServiceImpl implements CourseService {
         dto.setType(course.getType());
         dto.setRating(getRating(course.getCode()));
         dto.setImage(course.getCategory().getImage());
+        dto.setCreatedAt(course.getCreatedAt());
         return dto;
     }
 

@@ -48,7 +48,7 @@ public class CourseController {
         try {
             Response<Page<CourseDto>> response = courseService.listAllCourse(page, size);
             if (response.getError()) {
-                return ResponseEntity.status(500).body(response); // 500 Internal Server Error
+                return ResponseEntity.status(500).body(response);
             } else {
                 return ResponseEntity.ok(response);
             }
@@ -57,7 +57,7 @@ public class CourseController {
             response.setError(true);
             response.setMessage("Internal Server Error");
             response.setData(null);
-            return ResponseEntity.status(500).body(response); // 500 Internal Server Error
+            return ResponseEntity.status(500).body(response);
         }
 
     }
@@ -124,8 +124,8 @@ public class CourseController {
             value = "/user/status",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public ResponseEntity<Response<List<CourseDto>>> getCoursesByUserAndStatus(@RequestParam String status) {
-        return ResponseEntity.ok(courseService.getCoursesByUserAndStatus(status));
+    public ResponseEntity<Response<Page<CourseDto>>> getCoursesByUserAndStatus(@RequestParam String status, @RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok(courseService.getCoursesByUserAndStatus(status, page));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

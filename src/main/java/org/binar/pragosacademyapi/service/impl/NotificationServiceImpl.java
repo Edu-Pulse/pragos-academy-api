@@ -27,38 +27,51 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendNotification(Long userId, String message) {
+    public void sendNotification(String email, String message) {
         executorService.submit(() -> {
-            FirebaseDatabase database = FirebaseDatabase.getInstance();
-            DatabaseReference reference = database.getReference(collectionName);
+            try {
+                FirebaseDatabase database = FirebaseDatabase.getInstance();
+                DatabaseReference reference = database.getReference(collectionName);
 
-            DatabaseReference newNotification = reference.push();
-            Notification notification = Notification.builder()
-                    .sender(appName)
-                    .receiver(userId)
-                    .text(message)
-                    .dateTime(LocalDateTime.now())
-                    .build();
-            newNotification.setValueAsync(notification);
-            log.info(ResponseUtils.MESSAGE_SUCCESS_SEND_NOTIFICATION  + userId);
+                String[] localDateTime = LocalDateTime.now().toString().split("T");
+                String[] time = localDateTime[1].split("\\.");
+
+                DatabaseReference newNotification = reference.push();
+                Notification notification = Notification.builder()
+                        .sender(appName)
+                        .receiver(email)
+                        .text(message)
+                        .dateTime(localDateTime[0]+" "+ time[0])
+                        .build();
+                newNotification.setValueAsync(notification);
+                log.info(ResponseUtils.MESSAGE_SUCCESS_SEND_NOTIFICATION  + email);
+            }catch (Exception e){
+                log.error(e.getMessage());
+            }
         });
     }
     @Override
-    public void sendNotification(List<Long> users, String message) {
+    public void sendNotification(List<String> usersEmail, String message) {
         executorService.submit(() -> {
-           FirebaseDatabase database = FirebaseDatabase.getInstance();
-           DatabaseReference reference = database.getReference(collectionName);
-
-           users.forEach(id -> {
-               DatabaseReference newNotification = reference.push();
-               Notification notification = Notification.builder()
-                       .sender(appName)
-                       .receiver(id)
-                       .text(message)
-                       .dateTime(LocalDateTime.now())
-                       .build();
-               newNotification.setValueAsync(notification);
-           });
+           try {
+               FirebaseDatabase database = FirebaseDatabase.getInstance();
+               DatabaseReference reference = database.getReference(collectionName);
+               String[] localDateTime = LocalDateTime.now().toString().split("T");
+               String[] time = localDateTime[1].split("\\.");
+               usersEmail.forEach(email -> {
+                   DatabaseReference newNotification = reference.push();
+                   Notification notification = Notification.builder()
+                           .sender(appName)
+                           .receiver(email)
+                           .text(message)
+                           .dateTime(localDateTime[0]+" "+ time[0])
+                           .build();
+                   newNotification.setValueAsync(notification);
+                   log.info("Success send notification to user with email "+ email);
+               });
+           }catch (Exception e){
+               log.error(e.getMessage());
+           }
         });
     }
 }
