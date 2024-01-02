@@ -397,13 +397,10 @@ public class CourseServiceImpl implements CourseService {
     public Response<CourseDto> editCourse(String courseId, EditCourseDto editedCourseDto) {
         Response<CourseDto> response = new Response<>();
         try {
-            // Step 1: Retrieve the existing course
             Optional<Course> optionalCourse = courseRepository.findById(courseId);
 
             if (optionalCourse.isPresent()) {
                 Course existingCourse = optionalCourse.get();
-
-                // Step 2: Update the existing course with the information from editedCourseDto
                 existingCourse.setName(editedCourseDto.getName());
                 existingCourse.setDescription(editedCourseDto.getDescription());
                 existingCourse.setIntended(editedCourseDto.getIntended());
@@ -412,26 +409,21 @@ public class CourseServiceImpl implements CourseService {
                 existingCourse.setType(Type.valueOf(editedCourseDto.getType().toUpperCase()));
                 existingCourse.setPrice(editedCourseDto.getPrice());
                 existingCourse.setDiscount(editedCourseDto.getDiscount());
-                // ... (update other fields as needed)
 
-                // Step 3: Save the updated course to the repository
                 courseRepository.save(existingCourse);
                 if (editedCourseDto.getDiscount() > 0){
                     notificationService.sendNotification(userRepository.allUserEmail(Role.USER), "Diskon "+editedCourseDto.getDiscount()+"% untuk course "+editedCourseDto.getName()+ " Buruan beli sekarang");
                 }
 
-                // Step 4: Return a successful response
                 response.setError(false);
                 response.setMessage(ResponseUtils.MESSAGE_SUCCESS_UPDATE_DATA_COURSE + courseId);
                 response.setData(convertToDto(existingCourse));
             } else {
-                // The course with the provided courseId was not found
                 response.setError(true);
                 response.setMessage(FAILED_GET_DATA_COURSE + courseId);
                 response.setData(null);
             }
         } catch (Exception e) {
-            // Log the exception or handle it as needed
             log.error("Error editing course with ID " + courseId, e);
 
             response.setError(true);
