@@ -26,26 +26,13 @@ public class CourseDto {
     private Float rating = 0f;
     private LocalDateTime createdAt;
 
-    public CourseDto(String code, String image, String category, String name, String description,String intended, String lecturer, Level level, Type type, Integer price, Integer discount){
-        this.code = code;
-        this.image = image;
-        this.category = category;
-        this.name = name;
-        this.description = description;
-        this.intended = intended;
-        this.lecturer = lecturer;
-        this.level = level;
-        this.type = type;
-        this.price = price;
-        this.discount = discount;
-    }
-
     public CourseDto(String code, String image, String category, String name, String description, String lecturer, Level level, Type type, Integer price, Integer discount, LocalDateTime createdAt){
         this.code = code;
         this.image = image;
         this.category = category;
         this.name = name;
         this.description = description;
+        this.intended = intended;
         this.lecturer = lecturer;
         this.level = level;
         this.type = type;
