@@ -108,7 +108,7 @@ public class AuthenticationController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
-    @GetMapping(
+    @PostMapping(
             value = "/user/logout",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
