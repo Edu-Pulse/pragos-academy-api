@@ -1,9 +1,7 @@
 package org.binar.pragosacademyapi.service.impl;
 
 import org.binar.pragosacademyapi.entity.dto.PaymentDto;
-import org.binar.pragosacademyapi.entity.dto.PaymentUserDto;
 import org.binar.pragosacademyapi.entity.response.Response;
-import org.binar.pragosacademyapi.enumeration.Level;
 import org.binar.pragosacademyapi.enumeration.Type;
 import org.binar.pragosacademyapi.repository.PaymentRepository;
 import org.binar.pragosacademyapi.utils.ResponseUtils;
@@ -25,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
