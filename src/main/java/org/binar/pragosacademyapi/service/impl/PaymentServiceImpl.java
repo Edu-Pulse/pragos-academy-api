@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -22,6 +23,7 @@ public class PaymentServiceImpl implements PaymentService {
         this.paymentRepository = paymentRepository;
         this.userService = userService;
     }
+    @Transactional(readOnly = true)
     @Override
     public Response<Page<PaymentDto>> getPaymentsByType(int page) {
         Response<Page<PaymentDto>> response = new Response<>();
@@ -42,6 +44,7 @@ public class PaymentServiceImpl implements PaymentService {
         return response;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Response<Page<PaymentDto>> searchPaymentsByCourseName(String courseName, int page) {
         Pageable pageable = PageRequest.of(page, 10);

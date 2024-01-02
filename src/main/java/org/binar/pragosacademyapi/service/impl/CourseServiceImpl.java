@@ -61,6 +61,7 @@ public class CourseServiceImpl implements CourseService {
         this.notificationService = notificationService;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Response<Page<CourseDto>> listAllCourse(int page, int size) {
         Response<Page<CourseDto>> response = new Response<>();
@@ -84,7 +85,7 @@ public class CourseServiceImpl implements CourseService {
         return response;
     }
 
-
+    @Transactional(readOnly = true)
     @Override
     public Response<CourseDetailDto> courseDetail(String courseCode) {
         Response<CourseDetailDto> response = new Response<>();
@@ -281,6 +282,7 @@ public class CourseServiceImpl implements CourseService {
         return response;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Response<Page<CourseDto>> getCoursesByUserAll(int page, int size) {
         Response<Page<CourseDto>> response = new Response<>();
@@ -335,6 +337,7 @@ public class CourseServiceImpl implements CourseService {
         }
         return response;
     }
+    @Transactional(readOnly = true)
     @Override
     public Response<Page<CourseDto>> getCoursesByUserAndStatus(String status, int page) {
         Response<Page<CourseDto>> response = new Response<>();
@@ -366,6 +369,7 @@ public class CourseServiceImpl implements CourseService {
         return response;
     }
 
+    @Override
     public Response<String> setRating(String courseCode, Integer rating) {
         Response<String> response = new Response<>();
         try {
