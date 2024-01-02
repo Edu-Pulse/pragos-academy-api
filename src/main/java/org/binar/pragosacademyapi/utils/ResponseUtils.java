@@ -17,4 +17,5 @@ public class ResponseUtils {
     public static final String MESSAGE_SUCCESS_UPDATE_USER = "Success update data User with id: ";
     public static final String MESSAGE_FAILED_UPDATE_USER = "Failed update data User with id: ";
     public static final String MESSAGE_SUCCESS_UPDATE_USER_NOTIFICATION = "Data kamu berhasil diupdate";
+    public static final String MESSAGE_FAILED_GET_DATA_PAYMENTS = "Failed to get data payments";
 }
