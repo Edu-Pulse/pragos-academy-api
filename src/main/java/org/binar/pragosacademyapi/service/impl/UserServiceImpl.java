@@ -36,6 +36,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
 
 @Slf4j
 @Service
@@ -50,6 +51,7 @@ public class UserServiceImpl implements UserService {
     private final NotificationService notificationService;
     private final CloudinaryService cloudinaryService;
     private final CourseRepository courseRepository;
+    private final ExecutorService executorService;
     private static final String MESSAGE_SUCCESS = ResponseUtils.MESSAGE_SUCCESS;
     private static final String MESSAGE_FAILED = ResponseUtils.MESSAGE_FAILED;
     private static final String FAILED = ResponseUtils.FAILED;
@@ -65,7 +67,9 @@ public class UserServiceImpl implements UserService {
                            DetailChapterRepository detailChapterRepository,
                            NotificationService notificationService,
                            CloudinaryService cloudinaryService,
-                           CourseRepository courseRepository){
+                           CourseRepository courseRepository,
+                           ExecutorService executorService
+                           ){
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
         this.userRepository = userRepository;
         this.mailSender = mailSender;
@@ -75,6 +79,7 @@ public class UserServiceImpl implements UserService {
         this.notificationService = notificationService;
         this.cloudinaryService = cloudinaryService;
         this.courseRepository = courseRepository;
+        this.executorService = executorService;
     }
 
     @Value("${app.name}")
@@ -85,6 +90,7 @@ public class UserServiceImpl implements UserService {
     private String baseUrlFe;
     private final Random random = new Random();
 
+    @Transactional(readOnly = true)
     @Override
     public Response<UserDto> getProfile() {
         Response<UserDto> response = new Response<>();
@@ -458,14 +464,20 @@ public class UserServiceImpl implements UserService {
     }
 
     private void sendMail(String email, String subject, String content) throws MessagingException, UnsupportedEncodingException {
-        MimeMessage message = mailSender.createMimeMessage();
-        MimeMessageHelper helper = new MimeMessageHelper(message);
+        executorService.submit(() -> {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message);
 
-        helper.setFrom(emailSmtp, appName);
-        helper.setTo(email);
-        helper.setSubject(subject);
-        helper.setText(content, true);
-        mailSender.send(message);
+            try {
+                helper.setFrom(emailSmtp, appName);
+                helper.setTo(email);
+                helper.setSubject(subject);
+                helper.setText(content, true);
+                mailSender.send(message);
+            }catch (Exception e){
+                log.error(e.getMessage());
+            }
+        });
     }
 
     protected String getEmailUserContext(){
