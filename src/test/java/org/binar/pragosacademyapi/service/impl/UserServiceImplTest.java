@@ -48,7 +48,7 @@ class UserServiceImplTest {
         Mockito.verify(userRepository, Mockito.times(1)).findByEmail("Joko@email.com");
         assertNotNull(getProfile);
         assertFalse(getProfile.getError());
-        assertEquals("Berhasil", getProfile.getMessage());
+        assertEquals("Success", getProfile.getMessage());
         assertNotNull(getProfile.getData());
         assertEquals("Joko WIdodo", getProfile.getData().getName());
         assertEquals("Joko@email.com", getProfile.getData().getEmail());
