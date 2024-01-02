@@ -16,6 +16,8 @@ public class WebConfig extends WebMvcConfigurerAdapter {
     private String baseUrlLocal;
     @Value("${base.url.fe.production}")
     private String baseUrlProduction;
+    @Value("${base.url.api}")
+    private String baseUrlApi;
     @Override
     public void addCorsMappings(CorsRegistry registry) {
 
@@ -33,6 +35,6 @@ public class WebConfig extends WebMvcConfigurerAdapter {
                         HttpMethod.DELETE.name()
                 )
                 .allowCredentials(true)
-                .allowedOrigins(baseUrlLocal, baseUrlProduction);
+                .allowedOrigins(baseUrlLocal, baseUrlProduction, baseUrlApi);
     }
 }
